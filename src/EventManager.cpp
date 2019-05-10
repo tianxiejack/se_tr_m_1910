@@ -39,7 +39,7 @@ void CEventManager::MSG_register()
 
 void CEventManager::MSG_Trk(void* p)
 {
-	_State->ToStateTrk();
+
 }
 void CEventManager::MSG_SwitchSensor(void* p)
 {
