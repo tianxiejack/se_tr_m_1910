@@ -40,7 +40,7 @@ class CjoyStick
 public:
 	CjoyStick();
 	~CjoyStick();
-	unsigned char jos_data[64];
+	static int readJoystickEvent();
 private:
 	bool exit_js;
 	static CjoyStick* pThis;
@@ -49,7 +49,6 @@ private:
 	struct libusb_device_descriptor dev_desc;
 	int init();
 	void JsProcess();
-	static int readJoystickEvent();
 	int get_device_descriptor(struct libusb_device_descriptor *dev_desc,struct userDevice *user_device);
 	int get_device_endpoint(struct libusb_device_descriptor *dev_desc,struct userDevice *user_device);
 	int match_with_endpoint(const struct libusb_interface_descriptor * interface, struct userDevice *user_device);
