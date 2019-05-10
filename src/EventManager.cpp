@@ -39,7 +39,7 @@ void CEventManager::MSG_register()
 
 void CEventManager::MSG_Trk(void* p)
 {
-
+printf("11111111  \n");
 }
 void CEventManager::MSG_SwitchSensor(void* p)
 {

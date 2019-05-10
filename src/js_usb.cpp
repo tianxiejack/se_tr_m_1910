@@ -5,21 +5,17 @@
  *      Author: yd
  */
 #include "js_usb.hpp"
-CjoyStick* CjoyStick::pThis = NULL;
-unsigned char jos_data[64];
+
 CjoyStick::CjoyStick()
 {
-	pThis = this;
-	exit_js = false;
 	g_usb_handle = NULL;
 	memset(jos_data, 0, sizeof(jos_data));
 	init();
-	//JsProcess();
 }
 
 CjoyStick::~CjoyStick()
 {
-	exit_js = true;
+
 }
 
 int CjoyStick::init()
@@ -67,21 +63,7 @@ int CjoyStick::init()
 		return 0;
 }
 
-void CjoyStick::JsProcess()
-{
-	std::thread js(readJoystickEvent);
-}
-
-int CjoyStick::readJoystickEvent()
-{
-	while(!pThis->exit_js)
-	{
-		pThis->JoystickProcess();
-	}
-	return 0;
-}
-
-int CjoyStick::JoystickProcess()
+unsigned char* CjoyStick::JoystickProcess()
 {
 	int rv;
 	int length;
@@ -90,7 +72,7 @@ int CjoyStick::JoystickProcess()
 	if(rv < 0)
 	{
 		printf("*** bulk_transfer failed!   rv = %d \n",rv);
-		return -1;
+		return (unsigned char*)-1;
 	}
 #if 0
 	else
@@ -100,7 +82,7 @@ int CjoyStick::JoystickProcess()
 		putchar(10);
 	}
 #endif
-	return 0;
+	return jos_data;
 }
 
 int CjoyStick::get_device_endpoint(struct libusb_device_descriptor *dev_desc,struct userDevice *user_device)

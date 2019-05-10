@@ -29,6 +29,7 @@
 								<option id="nvcc.compiler.pic.1916355016" name="Position Independent Code (-fPIC)" superClass="nvcc.compiler.pic"/>
 								<option id="nvcc.compiler.include.paths.1735193650" name="Include paths (-I)" superClass="nvcc.compiler.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/usr/local/include"/>
+									<listOptionValue builtIn="false" value="../src/OSA_CAP/inc"/>
 									<listOptionValue builtIn="false" value="../inc/"/>
 								</option>
 								<option id="nvcc.compiler.cpp11option.1327409701" name="Enable C++11 support (-std=c++11)" superClass="nvcc.compiler.cpp11option" value="true" valueType="boolean"/>
@@ -61,6 +62,7 @@
 					<sass major="5" minor="3"/>
 					<ptx major="5" minor="3"/>
 				</executable>
+				<editor-arch major="5" minor="3"/>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 		</cconfiguration>
@@ -92,8 +94,8 @@
 								<option id="nvcc.compiler.pic.1405961918" name="Position Independent Code (-fPIC)" superClass="nvcc.compiler.pic"/>
 								<option id="nvcc.compiler.include.paths.1503258133" name="Include paths (-I)" superClass="nvcc.compiler.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/usr/local/include"/>
-									<listOptionValue builtIn="false" value="../inc/"/>
 									<listOptionValue builtIn="false" value="../src/OSA_CAP/inc"/>
+									<listOptionValue builtIn="false" value="../inc/"/>
 								</option>
 								<option id="nvcc.compiler.cpp11option.1710425235" name="Enable C++11 support (-std=c++11)" superClass="nvcc.compiler.cpp11option" value="true" valueType="boolean"/>
 								<inputType id="nvcc.compiler.input.cu.592981250" superClass="nvcc.compiler.input.cu"/>

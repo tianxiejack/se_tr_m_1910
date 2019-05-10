@@ -7,12 +7,14 @@
 #include "eventParsing.hpp"
 
 CEventParsing* CEventParsing::pThis = NULL;
-extern unsigned char jos_data[64];
+
 CEventParsing::CEventParsing()
 {
+	js_data = NULL;
 	pThis = this;
 	exit_jsParsing = false;
 	_Msg = CMessage::getInstance();
+	_Js = new CjoyStick();
 }
 
 CEventParsing::~CEventParsing()
@@ -26,11 +28,12 @@ void CEventParsing::thread_jsEvent()
 {
 	while(!pThis->exit_jsParsing)
 	{
-		pThis->parsingJostickEvent();
+		pThis->js_data = pThis->_Js->JoystickProcess();
+		pThis->parsingJostickEvent(pThis->js_data);
 	}
 }
 
-void CEventParsing::parsingJostickEvent()
+void CEventParsing::parsingJostickEvent(unsigned char* jos_data)
 {
 	static int povbak=0, butbak=0, xBak=0, yBak=0;
 

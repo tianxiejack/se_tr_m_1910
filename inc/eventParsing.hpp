@@ -140,13 +140,14 @@ class CEventParsing
 public:
 	CEventParsing();
 	~CEventParsing();
+	CjoyStick* _Js;
 	CMessage* _Msg;
 	static void thread_jsEvent();
-
 private:
 	static CEventParsing* pThis;
 	bool exit_jsParsing;
-	void parsingJostickEvent();
+	unsigned char* js_data;
+	void parsingJostickEvent(unsigned char* jos_data);
 
 };
 
