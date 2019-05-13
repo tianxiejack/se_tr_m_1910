@@ -9,7 +9,11 @@
 #define EVENTPARSING_HPP_
 #include <iostream>
 #include "js_usb.hpp"
+#include "PortFactory.hpp"
 #include "CMessage.hpp"
+#include <vector>
+#include  "osa_thr.h"
+#include "osa_mutex.h"
 
 using namespace std;
 
@@ -17,6 +21,9 @@ using namespace std;
 #define AXIS_Y 1
 #define POV_BUTTON 5
 #define BUTTON 6
+
+#define    RECV_BUF_SIZE   1024
+#define  TIME_FOR_THREAD_END 3
 
 typedef enum
 {
@@ -135,6 +142,13 @@ typedef enum _sys_msg_id_ {
     MAX_MSG_NUM
 }eSysMsgId, MSG_PROC_ID;
 
+typedef struct{
+	int connfd;
+	bool bConnecting;
+    	OSA_ThrHndl getDataThrID;
+    	OSA_ThrHndl sendDataThrID;
+}CConnectVECTOR;
+
 class CEventParsing
 {
 public:
@@ -145,9 +159,29 @@ public:
 	static void thread_jsEvent();
 private:
 	static CEventParsing* pThis;
-	bool exit_jsParsing;
+	bool exit_jsParsing,exit_comParsing,exit_netParsing;
 	unsigned char* js_data;
 	void parsingJostickEvent(unsigned char* jos_data);
+
+
+
+
+public:
+	static void thread_comrecvEvent();
+	static void thread_comsendEvent();
+	static void thread_Getaccept();
+	static int thread_ReclaimConnect();
+private:
+	void parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, int method);
+	int parsingComEvent(int method);
+	unsigned char check_sum(int len_t);
+	static void *thread_netrecvEvent(void *p);
+private:
+	int comfd;
+	CPortInterface *pCom1, *pCom2;
+	vector<unsigned char>  rcvBufQue;
+	vector<CConnectVECTOR *>  connetVector;
+	OSA_MutexHndl mutexConn;
 
 };
 
