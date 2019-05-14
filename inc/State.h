@@ -12,7 +12,7 @@
 #include <sys/time.h>
 #include "PTZ_control.h"
 #include "StateManger.h"
-
+#include "platformControl.h"
 
 typedef struct
 {
@@ -50,6 +50,8 @@ private:
 	int curState;
 	char curValidChid;
 	selectCh_t selectch;
+	CPlatformInterface* m_Platform;
+	
 };
 
 class StateConvention:public State

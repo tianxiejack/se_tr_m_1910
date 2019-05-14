@@ -12,6 +12,8 @@ State::State()
 	curValidChid = selectch.idx;
 	_agreement = new IPelcoDFormat();
 	_ptz = new CPTZControl(_agreement);
+
+	m_Platform = new CplatFormControl();
 }
 
 State::~State()
