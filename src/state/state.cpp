@@ -13,6 +13,7 @@ State::State()
 	_agreement = new IPelcoDFormat();
 	_ptz = new CPTZControl(_agreement);
 	_ptz->Create();
+	m_Platform = new CplatFormControl();
 }
 
 State::~State()
