@@ -287,7 +287,7 @@ void CEventParsing::parsingJostickEvent(unsigned char* jos_data)
 	}
 }
 
-void CEventParsing::parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, int method)
+void CEventParsing::parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, int fd)
 {
 	unsigned int uartdata_pos = 0;
 	unsigned char frame_head[]={0xEB, 0x53};
@@ -304,7 +304,7 @@ void CEventParsing::parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, int met
 	uartdata_pos = 0;
 	if(sizeRcv>0)
 	{
-		printf("------------------(fd:%d)Uart start recv date---------------------\n",method);
+		printf("------------------(fd:%d)Uart start recv date---------------------\n",fd);
 		for(int j=0;j<sizeRcv;j++)
 		{
 			printf("%02x ",tmpRcvBuff[j]);
@@ -342,7 +342,7 @@ void CEventParsing::parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, int met
 						{
 							rcvBufQue.push_back(swap_data.buf[i]);
 						}
-						parsingComEvent(method);
+						parsingComEvent(fd);
 						memset(&swap_data, 0, sizeof(struct data_buf));
 					}
 				}
@@ -351,11 +351,17 @@ void CEventParsing::parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, int met
 	}
 }
 
-int CEventParsing::parsingComEvent(int method)
+int CEventParsing::parsingComEvent(int fd)
 {
-
 	int ret =  -1;
 	int cmdLength= (rcvBufQue.at(2)|rcvBufQue.at(3)<<8)+5;
+	int block, field;
+	float value;
+	Set_config_t settmp;
+	Get_config_t gettmp;
+	osdbuffer_t osdtmp;
+	unsigned char tempbuf[4];
+	unsigned char contentBuff[128]={0};
 
 	if(cmdLength<6)
 	{
@@ -367,10 +373,124 @@ int CEventParsing::parsingComEvent(int method)
 
     	if(checkSum== rcvBufQue.at(cmdLength-1))
     	{	
+    		ComParams.fd = fd;
         		switch(rcvBufQue.at(4))
         		{
             		case 0x01:
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SELFCHECK, NULL);
                 			break;
+			case 0x02:
+				ComParams.displaychid = rcvBufQue.at(5);
+				ComParams.capturechid = rcvBufQue.at(6);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SWITCHSENSOR, &ComParams);
+				break;
+			case 0x03:
+				ComParams.workmode = rcvBufQue.at(5);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_WORKMODE, &ComParams);
+				break;
+			case 0x04:
+				ComParams.capturemode = rcvBufQue.at(5);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_CAPTUREMODE, &ComParams);
+				break;
+			case 0x05:
+				ComParams.trkctrl = rcvBufQue.at(5);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_TRACKCTRL, &ComParams);
+				break;
+			case 0x06:
+				ComParams.trkmove = rcvBufQue.at(5);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_TRKMOVE, &ComParams);
+				break;
+			case 0x07:
+				ComParams.sectrkctrl = rcvBufQue.at(5);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SECTRKCTRL, &ComParams);
+				break;
+			case 0x08:
+				ComParams.sectrkx = rcvBufQue.at(5) |(rcvBufQue.at(6) << 8);
+				ComParams.sectrky = rcvBufQue.at(7) |(rcvBufQue.at(8) << 8);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SECTRKPOS, &ComParams);
+				break;
+			case 0x09:
+				ComParams.mtdselect = rcvBufQue.at(5);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_MTDSELECT, &ComParams);
+				break;
+			case 0x0a:
+				ComParams.gatemove = rcvBufQue.at(5);
+				ComParams.gatestepx = rcvBufQue.at(6) |(rcvBufQue.at(7) << 8);
+				ComParams.gatestepy = rcvBufQue.at(8) |(rcvBufQue.at(9) << 8);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_GATEMOVE, &ComParams);
+				break;
+			case 0x0C:
+				ComParams.zoomctrl = rcvBufQue.at(5);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_ZOOMCTRL, &ComParams);
+				break;
+			case 0x0D:
+				ComParams.aperturectrl = rcvBufQue.at(5);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_APERTURECTRL, &ComParams);
+				break;
+			case 0x0E:
+				ComParams.focusctrl = rcvBufQue.at(5);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_FOCUSCTRL, &ComParams);
+				break;
+			case 0x0F:
+				ComParams.platspeedx = rcvBufQue.at(5) |(rcvBufQue.at(6) << 8);
+				ComParams.platspeedy = rcvBufQue.at(7) |(rcvBufQue.at(8) << 8);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SETPLATSPEED, &ComParams);
+				break;
+			case 0x10:
+				ComParams.platanglex = rcvBufQue.at(5) |(rcvBufQue.at(6) << 8);
+				ComParams.platangley = rcvBufQue.at(7) |(rcvBufQue.at(8) << 8);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SETPLATANGLE, &ComParams);
+				break;
+			case 0x11:
+				ComParams.presetpos = rcvBufQue.at(5);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_PRESETPOS, &ComParams);
+				break;
+			case 0x12:
+				ComParams.setzoom = rcvBufQue.at(5) |(rcvBufQue.at(6) << 8);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SETZOOM, &ComParams);
+				break;
+			case 0x41:
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_GETPLATANGLE, NULL);
+				break;
+			case 0x42:
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_GETZOOM, NULL);
+				break;
+			case 0x43:
+				ComParams.trkoutput = rcvBufQue.at(5);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_TRKOUTPUT, &ComParams);
+				break;
+			case 0x51:
+				settmp.block= rcvBufQue.at(5);
+				settmp.field= rcvBufQue.at(6);
+				for(int m = 7; m < 11; m++)
+					tempbuf[m-7]  = rcvBufQue.at(m);
+				memcpy(&settmp.value, tempbuf, 4);
+				ComParams.setConfigQueue.push_back(settmp);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SETCFG, &ComParams);
+				break;
+			case 0x52:
+				gettmp.block = rcvBufQue.at(5);
+				gettmp.field = rcvBufQue.at(6);
+				ComParams.getConfigQueue.push_back(gettmp);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_GETCFG, &ComParams);
+				break;
+			case 0x53:
+				osdtmp.osdID = rcvBufQue.at(5);
+				osdtmp.type = rcvBufQue.at(6);
+				for(int i = 0; i < cmdLength -8; i++){
+					osdtmp.buf[i]= rcvBufQue.at(7+i);
+				}
+				ComParams.setosd = osdtmp;
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SETOSD, &ComParams);
+				break;
+			case 0x54:
+				block = rcvBufQue.at(5);
+				ComParams.defConfigQueue.push_back(block);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_DEFAULTCFG, &ComParams);
+				break;
+			case 0x57:
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SAVECFG, NULL);
+				break;
             		default:
                			 printf("INFO: Unknow  Control Command, please check!!!\r\n ");
                 			ret =0;
@@ -379,6 +499,7 @@ int CEventParsing::parsingComEvent(int method)
     	}
     	else
         		printf("%s,%d, checksum error:,cal is %02x,recv is %02x\n",__FILE__,__LINE__,checkSum,rcvBufQue.at(cmdLength-1));
+		
 	rcvBufQue.erase(rcvBufQue.begin(),rcvBufQue.begin()+cmdLength);
 	return 1;
 

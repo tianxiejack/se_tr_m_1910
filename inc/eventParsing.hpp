@@ -59,88 +59,47 @@ typedef enum
 }js_pov;
 
 typedef enum _sys_msg_id_ {
-    MSGID_SYS_INIT  = 0,
-    MSGID_SYS_RESET,
-    MSGID_EXT_INPUT_TRACKCTRL,
-    MSGID_EXT_INPUT_SwitchSensor,
-    MSGID_EXT_INPUT_ZOOMLONGCTRL,
-    MSGID_EXT_INPUT_ZOOMSHORTCTRL,
-    MSGID_EXT_INPUT_TRACKSEARCHCTRL,
-    MSGID_EXT_INPUT_captureMode,
-    MSGID_EXT_INPUT_IrisAndFocusAndExit,
-    MSGID_EXT_INPUT_workMode,
-    MSGID_EXT_INPUT_JOSPOS,
-    MSGID_EXT_INPUT_POVPOSX,
-    MSGID_EXT_INPUT_POVPOSY,
-    MSGID_EXT_INPUT_MTDMode,
-    MSGID_EXT_INPUT_IRISUPCTRL,
-    MSGID_EXT_INPUT_IRISDOWNCTRL,
-    MSGID_EXT_INPUT_FOCUSFARCHCTRL,
-    MSGID_EXT_INPUT_FOCUSNEARCTRL,
-    MSGID_EXT_INPUT_IMGENHCTRL,
-    MSGID_EXT_INPUT_MMTCRTL,
-    MSGID_EXT_INPUT_MMTSelect,
-    MSGID_EXT_INPUT_MtdPreset,
-    MSGID_EXT_INPUT_configWrite,
-    MSGID_EXT_INPUT_configWrite_Save,
-    MSGID_EXT_INPUT_config_Read,
-    MSGID_EXT_INPUT_kboard,
-    MSGID_EXT_INPUT_OSD,
-    MSGID_EXT_INPUT_PRMBACK,
-    MSGID_EXT_INPUT_zoomSpeed,
-    MSGID_EXT_INPUT_sceneTrk,
-    MSGID_EXT_INPUT_MtdAreaBox,
-    MSGID_EXT_INPUT_CallPreset,
-    MSGID_EXT_INPUT_setPan,
-    MSGID_EXT_INPUT_setTilt,
-    MSGID_EXT_INPUT_setZoom,
-    MSGID_EXT_INPUT_queryPan,
-    MSGID_EXT_INPUT_queryTilt,
-    MSGID_EXT_INPUT_queryZoom,
-    MSGID_EXT_INPUT_setPreset,
-    MSGID_EXT_INPUT_goToPreset,
-    test_ptz_left,
-    test_ptz_right,
-    test_ptz_stop,
+    	MSGID_SYS_INIT  = 0,
+   	MSGID_EXT_INPUT_TRACKCTRL,
+	MSGID_EXT_INPUT_SwitchSensor,
+	MSGID_EXT_INPUT_ZOOMLONGCTRL,
+    	MSGID_EXT_INPUT_ZOOMSHORTCTRL,
+    	MSGID_EXT_INPUT_TRACKSEARCHCTRL,
+    	MSGID_EXT_INPUT_captureMode,
+    	MSGID_EXT_INPUT_IrisAndFocusAndExit,
+    	MSGID_EXT_INPUT_workMode,
+    	MSGID_EXT_INPUT_JOSPOS,
+    	MSGID_EXT_INPUT_POVPOSX,
+    	MSGID_EXT_INPUT_POVPOSY,
 
-    MSGID_IPC_INPUT_TRACKCTRL,
-    MSGID_IPC_INPUT_MTDCTRL,
-    MSGID_IPC_INPUT_MMTCRTL,
-    MSGID_IPC_INPUT_IMGENHCTRL,
-    MSGID_IPC_INPUT_TRCKBOXSIZECTRL,
-    MSGID_IPC_MainElectronicZoom,
-    MSGID_IPC_Config,
-    MSGID_IPC_UserOSD,
-    MSGID_IPC_BoxOSD,
-    MSGID_IPC_OSDTEXT,
-    MSGID_IPC_UTC,
-    MSGID_IPC_LOSTTIME,
-    MSGID_IPC_WORDFONT,
-    MSGID_IPC_WORDSIZE,
-    MSGID_IPC_Camera,
-    MSGID_IPC_Channel_binding,
-    MSGID_IPC_AxisMove,
-    MSGID_IPC_saveAxis,
-    MSGID_IPC_picp,
-    MSGID_IPC_chooseVideoChannel,
-    MSGID_IPC_frameCtrl,
-    MSGID_IPC_compression_quality,
-    MSGID_IPC_word,
-    MSGID_IPC_BoresightPos,
-    MSGID_IPC_Algosdrect,
-    MSGID_IPC_switchSensor,
-    MSGID_IPC_AutoMtd,
-    MSGID_IPC_Mtdoutput,
-    MSGID_IPC_Mtdpolar,
-    MSGID_IPC_QueryPos,
-    MSGID_IPC_INPUT_Pos,
-    MSGID_IPC_INPUT_PosAndZoom,
-    MSGID_IPC_INPUT_NameAndPos,
-    MSGID_EXT_INPUT_fontsize,
-    MSGID_IPC_INPUT_reset_swtarget_timer,
-    MSGID_IPC_INPUT_ballparam,
-    MAX_MSG_NUM
-}eSysMsgId, MSG_PROC_ID;
+	MSGID_COM_INPUT_SELFCHECK,
+	MSGID_COM_INPUT_SWITCHSENSOR,
+	MSGID_COM_INPUT_WORKMODE,
+	MSGID_COM_INPUT_CAPTUREMODE,
+	MSGID_COM_INPUT_TRACKCTRL,
+	MSGID_COM_INPUT_TRKMOVE,
+	MSGID_COM_INPUT_SECTRKCTRL,
+	MSGID_COM_INPUT_SECTRKPOS,
+	MSGID_COM_INPUT_MTDSELECT,
+	MSGID_COM_INPUT_GATEMOVE,
+	MSGID_COM_INPUT_ZOOMCTRL,
+	MSGID_COM_INPUT_APERTURECTRL,
+	MSGID_COM_INPUT_FOCUSCTRL,
+	MSGID_COM_INPUT_SETPLATSPEED,
+	MSGID_COM_INPUT_SETPLATANGLE,
+	MSGID_COM_INPUT_PRESETPOS,
+	MSGID_COM_INPUT_SETZOOM,
+	MSGID_COM_INPUT_GETPLATANGLE,
+	MSGID_COM_INPUT_GETZOOM,
+	MSGID_COM_INPUT_TRKOUTPUT,
+	MSGID_COM_INPUT_SETCFG,
+	MSGID_COM_INPUT_GETCFG,
+	MSGID_COM_INPUT_SETOSD,
+	MSGID_COM_INPUT_DEFAULTCFG,
+	MSGID_COM_INPUT_SAVECFG,
+
+    	MAX_MSG_NUM
+}MSG_PROC_ID;
 
 typedef struct{
 	int connfd;
@@ -148,6 +107,55 @@ typedef struct{
     	OSA_ThrHndl getDataThrID;
     	OSA_ThrHndl sendDataThrID;
 }CConnectVECTOR;
+
+typedef struct{
+	int block;
+	int field;
+	float value;
+}Set_config_t;
+
+typedef struct{
+	int block;
+	int field;
+}Get_config_t;
+
+typedef struct
+{
+	volatile unsigned char osdID;
+	volatile unsigned char type;
+	volatile unsigned char buf[128];
+}osdbuffer_t;
+
+typedef struct{
+	int fd;
+	int displaychid;
+	int capturechid;
+	int workmode;
+	int capturemode;
+	int trkctrl;
+	int trkmove;
+	int sectrkctrl;
+	short sectrkx;
+	short sectrky;
+	int mtdselect;
+	int gatemove;
+	unsigned short gatestepx;
+	unsigned short gatestepy;
+	int zoomctrl;
+	int aperturectrl;
+	int focusctrl;
+	short platspeedx;
+	short platspeedy;
+	unsigned short platanglex;
+	unsigned short platangley;
+	int presetpos;
+	unsigned short setzoom;
+	int trkoutput;
+	vector<Set_config_t>  setConfigQueue;
+	vector<Get_config_t>  getConfigQueue;
+	vector<int>  defConfigQueue;
+	osdbuffer_t setosd;
+}ComParams_t;
 
 class CEventParsing
 {
@@ -172,10 +180,12 @@ public:
 	static void thread_Getaccept();
 	static int thread_ReclaimConnect();
 private:
-	void parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, int method);
-	int parsingComEvent(int method);
+	void parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, int fd);
+	int parsingComEvent(int fd);
 	unsigned char check_sum(int len_t);
 	static void *thread_netrecvEvent(void *p);
+public:
+	ComParams_t ComParams;
 private:
 	int comfd;
 	CPortInterface *pCom1, *pCom2;
