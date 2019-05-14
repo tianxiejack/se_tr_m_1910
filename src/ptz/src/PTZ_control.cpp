@@ -11,7 +11,7 @@
 unsigned char trackBuf[10];
 CPTZControl* CPTZControl::pThis = 0;
 
-CPTZControl::CPTZControl(AgreeMentBaseFormat* _imp):m_port(NULL), exitQuery_X(false), exitQuery_Y(false), exitQueryzoom(false)
+CPTZControl::CPTZControl(AgreeMentBaseFormat* _imp):pCom(NULL), exitQuery_X(false), exitQuery_Y(false), exitQueryzoom(false)
 {
 
 	m_bStopZoom = false;
@@ -52,20 +52,25 @@ CPTZControl::~CPTZControl()
 
 int CPTZControl::Create()
 {
-	m_byAddr = _GlobalDate->m_uart_params.balladdress;
+	m_byAddr = balladdress;
 	m_pReq = (LPPELCO_D_REQPKT)sendBuffer;
 	m_pReqMove = (LPPELCO_D_REQPKT)sendBuffer1;
 	m_pResp = (LPPELCO_D_RESPPKT)recvBuffer;
 
-	ptzUart_Creat();
-    OSA_mutexCreate(&m_mutex);
-    OSA_semCreate(&m_sem, 1, 0);
-    exitDataInThread = false;
-    OSA_thrCreate(&thrHandleDataIn, port_dataInFxn,  DATAIN_TSK_PRI, DATAIN_TSK_STACK_SIZE, this);
-    exitThreadMove = false;
-    OSA_thrCreate(&thrHandleMove,MoveThrdFxn, DATAIN_TSK_PRI, DATAIN_TSK_STACK_SIZE, this);
+	pCom = PortFactory::createProduct(3);
+	fd_ptz = pCom->copen();
+	printf("fd_ptz = %d \n", fd_ptz);
 
-    DXTimerCreat();
+	if(pCom != NULL)
+	{
+		OSA_mutexCreate(&m_mutex);
+		OSA_semCreate(&m_sem, 1, 0);
+		exitDataInThread = false;
+		OSA_thrCreate(&thrHandleDataIn, port_dataInFxn,  DATAIN_TSK_PRI, DATAIN_TSK_STACK_SIZE, this);
+		exitThreadMove = false;
+		OSA_thrCreate(&thrHandleMove,MoveThrdFxn, DATAIN_TSK_PRI, DATAIN_TSK_STACK_SIZE, this);
+		DXTimerCreat();
+	}
     if(_GlobalDate->outputMode == NULL)
     {
     	outputMode = 3;
@@ -108,7 +113,7 @@ void CPTZControl::Tcallback_QueryY(void* p)
 
 void CPTZControl::Destroy()
 {
-	if(m_port != NULL){
+	if(pCom != NULL){
 		OSA_mutexLock(&m_mutex);
 		exitDataInThread = true;
 		do{
@@ -122,25 +127,13 @@ void CPTZControl::Destroy()
 		}while(exitThreadMove);
 		OSA_thrDelete(&thrHandleMove);
 
-		port_destory(m_port);
-		m_port = NULL;
+		delete pCom;
 
 		OSA_mutexUnlock(&m_mutex);
 		OSA_mutexDelete(&m_mutex);
 		OSA_semSignal(&m_sem);
 		OSA_semDelete(&m_sem);
 	}
-}
-
-void CPTZControl::ptzUart_Creat()
-{
-	int iRet = OSA_SOK;
-	iRet = port_create(PORT_UART, &m_port);
-    OSA_assert( iRet == OSA_SOK );
-    OSA_assert( m_port != NULL );
-    OSA_assert(m_port->open != NULL);
-    iRet = m_port->open( m_port, &_GlobalDate->m_uart_params);
-    OSA_assert( iRet == OSA_SOK );
 }
 
 void CPTZControl::dataInThrd()
@@ -157,14 +150,14 @@ void CPTZControl::dataInThrd()
 
     OSA_assert(_agreeMent->buffer != NULL);
 
-    while(!exitDataInThread && m_port != NULL && m_port->fd != -1)
+    while(!exitDataInThread && pCom != NULL && fd_ptz != -1)
     {
         FD_ZERO(&rd_set);
-        FD_SET(m_port->fd, &rd_set);
+        FD_SET(fd_ptz, &rd_set);
 #if 1
         timeout.tv_sec   = 0;
         timeout.tv_usec = 200000;
-        result = select(m_port->fd+1, &rd_set, NULL, NULL, &timeout);
+        result = select(fd_ptz+1, &rd_set, NULL, NULL, &timeout);
         if(result == -1 || exitDataInThread )
             break;
 
@@ -175,13 +168,10 @@ void CPTZControl::dataInThrd()
             continue;
         }
 #endif
-        if(FD_ISSET(m_port->fd, &rd_set))
+        if(FD_ISSET(fd_ptz, &rd_set))
         {
-        	if(m_port->recv != NULL)
-        		rlen =  m_port->recv(m_port, _agreeMent->buffer, 1024);
-        	else
-        		continue;
-            //OSA_assert(rlen > 0);
+
+        	rlen =  pCom->crecv(fd_ptz, _agreeMent->buffer, 1024);
 
             switch(_agreeMent->ptzType)
             {
@@ -318,9 +308,10 @@ int CPTZControl::sendCmd(LPPELCO_D_REQPKT pCmd, PELCO_RESPONSE_t tResp /* = PELC
 
 	OSA_mutexLock(&m_mutex);
 	m_tResponse = tResp;
-	if(m_port->send == NULL)
-		return OSA_EFAIL;
-	if(m_port == NULL || m_port->send(m_port, (unsigned char *)pCmd, sizeof(PELCO_D_REQPKT)) != sizeof(PELCO_D_REQPKT))
+
+	int len = pCom->csend(fd_ptz, (unsigned char *)pCmd, sizeof(PELCO_D_REQPKT));
+
+	if(pCom == NULL ||  len != sizeof(PELCO_D_REQPKT) || len == 0)
 	{
 		OSA_printf("%s: send error! \n", __func__);
 		OSA_mutexUnlock(&m_mutex);
@@ -343,18 +334,6 @@ int CPTZControl::sendCmd(LPPELCO_D_REQPKT pCmd, PELCO_RESPONSE_t tResp /* = PELC
 	else
 		sign = 0;
 	OSA_mutexUnlock(&m_mutex);
-	return iRet;
-}
-
-int CPTZControl::setZoomSpeed()
-{
-	int iRet = 0;
-	if(m_bChangeZoomSpeed){
-		_agreeMent->MakeSetZoomSpeed(m_pReqMove, m_isetZoom , m_byAddr);
-	iRet = sendCmd(m_pReqMove, PELCO_RESPONSE_Extended);
-	m_bChangeZoomSpeed = false;
-	printf("zoom speed set success\n");
-	}
 	return iRet;
 }
 
@@ -443,13 +422,6 @@ int CPTZControl::Move()
 	m_iCurFocusNearSpeed = m_iSetFocusNearSpeed;
 
 	return 0;
-}
-
-int CPTZControl::circle()
-{
-	Preset(PTZ_PRESET_GOTO, m_circle);
-	m_circle = (m_circle+1)%5;
-	return m_circle;
 }
 
 int CPTZControl::Preset(int nCtrlType, int iPresetNum)
@@ -634,7 +606,7 @@ int CPTZControl::SendtrackErr()
 	int iRet = OSA_SOK;
 
 	OSA_mutexLock(&m_mutex);
-	if(m_port == NULL || m_port->send(m_port, (unsigned char *)trackBuf, sizeof(trackBuf)) != sizeof(trackBuf))
+	if(pCom == NULL || pCom->csend(fd_ptz, (unsigned char *)trackBuf, sizeof(trackBuf)) != sizeof(trackBuf))
 	{
 		OSA_printf("%s: send trackErr error! \n", __func__);
 		OSA_mutexUnlock(&m_mutex);
@@ -650,13 +622,13 @@ int CPTZControl::SendtrackErr()
 void CPTZControl::shRunOutput()
 {
 	_agreeMent->MakeMoveX();
-	m_port->send(m_port, _agreeMent->sendBuf, 12);
+	pCom->csend(fd_ptz, _agreeMent->sendBuf, 12);
 
 	_agreeMent->MakeMoveY();
-	m_port->send(m_port, _agreeMent->sendBuf, 12);
+	pCom->csend(fd_ptz, _agreeMent->sendBuf, 12);
 
 	_agreeMent->MakeStop();
-	m_port->send(m_port, _agreeMent->sendBuf, 8);
+	pCom->csend(fd_ptz, _agreeMent->sendBuf, 8);
 
 }
 
@@ -678,7 +650,7 @@ void CPTZControl::PanoramicMirrorOutput()
 	if(_GlobalDate->PanoramicMirror_value[0] != 0)
 	{
 		_agreeMent->MakeMoveX();
-		m_port->send(m_port, _agreeMent->sendBuf, 10);
+		pCom->csend(fd_ptz, _agreeMent->sendBuf, 10);
 		tmp.tv_sec = 0;
 		tmp.tv_usec = 5000;
 		select(0, NULL, NULL, NULL, &tmp);
@@ -687,12 +659,12 @@ void CPTZControl::PanoramicMirrorOutput()
 	if(_GlobalDate->PanoramicMirror_value[1] != 0)
 	{
 		_agreeMent->MakeMoveY();
-		m_port->send(m_port, _agreeMent->sendBuf, 10);
+		pCom->csend(fd_ptz, _agreeMent->sendBuf, 10);
 	}
 
 	if(_GlobalDate->PanoramicMirror_value[0] == 0 && _GlobalDate->PanoramicMirror_value[1] == 0){
 		_agreeMent->MakeStop();
-		m_port->send(m_port, _agreeMent->sendBuf, 10);
+		pCom->csend(fd_ptz, _agreeMent->sendBuf, 10);
 	}
 
 	for(int i=0; i<10; i++)
@@ -705,39 +677,43 @@ void CPTZControl::PanoramicMirrorOutput()
 void CPTZControl::PanoramicMirror_Init()
 {
 	_agreeMent->SetSpeedX();
+	/*
 	for(int i=0; i<6; i++)
 		printf("buf[%d]= %x ", i, _agreeMent->sendBuf[i]);
 	putchar(10);
-	m_port->send(m_port, _agreeMent->sendBuf, 6);
+	*/
+	pCom->csend(fd_ptz, _agreeMent->sendBuf, 6);
 	_agreeMent->SetSpeedY();
+	/*
 	for(int i=0; i<6; i++)
 		printf("buf[%d]= %x ", i, _agreeMent->sendBuf[i]);
 	putchar(10);
-	m_port->send(m_port, _agreeMent->sendBuf, 6);
+	*/
+	pCom->csend(fd_ptz, _agreeMent->sendBuf, 6);
 }
 
 void CPTZControl::MakeFoucusFar()
 {
 	_agreeMent->MakeFocusFar(NULL, 0);
 	if(_GlobalDate->ptzType == Panoramic_mirror)
-		m_port->send(m_port, _agreeMent->sendBuf, 10);
+		pCom->csend(fd_ptz, _agreeMent->sendBuf, 10);
 	else if(_GlobalDate->ptzType == sheenrun)
-		m_port->send(m_port, _agreeMent->sendBuf, 8);
+		pCom->csend(fd_ptz, _agreeMent->sendBuf, 8);
 }
 
 void CPTZControl::MakeFocusNear()
 {
 	_agreeMent->MakeFocusNear(NULL, 0);
 	if(_GlobalDate->ptzType == Panoramic_mirror)
-		m_port->send(m_port, _agreeMent->sendBuf, 10);
+		pCom->csend(fd_ptz, _agreeMent->sendBuf, 10);
 	else if(_GlobalDate->ptzType == sheenrun)
-		m_port->send(m_port, _agreeMent->sendBuf, 8);
+		pCom->csend(fd_ptz, _agreeMent->sendBuf, 8);
 }
 
 void CPTZControl::MakeFocusStop()
 {
 	_agreeMent->MakeFocusStop(NULL, 0);
-	m_port->send(m_port, _agreeMent->sendBuf, 10);
+	pCom->csend(fd_ptz, _agreeMent->sendBuf, 10);
 }
 
 void CPTZControl::test_left()
@@ -752,11 +728,11 @@ void CPTZControl::test_left()
 	_agreeMent->sendBuf[7] = 0x01;
 	_agreeMent->sendBuf[8] = 0x00;
 	_agreeMent->sendBuf[9] = 0x00;
-	m_port->send(m_port, _agreeMent->sendBuf, 10);
+	pCom->csend(fd_ptz, _agreeMent->sendBuf, 10);
 }
 
 void CPTZControl::test_stop()
 {
 	_agreeMent->MakeStop();
-	m_port->send(m_port, _agreeMent->sendBuf, 10);
+	pCom->csend(fd_ptz, _agreeMent->sendBuf, 10);
 }
