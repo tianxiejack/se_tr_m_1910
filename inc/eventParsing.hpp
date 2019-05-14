@@ -146,7 +146,6 @@ public:
 private:
 	static CEventParsing* pThis;
 	bool exit_jsParsing;
-	unsigned char* js_data;
 	void parsingJostickEvent(unsigned char* jos_data);
 
 };

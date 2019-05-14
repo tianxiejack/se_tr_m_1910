@@ -11,7 +11,9 @@ CEventManager::CEventManager()
 {
 	pThis = this;
 	_Msg = CMessage::getInstance();
-	_State = new StateManger();
+	_state = new StateConvention();
+	_state->StateInit();
+	_StateManager = new StateManger(_state);
 	_Handle = _Msg->MSGDRIV_create();
 	MSG_register();
 }
@@ -39,7 +41,7 @@ void CEventManager::MSG_register()
 
 void CEventManager::MSG_Trk(void* p)
 {
-printf("11111111  \n");
+	pThis->_StateManager->ToStateTrk();
 }
 void CEventManager::MSG_SwitchSensor(void* p)
 {
@@ -59,7 +61,14 @@ void CEventManager::MSG_TrkSearch(void* p)
 }
 void CEventManager::MSG_CaptureMode(void* p)
 {
-
+	static int state;
+	if(state == 0)
+		pThis->_StateManager->ToPlatFormCapture();
+	else if(state == 1)
+		pThis->_StateManager->ToBoxCapture();
+	else if(state == 2)
+		pThis->_StateManager->ToManualMtdCapture();
+	state = (state + 1)%3;
 }
 void CEventManager::MSG_IrisAndFocus(void* p)
 {
@@ -67,12 +76,27 @@ void CEventManager::MSG_IrisAndFocus(void* p)
 }
 void CEventManager::MSG_WorkMode(void* p)
 {
-
+	static int state;
+	if(state == 0)
+		pThis->_StateManager->ToStateConvention();
+	else if(state == 1)
+		pThis->_StateManager->ToStateAuto_Mtd();
+	else if(state == 2)
+		pThis->_StateManager->ToStateSceneSelect();
+	state = (state + 1)%3;
 }
 void CEventManager::MSG_JosPos(void* p)
 {
-	char* test = (char*)p;
-	printf("a = %x, b = %x \n", test[0], test[1]);
+	char* jos = (char*)p;
+	printf("X = %x, Y = %x \n", jos[0], jos[1]);
+#if 0
+	if(jos[0] > 0 && jos[0] < 0x7a)
+		pThis->_StateManager->inter_AxisMove(PTZ_MOVE_Left, jos[0]);
+	else if(jos[0] > 0x90 && jos[0] < 0xff)
+		pThis->_StateManager->inter_AxisMove(PTZ_MOVE_Right, jos[0]);
+	else
+		pThis->_StateManager->inter_AxisMove(PTZ_MOVE_Stop, 0);
+#endif
 }
 void CEventManager::MSG_PovPosX(void* p)
 {

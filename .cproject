@@ -31,6 +31,9 @@
 									<listOptionValue builtIn="false" value="/usr/local/include"/>
 									<listOptionValue builtIn="false" value="../src/OSA_CAP/inc"/>
 									<listOptionValue builtIn="false" value="../inc/"/>
+									<listOptionValue builtIn="false" value="../src/ptz/inc"/>
+									<listOptionValue builtIn="false" value="../src/DxTimer/include"/>
+									<listOptionValue builtIn="false" value="../src/port"/>
 								</option>
 								<option id="nvcc.compiler.cpp11option.1327409701" name="Enable C++11 support (-std=c++11)" superClass="nvcc.compiler.cpp11option" value="true" valueType="boolean"/>
 								<inputType id="nvcc.compiler.input.cu.2016103792" superClass="nvcc.compiler.input.cu"/>
@@ -96,6 +99,9 @@
 									<listOptionValue builtIn="false" value="/usr/local/include"/>
 									<listOptionValue builtIn="false" value="../src/OSA_CAP/inc"/>
 									<listOptionValue builtIn="false" value="../inc/"/>
+									<listOptionValue builtIn="false" value="../src/ptz/inc"/>
+									<listOptionValue builtIn="false" value="../src/DxTimer/include"/>
+									<listOptionValue builtIn="false" value="../src/port"/>
 								</option>
 								<option id="nvcc.compiler.cpp11option.1710425235" name="Enable C++11 support (-std=c++11)" superClass="nvcc.compiler.cpp11option" value="true" valueType="boolean"/>
 								<inputType id="nvcc.compiler.input.cu.592981250" superClass="nvcc.compiler.input.cu"/>

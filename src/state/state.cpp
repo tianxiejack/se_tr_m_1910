@@ -1,5 +1,4 @@
 #include "State.h"
-#include "StateManger.h"
 #include <iostream>
 
 using namespace std;
@@ -9,6 +8,10 @@ State *st1 = NULL, *st2 = NULL, *st3 = NULL, *st4 = NULL, *st5 = NULL, *st6 = NU
 State::State()
 {
 	pThis = this;
+	selectch = {1, 1, 1, 1, 1, 0};
+	curValidChid = selectch.idx;
+	_agreement = new IPelcoDFormat();
+	_ptz = new CPTZControl(_agreement);
 }
 
 State::~State()
@@ -34,11 +37,6 @@ void State::StateInit()
 		st7 = new StateTrk();
 	if(st8 == NULL)
 		st8 = new StateAcq();
-}
-
-void State::OperationInterface(StateManger* con)
-{
-	cout<<"State::.."<<endl;
 }
 
 int State::ChangeState(StateManger* con, char nextState)
@@ -81,17 +79,48 @@ int State::ChangeState(StateManger* con, char nextState)
 	return curState;
 }
 
-void State::OperationChangeState(StateManger*con)
+void State::switchSensor(char chid)
 {
+	static bool closeMtd = false;
+	struct timeval tmp;
+	int SensorStat; //= GetIpcAddress(Sensor);
+	if(1)//SensorStat != selectch.idx)
+		selectch.idx = SensorStat;
+	do{
+			selectch.idx++;
+			selectch.idx = selectch.idx%5;
+	}while(!selectch.validCh[selectch.idx]);
+	if(curValidChid != selectch.idx)
+		if(curState == STATE_MANUALMTD){
+			//m_GlobalDate->ImgMtdStat = m_GlobalDate->mtdMode = 0;
+			//usd_API_MTDMode();
+			closeMtd = true;
+			tmp.tv_sec = 0;
+			tmp.tv_usec = 200000;
+			select(0, NULL, NULL, NULL, &tmp);
+		}
+	curValidChid = selectch.idx;
+	//m_GlobalDate->chid_camera = selectch.idx;
+	//m_ipc->IpcSensorSwitch(selectch.idx);
 
+	if(closeMtd){
+		tmp.tv_sec = 1;
+		tmp.tv_usec = 0;
+		select(0, NULL, NULL, NULL, &tmp);
+		//ImgMtdStat = 1;
+		//mtdMode = 0;
+		//usd_API_MTDMode();
+		closeMtd = false;
+	}
 }
 
+void State::axisMove(int iDirection, int speed)
+{
+	_ptz->ptzMove(iDirection, speed);
+}
+
+/*=====================================*/
 StateConvention::StateConvention()
-{
-
-}
-
-void StateConvention::StateInit()
 {
 
 }
@@ -109,11 +138,6 @@ void StateConvention::OperationInterface(StateManger*con)
 void StateConvention::OperationChangeState(StateManger* con)
 {
 	OperationInterface(con);
-}
-
-int StateConvention::ChangeState(StateManger* con, char nextState)
-{
-
 }
 
 StateAuto_Mtd::StateAuto_Mtd()
@@ -136,12 +160,6 @@ void StateAuto_Mtd::OperationChangeState(StateManger* con)
 	OperationInterface(con);
 }
 
-int StateAuto_Mtd::ChangeState(StateManger* con, char nextState)
-{
-
-}
-
-
 StateSceneSelect::StateSceneSelect()
 {
 
@@ -161,12 +179,6 @@ void StateSceneSelect::OperationChangeState(StateManger* con)
 {
 	OperationInterface(con);
 }
-
-int StateSceneSelect::ChangeState(StateManger* con, char nextState)
-{
-
-}
-//
 
 PlatFormCapture::PlatFormCapture()
 {
@@ -188,13 +200,6 @@ void PlatFormCapture::OperationChangeState(StateManger* con)
 	OperationInterface(con);
 }
 
-int PlatFormCapture::ChangeState(StateManger* con, char nextState)
-{
-
-}
-//
-
-
 BoxCapture::BoxCapture()
 {
 
@@ -214,13 +219,6 @@ void BoxCapture::OperationChangeState(StateManger* con)
 {
 	OperationInterface(con);
 }
-
-int BoxCapture::ChangeState(StateManger* con, char nextState)
-{
-
-}
-//
-
 
 ManualMtdCapture::ManualMtdCapture()
 {
@@ -242,12 +240,6 @@ void ManualMtdCapture::OperationChangeState(StateManger* con)
 	OperationInterface(con);
 }
 
-int ManualMtdCapture::ChangeState(StateManger* con, char nextState)
-{
-
-}
-//
-
 StateTrk::StateTrk()
 {
 
@@ -268,13 +260,6 @@ void StateTrk::OperationChangeState(StateManger* con)
 	OperationInterface(con);
 }
 
-int StateTrk::ChangeState(StateManger* con, char nextState)
-{
-
-}
-//
-
-
 StateAcq::StateAcq()
 {
 
@@ -294,10 +279,4 @@ void StateAcq::OperationChangeState(StateManger* con)
 {
 	OperationInterface(con);
 }
-
-int StateAcq::ChangeState(StateManger* con, char nextState)
-{
-
-}
-
 

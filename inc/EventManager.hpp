@@ -8,6 +8,7 @@
 #define EVENTMANAGER_HPP_
 #include "eventParsing.hpp"
 #include "StateManger.h"
+#include "State.h"
 
 class CEventManager
 {
@@ -17,7 +18,8 @@ public:
 private:
 	MSGDRIV_Handle _Handle;
 	CMessage* _Msg;
-	StateManger* _State;
+	StateManger* _StateManager;
+	State* _state;
 	static CEventManager* pThis;
 	void MSG_register();
 
