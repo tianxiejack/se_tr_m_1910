@@ -171,9 +171,6 @@ private:
 	unsigned char* js_data;
 	void parsingJostickEvent(unsigned char* jos_data);
 
-
-
-
 public:
 	static void thread_comrecvEvent();
 	static void thread_comsendEvent();

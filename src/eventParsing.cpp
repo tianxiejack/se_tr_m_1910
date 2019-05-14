@@ -12,7 +12,6 @@ CEventParsing* CEventParsing::pThis = NULL;
 
 CEventParsing::CEventParsing()
 {
-	js_data = NULL;
 	pThis = this;
 	exit_jsParsing = false;
 	_Msg = CMessage::getInstance();
@@ -46,8 +45,7 @@ void CEventParsing::thread_jsEvent()
 {
 	while(!pThis->exit_jsParsing)
 	{
-		pThis->js_data = pThis->_Js->JoystickProcess();
-		pThis->parsingJostickEvent(pThis->js_data);
+		pThis->parsingJostickEvent(pThis->_Js->JoystickProcess());
 	}
 }
 

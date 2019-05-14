@@ -1,5 +1,4 @@
 #include "StateManger.h"
-#include "State.h"
 
 StateManger::StateManger()
 {
@@ -86,3 +85,12 @@ void StateManger::ToStateAcq()
 	_state->OperationChangeState(this);
 }
 
+void StateManger::inter_SwitchSensor(char chid)
+{
+	_state->switchSensor(chid);
+}
+
+void StateManger::inter_AxisMove(int iDirection, int speed)
+{
+	_state->axisMove(iDirection, speed);
+}
