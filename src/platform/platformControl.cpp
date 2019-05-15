@@ -31,7 +31,7 @@ CplatFormControl::~CplatFormControl()
 void CplatFormControl::PlatformCtrl_ClassInit()
 {
 	_Sensor = new CSensorComp();
-	_Fiter = new CPlatformFilter();
+	_Fiter = new CPlatformFilter( 50 , 5 , 1 ,1200);
 	_Kalman = new CKalman_PTZ();
 	_DeviceUser = new CDeviceUser();
 }
