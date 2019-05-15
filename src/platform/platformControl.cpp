@@ -183,25 +183,26 @@ int CplatFormControl::PlatformCtrl_sensorCompensation(HPLTCTRL handle, int chid,
 
 void CplatFormControl::PlatformCtrl_Delete(HPLTCTRL handle)
 {
-    int i;
-    PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)handle->object;
-    if(pObj == NULL)
-        return ;
+	int i;
+	PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)handle->object;
+	if(pObj == NULL)
+		return ;
 
-    _Fiter->PlatformFilter_Delete(pObj->privates.filter[0]);
-    _Fiter->PlatformFilter_Delete(pObj->privates.filter[1]);
+	_Fiter->PlatformFilter_Delete(pObj->privates.filter[0]);
+	_Fiter->PlatformFilter_Delete(pObj->privates.filter[1]);
 
-    _Fiter->PlatformFilter_Delete(pObj->privates.joystickIntegrator[0]);
-    _Fiter->PlatformFilter_Delete(pObj->privates.joystickIntegrator[1]);
+	_Fiter->PlatformFilter_Delete(pObj->privates.joystickIntegrator[0]);
+	_Fiter->PlatformFilter_Delete(pObj->privates.joystickIntegrator[1]);
 
-    _Kalman->KalmanClose(pObj->privates.hWinFilter);
+	_Kalman->KalmanClose(pObj->privates.hWinFilter);
 
-    for(i = 0; i < DevUsr_MAX; i++)
-    	_DeviceUser->DeviceUser_Delete(pObj->privates.hDevUsers[i]);
+	for(i = 0; i < DevUsr_MAX; i++)
+		_DeviceUser->DeviceUser_Delete(pObj->privates.hDevUsers[i]);
 
-    for(i = 0; i < SENSOR_COUNT; i++)
-    	_Sensor->SensorComp_Delete(pObj->privates.hSensor[i]);
-    free(pObj);
+	for(i = 0; i < SENSOR_COUNT; i++)
+		_Sensor->SensorComp_Delete(pObj->privates.hSensor[i]);
+	free(pObj);
+	return;
 }
 
 static int PlatformCtrl_PlatformCompensation(PlatformCtrl_Obj *pObj)
@@ -440,36 +441,36 @@ void CplatFormControl::acqRateJosHandle(PlatformCtrl_Obj *pObj)
 
 int CplatFormControl::PlatformCtrl_AcqRateDemand(PlatformCtrl_Obj *pObj)
 {
-    pObj->privates.curRateDemandX = 0.0f;
-    pObj->privates.curRateDemandY = 0.0f;
+	pObj->privates.curRateDemandX = 0.0f;
+	pObj->privates.curRateDemandY = 0.0f;
 
-    switch(pObj->params.acqOutputType)
-    {
-        case AcqOutputType_Zero:
-		break;
+	switch(pObj->params.acqOutputType)
+	{
+		case AcqOutputType_Zero:
+			break;
 
-        case AcqOutputType_JoystickInput:
-		pObj->privates.curRateDemandX = pObj->inter.devUsrInput[DevUsr_AcqJoystickXInput];
-		pObj->privates.curRateDemandY = pObj->inter.devUsrInput[DevUsr_AcqJoystickYInput];
-		break;
+		case AcqOutputType_JoystickInput:
+			pObj->privates.curRateDemandX = pObj->inter.devUsrInput[DevUsr_AcqJoystickXInput];
+			pObj->privates.curRateDemandY = pObj->inter.devUsrInput[DevUsr_AcqJoystickYInput];
+			break;
 
-        case AcqOutputType_ShapedAndGained:
-        case AcqOutputType_ShapedAndGainedAndIntegrated:
-		acqRateJosHandle(pObj);
-		break;
-			
-        default:
-            break;
-    }
-    return 0;
+		case AcqOutputType_ShapedAndGained:
+		case AcqOutputType_ShapedAndGainedAndIntegrated:
+			acqRateJosHandle(pObj);
+			break;
+
+		default:
+			break;
+	}
+	return 0;
 }
 
 
 
 int CplatFormControl::PlatformCtrl_OutPlatformDemand(PlatformCtrl_Obj *pObj)
 {
-    PLATFORMCTRL_TrackerInput *pInput = &pObj->inter.trackerInput;
-    static float fTmp, fTmpX,  fTmpY;
+	PLATFORMCTRL_TrackerInput *pInput = &pObj->inter.trackerInput;
+	static float fTmp, fTmpX,  fTmpY;
 
 	if(pInput->iTrkAlgState == PlatStateType_Acquire)
 	{
@@ -492,9 +493,9 @@ int CplatFormControl::PlatformCtrl_OutPlatformDemand(PlatformCtrl_Obj *pObj)
 		fTmpY = pInput->fTargetBoresightErrorY;
 
 		if(fabs(fTmpX) < 1.01)
-			fTmpX = 0;
+		fTmpX = 0;
 		if(fabs(fTmpY) < 1.01)
-			fTmpY = 0;
+		fTmpY = 0;
 
 		fTmp = fTmpX * pObj->privates.fovX / pObj->privates.width;	
 		pObj->privates.curRateDemandX = _Fiter->pidAlg(pObj->privates.filter[0], fTmp);
@@ -512,31 +513,30 @@ int CplatFormControl::PlatformCtrl_OutPlatformDemand(PlatformCtrl_Obj *pObj)
 		_Fiter->PlatformFilter_Reset( pObj->privates.filter[1] );
 	}
 
-    PlatformCtrl_PlatformCompensation(pObj); 
+	PlatformCtrl_PlatformCompensation(pObj); 
 
 	pObj->privates.lastPlatStat = pInput->iTrkAlgState;
 
-    return 0;
+	return 0;
 }
 
 
 
 int CplatFormControl::PlatformCtrl_BuildDevUsrInput(PlatformCtrl_Obj *pObj)
 {
-    int i;
+	int i;
+	for(i = 0; i < DevUsr_MAX; i++)
+		pObj->inter.devUsrInput[i] = _DeviceUser->DeviceUser_Get(pObj->privates.hDevUsers[i]);
 
-    for(i = 0; i < DevUsr_MAX; i++)
-        pObj->inter.devUsrInput[i] = _DeviceUser->DeviceUser_Get(pObj->privates.hDevUsers[i]);
-
-    return 0;
+	return 0;
 }
 
 
 
 static int PlatformCtrl_ProccesDevUsrInput(PlatformCtrl_Obj *pObj)
 {
-    memcpy(pObj->privates.usrInputBak, pObj->inter.devUsrInput, sizeof(pObj->privates.usrInputBak));
-    return 0;
+	memcpy(pObj->privates.usrInputBak, pObj->inter.devUsrInput, sizeof(pObj->privates.usrInputBak));
+	return 0;
 }
 
 
@@ -599,32 +599,28 @@ int CplatFormControl::PlatformCtrl_TrackerInput(HPLTCTRL handle, PLATFORMCTRL_Tr
 
 int CplatFormControl::PlatformCtrl_TrackerOutput(HPLTCTRL handle, PLATFORMCTRL_Output *pOutput)
 {
-    int iRet = 0;
+	int iRet = 0;
+	PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)handle->object;
 
-    PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)handle->object;
+	if(pObj == NULL || pOutput == NULL)
+		return -1;
 
-    if(pObj == NULL || pOutput == NULL)
-        return -1;
-
-    memcpy(pOutput, &pObj->inter.output, sizeof(PLATFORMCTRL_Output));
-
-    return iRet;
+	memcpy(pOutput, &pObj->inter.output, sizeof(PLATFORMCTRL_Output));
+	return iRet;
 }
 
 
 
 int CplatFormControl::PlatformCtrl_VirtualInput(HPLTCTRL handle, int iIndex, float fValue)
 {
-    float fTmp;
+	float fTmp;
+	PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)handle->object;
 
-    PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)handle->object;
+	if(pObj == NULL)
+		return -1;
 
-    if(pObj == NULL)
-        return -1;
-
-    fTmp = fValue;
-
-    return 0;
+	fTmp = fValue;
+	return 0;
 }
 
 
