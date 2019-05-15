@@ -9,6 +9,11 @@
 
 #define EPSINON   (0.000001f)
 
+CPlatformFilter::CPlatformFilter(int frameNum,float speedDiff2integral,float speedDiff2count,float speedMax)
+	:m_frameNum(frameNum),m_speedDiff2integral(speedDiff2integral),
+	m_speedDiff2Count(speedDiff2count),m_speedMax(speedMax)
+{
+}
 
 int CPlatformFilter::PlatformFilter_GetIndex(HPLTFILTER hFilter)
 {
@@ -168,18 +173,18 @@ float CPlatformFilter::pidAlg(HPLTFILTER hFilter, float curXc)
 			indexKd = 0;
 		} 
 		else {
-			if((fabs(pObj->privates.Xc[0] - pObj->privates.Xc[1]) < 1)) {
+			if((fabs(pObj->privates.Xc[0] - pObj->privates.Xc[1]) < m_speedDiff2integral)) {
 				pObj->privates.Uc[1] += pObj->privates.Xc[0];
 			}
 
-			if(fabs(pObj->privates.Xc[0]) <= 5 ) {
+			if(fabs(pObj->privates.Xc[0]) <= m_speedDiff2Count ) {
 				pObj->params.stable = true;
 			}
 
-			if(fabs(pObj->privates.Xc[0]) > 5 )
+			if(fabs(pObj->privates.Xc[0]) > m_speedDiff2Count )
 				pObj->params.count++;
 			
-			if(pObj->params.count > 50)
+			if(pObj->params.count > m_frameNum)
 				pObj->params.stable = true;
 		}
 	}
@@ -197,11 +202,11 @@ float CPlatformFilter::pidAlg(HPLTFILTER hFilter, float curXc)
 
 	pObj->privates.Yc[0] = ret;
 
-	if(fabs(ret) > 1200){
+	if(fabs(ret) > m_speedMax){
 		if(ret > 0)
-			ret = 1200 ;
+			ret = m_speedMax ;
 		else
-			ret = -1200;
+			ret = -m_speedMax;
 		pObj->privates.Yc[0] = ret ;	
 	}
  

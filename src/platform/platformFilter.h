@@ -37,17 +37,24 @@ typedef struct
 class CPlatformFilter{
 
 public:
-	CPlatformFilter(){};
+	CPlatformFilter(int frameNum = 50,float speedDiff2integral = 1,float speedDiff2count = 5 ,float speedMax = 1200);
 	~CPlatformFilter(){};
 
-	int PlatformFilter_GetIndex(HPLTFILTER hFilter);
+
 	HPLTFILTER PlatformFilter_Create(PlatformFilter_CreateParams *pPrm);
+	int PlatformFilter_GetIndex(HPLTFILTER hFilter);
 	void PlatformFilter_Delete(HPLTFILTER hFilter);
 	void PlatformFilter_Reset(HPLTFILTER hFilter);
 	int PlatformFilter_reset4trk(HPLTFILTER hFilter);
-	float pidAlg(HPLTFILTER hFilter, float curXc);
 	void calcCurPlatAvrRate(HPLTFILTER hFilter , float curRate);
 	void PlatformFilter_updatePidParams(PlatformFilter_CreateParams *pPrm,PlatformFilter_CreateParams *pPrm2, vector<float> m_Prm);
+	float pidAlg(HPLTFILTER hFilter, float curXc);
+
+private:
+	int m_frameNum;
+	float m_speedDiff2integral , m_speedDiff2Count , m_speedMax;
+
+	
 };
 
 #endif
