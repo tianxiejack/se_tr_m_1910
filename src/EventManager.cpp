@@ -39,23 +39,18 @@ void CEventManager::MSG_register()
 	_Msg->MSGDRIV_register(MSGID_EXT_INPUT_POVPOSY, MSG_PovPosY, NULL);
 
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SELFCHECK, MSG_Com_SelfCheck, NULL);
-	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SWITCHSENSOR, MSG_Com_SwitchSensor, NULL);
-	_Msg->MSGDRIV_register(MSGID_COM_INPUT_WORKMODE, MSG_Com_WorkMode, NULL);
-	_Msg->MSGDRIV_register(MSGID_COM_INPUT_CAPTUREMODE, MSG_Com_CaptureMode, NULL);
-	_Msg->MSGDRIV_register(MSGID_COM_INPUT_TRACKCTRL, MSG_Com_TrkCtrl, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_TRKMOVE, MSG_Com_TrkMove, NULL);
-	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SECTRKCTRL, MSG_Com_SecTrkCtrl, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SECTRKPOS, MSG_Com_SecTrkPos, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_MTDSELECT, MSG_Com_MtdSelect, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_GATEMOVE, MSG_Com_Gatemove, NULL);
-	_Msg->MSGDRIV_register(MSGID_COM_INPUT_ZOOMCTRL, MSG_Com_ZoomCtrl, NULL);
-	_Msg->MSGDRIV_register(MSGID_COM_INPUT_APERTURECTRL, MSG_Com_ApertureCtrl, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_FOCUSCTRL, MSG_Com_FocusCtrl, NULL);
+	_Msg->MSGDRIV_register(MSGID_COM_INPUT_APERTURECTRL, MSG_Com_ApertureCtrl, NULL);
+	_Msg->MSGDRIV_register(MSGID_COM_INPUT_ZOOMCTRL, MSG_Com_ZoomCtrl, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SETPLATSPEED, MSG_Com_SetPlatSpeed, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SETPLATANGLE, MSG_Com_SetPlatAngle, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_PRESETPOS, MSG_Com_PrsetPos, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SETZOOM, MSG_Com_SetZoom, NULL);
-	_Msg->MSGDRIV_register(MSGID_COM_INPUT_GETPLATANGLE, MSG_Com_GetPlatAngle, NULL);
+	_Msg->MSGDRIV_register(MSGID_COM_INPUT_QUERYPTZPOS, MSG_Com_QueryPtzPos, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_GETZOOM, MSG_Com_GetZoom, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_TRKOUTPUT, MSG_Com_TrkOutput, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SETCFG, MSG_Com_SetCfg, NULL);
@@ -68,11 +63,21 @@ void CEventManager::MSG_register()
 
 void CEventManager::MSG_Trk(void* p)
 {
-	pThis->_StateManager->ToStateTrk();
+	ComParams_t *tmp = (ComParams_t *)p;
+	if(tmp->trkctrl)
+		pThis->_StateManager->ToStateTrk();
+	else if(tmp->trkctrl == 0x02)
+		pThis->_StateManager->ToStateAcq();
+	else if(tmp->trkctrl == 0x00)
+		printf("ipc ctrl \n");
 }
 void CEventManager::MSG_SwitchSensor(void* p)
 {
-
+	ComParams_t *tmp = (ComParams_t *)p;
+	int displaychid = tmp->displaychid;
+	int capturechid = tmp->capturechid;
+	printf("displaychid=%d,capturechid=%d\n",displaychid,capturechid);
+	pThis->_StateManager->inter_SwitchSensor(capturechid);
 }
 void CEventManager::MSG_ZoomLong(void* p)
 {
@@ -84,18 +89,18 @@ void CEventManager::MSG_ZoomShort(void* p)
 }
 void CEventManager::MSG_TrkSearch(void* p)
 {
-
+	ComParams_t *tmp = (ComParams_t *)p;
+	printf("tmp->sectrkctrl = %d \n", tmp->sectrkctrl);
 }
 void CEventManager::MSG_CaptureMode(void* p)
 {
-	static int state;
-	if(state == 0)
+	ComParams_t *tmp = (ComParams_t *)p;
+	if(tmp->capturemode == 0)
 		pThis->_StateManager->ToPlatFormCapture();
-	else if(state == 1)
+	else if(tmp->capturemode == 1)
 		pThis->_StateManager->ToBoxCapture();
-	else if(state == 2)
+	else if(tmp->capturemode == 2)
 		pThis->_StateManager->ToManualMtdCapture();
-	state = (state + 1)%3;
 }
 void CEventManager::MSG_IrisAndFocus(void* p)
 {
@@ -103,19 +108,23 @@ void CEventManager::MSG_IrisAndFocus(void* p)
 }
 void CEventManager::MSG_WorkMode(void* p)
 {
-	static int state;
-	if(state == 0)
+	ComParams_t *tmp = (ComParams_t *)p;
+	if(tmp->workmode == 0)
 		pThis->_StateManager->ToStateConvention();
-	else if(state == 1)
+	else if(tmp->workmode == 1)
 		pThis->_StateManager->ToStateAuto_Mtd();
-	else if(state == 2)
+	else if(tmp->workmode == 2)
 		pThis->_StateManager->ToStateSceneSelect();
-	state = (state + 1)%3;
 }
 void CEventManager::MSG_JosPos(void* p)
 {
+	MSG_Com_ApertureCtrl(p);
+	MSG_Com_FocusCtrl(p);
+	MSG_Com_Gatemove(p);
+
+
 	char* jos = (char*)p;
-	printf("X = %x, Y = %x \n", jos[0], jos[1]);
+	//printf("X = %x, Y = %x \n", jos[0], jos[1]);
 #if 1
 	if(jos[0] > 0 && jos[0] < 0x7a)
 		pThis->_StateManager->inter_AxisMove(PTZ_MOVE_Left, jos[0]);
@@ -127,54 +136,26 @@ void CEventManager::MSG_JosPos(void* p)
 }
 void CEventManager::MSG_PovPosX(void* p)
 {
-
+	MSG_Com_TrkMove(p);
+	MSG_Com_MtdSelect(p);
 }
 void CEventManager::MSG_PovPosY(void* p)
 {
-
+	MSG_Com_TrkMove(p);
 }
 
 void CEventManager::MSG_Com_SelfCheck(void* p)
 {
 	printf("MSG_Com_SelfCheck start\n");
 }
-void CEventManager::MSG_Com_SwitchSensor(void* p)
-{
-	ComParams_t *tmp = (ComParams_t *)p;
-	int displaychid = tmp->displaychid;
-	int capturechid = tmp->capturechid;
-	printf("displaychid=%d,capturechid=%d\n",displaychid,capturechid);
-}
-void CEventManager::MSG_Com_WorkMode(void* p)
-{
-	ComParams_t *tmp = (ComParams_t *)p;
-	int workmode = tmp->workmode;
-	printf("workmode=%d\n",workmode);
-}
-void CEventManager::MSG_Com_CaptureMode(void* p)
-{
-	ComParams_t *tmp = (ComParams_t *)p;
-	int capturemode = tmp->capturemode;
-	printf("capturemode=%d\n",capturemode);
-}
-void CEventManager::MSG_Com_TrkCtrl(void* p)
-{
-	ComParams_t *tmp = (ComParams_t *)p;
-	int trkctrl = tmp->trkctrl;
-	printf("trkctrl=%d\n",trkctrl);
-}
+
 void CEventManager::MSG_Com_TrkMove(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
 	int trkmove = tmp->trkmove;
 	printf("trkmove=%d\n",trkmove);
 }
-void CEventManager::MSG_Com_SecTrkCtrl(void* p)
-{
-	ComParams_t *tmp = (ComParams_t *)p;
-	int sectrkctrl = tmp->sectrkctrl;
-	printf("sectrkctrl=%d\n",sectrkctrl);
-}
+
 void CEventManager::MSG_Com_SecTrkPos(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
@@ -198,9 +179,9 @@ void CEventManager::MSG_Com_Gatemove(void* p)
 }
 void CEventManager::MSG_Com_ZoomCtrl(void* p)
 {
-	ComParams_t *tmp = (ComParams_t *)p;
-	int zoomctrl = tmp->zoomctrl;
-	printf("zoomctrl=%d\n",zoomctrl);
+	MSG_ZoomLong(p);
+	MSG_ZoomShort(p);
+
 }
 void CEventManager::MSG_Com_ApertureCtrl(void* p)
 {
@@ -224,9 +205,9 @@ void CEventManager::MSG_Com_SetPlatSpeed(void* p)
 void CEventManager::MSG_Com_SetPlatAngle(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
-	unsigned short platanglex = tmp->platanglex;
-	unsigned short platangley = tmp->platangley;
-	printf("platangle x,y=(%d,%d)\n",platanglex, platangley);
+	unsigned short platPan = tmp->platPan;
+	unsigned short platTilt = tmp->platTilt;
+	printf("platangle x,y=(%d,%d)\n",platPan, platTilt);
 }
 void CEventManager::MSG_Com_PrsetPos(void* p)
 {
@@ -240,7 +221,7 @@ void CEventManager::MSG_Com_SetZoom(void* p)
 	unsigned short setzoom = tmp->setzoom;
 	printf("setzoom=%d\n", setzoom);
 }
-void CEventManager::MSG_Com_GetPlatAngle(void* p)
+void CEventManager::MSG_Com_QueryPtzPos(void* p)
 {
 	printf("MSG_Com_GetPlatAngle start\n");
 }

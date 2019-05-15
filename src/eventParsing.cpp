@@ -17,6 +17,7 @@ CEventParsing::CEventParsing()
 	_Msg = CMessage::getInstance();
 	_Js = new CjoyStick();
 
+	memset(&ComParams, 0, sizeof(ComParams));
 	exit_comParsing = false;
 	pCom1 = PortFactory::createProduct(1);
 	comfd = pCom1->copen();
@@ -213,22 +214,29 @@ void CEventParsing::parsingJostickEvent(unsigned char* jos_data)
 		switch(jos_data[POV_BUTTON])
 		{
 		case js_pov_up:
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSY, jos_data);
+			ComParams.trkmove = 0x04;
+			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSY, &ComParams);
 			break;
 		case js_pov_right:
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSX, jos_data);
+			ComParams.trkmove = 0x02;
+			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSX, &ComParams);
 			break;
 		case js_pov_down:
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSY, jos_data);
+			ComParams.trkmove = 0x08;
+			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSY, &ComParams);
 			break;
 		case js_pov_left:
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSX, jos_data);
+			ComParams.trkmove = 0x01;
+			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSX, &ComParams);
 			break;
 		case js_1:
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_TRACKCTRL, jos_data);
+			ComParams.trkctrl = 0x00;
+			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_TRACKCTRL, &ComParams);
 			break;
 		case js_2:
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_SwitchSensor, jos_data);
+			ComParams.displaychid = 0;
+			ComParams.capturechid = 0xff;
+			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_SwitchSensor, &ComParams);
 			break;
 		case js_3:
 			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_ZOOMLONGCTRL, jos_data);
@@ -248,13 +256,15 @@ void CEventParsing::parsingJostickEvent(unsigned char* jos_data)
 			//_Msg->MSGDRIV_send(, jos_data);
 			break;
 		case js_6:
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_TRACKSEARCHCTRL, jos_data);
+			ComParams.sectrkctrl = ComParams.sectrkctrl % 2 + 1;
+			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_TRACKSEARCHCTRL, &ComParams);
 			break;
 		case js_7:
 			//_Msg->MSGDRIV_send(, jos_data);
 			break;
 		case js_8:
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_captureMode, jos_data);
+			ComParams.capturemode = (ComParams.capturemode + 1)%3;
+			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_captureMode, &ComParams);
 			break;
 		case js_9:
 			//_Msg->MSGDRIV_send(, jos_data);
@@ -266,7 +276,8 @@ void CEventParsing::parsingJostickEvent(unsigned char* jos_data)
 			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_IrisAndFocusAndExit, jos_data);
 			break;
 		case js_12:
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_workMode, jos_data);
+			ComParams.workmode = (ComParams.workmode + 1)%3;
+			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_workMode, &ComParams);
 			break;
 		}
 		butbak = jos_data[BUTTON];
@@ -380,19 +391,19 @@ int CEventParsing::parsingComEvent(int fd)
 			case 0x02:
 				ComParams.displaychid = rcvBufQue.at(5);
 				ComParams.capturechid = rcvBufQue.at(6);
-				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SWITCHSENSOR, &ComParams);
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_SwitchSensor, &ComParams);
 				break;
 			case 0x03:
 				ComParams.workmode = rcvBufQue.at(5);
-				_Msg->MSGDRIV_send(MSGID_COM_INPUT_WORKMODE, &ComParams);
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_workMode, &ComParams);
 				break;
 			case 0x04:
 				ComParams.capturemode = rcvBufQue.at(5);
-				_Msg->MSGDRIV_send(MSGID_COM_INPUT_CAPTUREMODE, &ComParams);
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_captureMode, &ComParams);
 				break;
 			case 0x05:
 				ComParams.trkctrl = rcvBufQue.at(5);
-				_Msg->MSGDRIV_send(MSGID_COM_INPUT_TRACKCTRL, &ComParams);
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_TRACKCTRL, &ComParams);
 				break;
 			case 0x06:
 				ComParams.trkmove = rcvBufQue.at(5);
@@ -400,7 +411,7 @@ int CEventParsing::parsingComEvent(int fd)
 				break;
 			case 0x07:
 				ComParams.sectrkctrl = rcvBufQue.at(5);
-				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SECTRKCTRL, &ComParams);
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_TRACKSEARCHCTRL, &ComParams);
 				break;
 			case 0x08:
 				ComParams.sectrkx = rcvBufQue.at(5) |(rcvBufQue.at(6) << 8);
@@ -435,8 +446,8 @@ int CEventParsing::parsingComEvent(int fd)
 				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SETPLATSPEED, &ComParams);
 				break;
 			case 0x10:
-				ComParams.platanglex = rcvBufQue.at(5) |(rcvBufQue.at(6) << 8);
-				ComParams.platangley = rcvBufQue.at(7) |(rcvBufQue.at(8) << 8);
+				ComParams.platPan = rcvBufQue.at(5) |(rcvBufQue.at(6) << 8);
+				ComParams.platTilt = rcvBufQue.at(7) |(rcvBufQue.at(8) << 8);
 				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SETPLATANGLE, &ComParams);
 				break;
 			case 0x11:
@@ -448,7 +459,7 @@ int CEventParsing::parsingComEvent(int fd)
 				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SETZOOM, &ComParams);
 				break;
 			case 0x41:
-				_Msg->MSGDRIV_send(MSGID_COM_INPUT_GETPLATANGLE, NULL);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_QUERYPTZPOS, NULL);
 				break;
 			case 0x42:
 				_Msg->MSGDRIV_send(MSGID_COM_INPUT_GETZOOM, NULL);

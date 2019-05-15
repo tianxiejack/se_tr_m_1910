@@ -59,7 +59,6 @@ int CPTZControl::Create()
 
 	pCom = PortFactory::createProduct(3);
 	fd_ptz = pCom->copen();
-	printf("fd_ptz = %d \n", fd_ptz);
 
 	if(pCom != NULL)
 	{
