@@ -5,14 +5,16 @@
 #include "osa_thr.h"
 #include "osa_buf.h"
 #include "osa_sem.h"
-#include "port.hpp"
 #include "PTZ_speedTransfer.h"
 #include "globalDate.h"
 #include "DxTimer.hpp"
+#include "ptzInterface.hpp"
 #include "pelcoDformat.h"
 #include "pelcoPformat.h"
 #include "ExtensionFormat.h"
+#include "PortFactory.hpp"
 
+#define balladdress 1
 
 typedef enum{
 	PELCO_RESPONSE_Null = 0,
@@ -21,7 +23,7 @@ typedef enum{
 	PELCO_RESPONSE_Extended
 }PELCO_RESPONSE_t;
 
-class CPTZControl
+class CPTZControl : CptzInterface
 {
 	port_handle *m_port;
 
@@ -59,12 +61,11 @@ public:
 	void Destroy();
 
 	int Move();
-	int setZoomSpeed();
+
 	int Preset(int nCtrlType, int iPresetNum);
 	int Pattern(int nCtrlType, int iPatternNum);
 	int Query(int iQueryType);
 	int Dummy();
-	int circle();
 
 	int ptzMove(INT32 iDirection, UINT8 bySpeed);
 	int ptzStop();
@@ -82,16 +83,17 @@ public:
 	void MakeFocusNear();
 	void MakeFocusStop();
 
-
 	void test_left();
 	void test_stop();
 
+public:
 	int m_iSetPanSpeed, m_iSetTiltSpeed, m_iSetZoomSpeed,m_iSetIrisSpeed,m_iSetFocusNearSpeed, m_iSetFocusFarSpeed, m_iSetPreset;
 	int m_isetZoom;
 	int m_iCurTiltSpeed, m_iCurZoomSpeed;
 	int	m_iPanPos, m_iTiltPos , m_iZoomPos;
 	bool m_bChangeZoomSpeed;
 	bool exitQuery_X, exitQuery_Y, exitQueryzoom;
+	int fd_ptz;
 
 protected:
 	unsigned char m_byAddr;
@@ -108,6 +110,7 @@ protected:
 	int m_circle;
 
 private:
+	CPortInterface* pCom;
 	static CPTZControl* pThis;
 	CGlobalDate* _GlobalDate;
 	Uint16 posx_bak, posy_bak, zoom_bak;
@@ -122,7 +125,7 @@ private:
 	static void Tcallback_QueryX(void* p);
 	static void Tcallback_QueryY(void* p);
 	int sendCmd(LPPELCO_D_REQPKT pCmd, PELCO_RESPONSE_t tResp = PELCO_RESPONSE_General);
-	void ptzUart_Creat();
+
 	u_int8_t sendCheck_sum(uint len, u_int8_t *tmpbuf);
 	u_int8_t package_frame(uint len, u_int8_t *tmpbuf);
 	void trackErrOutput();

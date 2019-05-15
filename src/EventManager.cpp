@@ -63,9 +63,7 @@ void CEventManager::MSG_register()
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SETOSD, MSG_Com_SetOsd, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_DEFAULTCFG, MSG_Com_DefaultCfg, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SAVECFG, MSG_Com_SaveCfg, NULL);
-	
-	
-	
+
 }
 
 void CEventManager::MSG_Trk(void* p)
@@ -118,7 +116,7 @@ void CEventManager::MSG_JosPos(void* p)
 {
 	char* jos = (char*)p;
 	printf("X = %x, Y = %x \n", jos[0], jos[1]);
-#if 0
+#if 1
 	if(jos[0] > 0 && jos[0] < 0x7a)
 		pThis->_StateManager->inter_AxisMove(PTZ_MOVE_Left, jos[0]);
 	else if(jos[0] > 0x90 && jos[0] < 0xff)
