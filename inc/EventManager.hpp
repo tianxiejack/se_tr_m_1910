@@ -37,12 +37,7 @@ private:
 	static void MSG_PovPosY(void* p);
 
 	static void MSG_Com_SelfCheck(void* p);
-	static void MSG_Com_SwitchSensor(void* p);
-	static void MSG_Com_WorkMode(void* p);
-	static void MSG_Com_CaptureMode(void* p);
-	static void MSG_Com_TrkCtrl(void* p);
 	static void MSG_Com_TrkMove(void* p);
-	static void MSG_Com_SecTrkCtrl(void* p);
 	static void MSG_Com_SecTrkPos(void* p);
 	static void MSG_Com_MtdSelect(void* p);
 	static void MSG_Com_Gatemove(void* p);
@@ -53,7 +48,7 @@ private:
 	static void MSG_Com_SetPlatAngle(void* p);
 	static void MSG_Com_PrsetPos(void* p);
 	static void MSG_Com_SetZoom(void* p);
-	static void MSG_Com_GetPlatAngle(void* p);
+	static void MSG_Com_QueryPtzPos(void* p);
 	static void MSG_Com_GetZoom(void* p);
 	static void MSG_Com_TrkOutput(void* p);
 	static void MSG_Com_SetCfg(void* p);

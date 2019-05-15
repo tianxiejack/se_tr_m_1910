@@ -59,26 +59,21 @@ typedef enum
 }js_pov;
 
 typedef enum _sys_msg_id_ {
-    	MSGID_SYS_INIT  = 0,
+	MSGID_SYS_INIT  = 0,
    	MSGID_EXT_INPUT_TRACKCTRL,
 	MSGID_EXT_INPUT_SwitchSensor,
 	MSGID_EXT_INPUT_ZOOMLONGCTRL,
-    	MSGID_EXT_INPUT_ZOOMSHORTCTRL,
-    	MSGID_EXT_INPUT_TRACKSEARCHCTRL,
-    	MSGID_EXT_INPUT_captureMode,
-    	MSGID_EXT_INPUT_IrisAndFocusAndExit,
-    	MSGID_EXT_INPUT_workMode,
-    	MSGID_EXT_INPUT_JOSPOS,
-    	MSGID_EXT_INPUT_POVPOSX,
-    	MSGID_EXT_INPUT_POVPOSY,
+	MSGID_EXT_INPUT_ZOOMSHORTCTRL,
+	MSGID_EXT_INPUT_TRACKSEARCHCTRL,
+	MSGID_EXT_INPUT_captureMode,
+	MSGID_EXT_INPUT_IrisAndFocusAndExit,
+	MSGID_EXT_INPUT_workMode,
+	MSGID_EXT_INPUT_JOSPOS,
+	MSGID_EXT_INPUT_POVPOSX,
+	MSGID_EXT_INPUT_POVPOSY,
 
 	MSGID_COM_INPUT_SELFCHECK,
-	MSGID_COM_INPUT_SWITCHSENSOR,
-	MSGID_COM_INPUT_WORKMODE,
-	MSGID_COM_INPUT_CAPTUREMODE,
-	MSGID_COM_INPUT_TRACKCTRL,
 	MSGID_COM_INPUT_TRKMOVE,
-	MSGID_COM_INPUT_SECTRKCTRL,
 	MSGID_COM_INPUT_SECTRKPOS,
 	MSGID_COM_INPUT_MTDSELECT,
 	MSGID_COM_INPUT_GATEMOVE,
@@ -89,7 +84,7 @@ typedef enum _sys_msg_id_ {
 	MSGID_COM_INPUT_SETPLATANGLE,
 	MSGID_COM_INPUT_PRESETPOS,
 	MSGID_COM_INPUT_SETZOOM,
-	MSGID_COM_INPUT_GETPLATANGLE,
+	MSGID_COM_INPUT_QUERYPTZPOS,
 	MSGID_COM_INPUT_GETZOOM,
 	MSGID_COM_INPUT_TRKOUTPUT,
 	MSGID_COM_INPUT_SETCFG,
@@ -146,8 +141,8 @@ typedef struct{
 	int focusctrl;
 	short platspeedx;
 	short platspeedy;
-	unsigned short platanglex;
-	unsigned short platangley;
+	unsigned short platPan;
+	unsigned short platTilt;
 	int presetpos;
 	unsigned short setzoom;
 	int trkoutput;
@@ -168,7 +163,6 @@ public:
 private:
 	static CEventParsing* pThis;
 	bool exit_jsParsing,exit_comParsing,exit_netParsing;
-	unsigned char* js_data;
 	void parsingJostickEvent(unsigned char* jos_data);
 
 public:
