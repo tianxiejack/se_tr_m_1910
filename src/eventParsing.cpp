@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 
 CEventParsing* CEventParsing::pThis = NULL;
+ACK_ComParams_t ACK_ComParams;
 
 CEventParsing::CEventParsing()
 {
@@ -72,10 +73,12 @@ void CEventParsing::thread_comsendEvent()
 	char buf[128] = {0xEB,0x53,0x02,0x00,0x07,0x09, 0x0E};
 	while(!pThis->exit_comParsing)
 	{
-		if(pThis->connetVector.size()>0)
+		OSA_mutexLock(&pThis->mutexConn);
+		if((pThis->connetVector.size()>0) && (pThis->connetVector[0]->bConnecting))
 		{
 			pThis->pCom1->csend(pThis->pThis->connetVector[0]->connfd, buf, 7);
 		}
+		OSA_mutexUnlock(&pThis->mutexConn);
 		sleep(1);
 	}
 }

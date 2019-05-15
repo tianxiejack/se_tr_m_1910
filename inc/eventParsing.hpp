@@ -152,6 +152,11 @@ typedef struct{
 	osdbuffer_t setosd;
 }ComParams_t;
 
+typedef struct{
+	int fd;
+	vector<Set_config_t>  getConfigQueue;
+}ACK_ComParams_t;
+
 class CEventParsing
 {
 public:

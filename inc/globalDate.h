@@ -11,7 +11,7 @@
 #include <iostream>
 #include <vector>
 #include <time.h>
-#include "app_status.h"
+#include "configtable.h"
 
 #include "osa_sem.h"
 //#include "ipc_custom_head.hpp"
