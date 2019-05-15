@@ -209,13 +209,14 @@ static int PlatformCtrl_PlatformCompensation(PlatformCtrl_Obj *pObj)
 	static float fTmp;
 
 	fTmp = pObj->privates.curRateDemandX;
-
-	if(fTmp > 0 && fTmp > pObj->params.demandMaxX)
-		fTmp = pObj->params.demandMaxX;
-
-	if(fTmp < 0 && fTmp < -(pObj->params.demandMaxX))
-		fTmp = -pObj->params.demandMaxX;
-
+	
+	if(fabs(fTmp) > pObj->params.demandMaxX){
+		if(fTmp > 0)
+			fTmp = pObj->params.demandMaxX;
+		else
+			fTmp = -pObj->params.demandMaxX;
+	}
+	
 	if(fabsf(fTmp) < pObj->params.deadbandX)
 		fTmp = 0;
 	
@@ -223,18 +224,19 @@ static int PlatformCtrl_PlatformCompensation(PlatformCtrl_Obj *pObj)
 
 
 	fTmp = pObj->privates.curRateDemandY;
-
-	if(fTmp > 0 && fTmp > pObj->params.demandMaxY)
-		fTmp = pObj->params.demandMaxY;
-
-	if(fTmp < 0 && fTmp < -(pObj->params.demandMaxY))
-		fTmp = -pObj->params.demandMaxY;
-
+	
+	if(fabs(fTmp) > pObj->params.demandMaxY){
+		if(fTmp > 0)
+			fTmp = pObj->params.demandMaxY;
+		else
+			fTmp = -pObj->params.demandMaxY;
+	}
+	
 	if(fabsf(fTmp) < pObj->params.deadbandY)
 		fTmp = 0;
 
 	pObj->inter.output.fPlatformDemandY = fTmp;
-
+	
 	return 0;
 }
 
@@ -541,64 +543,56 @@ static int PlatformCtrl_ProccesDevUsrInput(PlatformCtrl_Obj *pObj)
 
 int CplatFormControl::PlatformCtrl_TrackerInput(HPLTCTRL handle, PLATFORMCTRL_TrackerInput *pInput)
 {
-    int iRet = 0;
+	int iRet = 0;
 
-    PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)handle->object;
+	PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)handle->object;
 
-    if(pObj == NULL || pInput == NULL)
-        return -1;
+	if(pObj == NULL || pInput == NULL)
+	    return -1;
 
-    memcpy(&pObj->inter.trackerInput, pInput, sizeof(PLATFORMCTRL_TrackerInput));
+	memcpy(&pObj->inter.trackerInput, pInput, sizeof(PLATFORMCTRL_TrackerInput));
 
-    PlatformCtrl_BuildDevUsrInput(pObj);
+	PlatformCtrl_BuildDevUsrInput(pObj);
 
-    PlatformCtrl_OutPlatformDemand(pObj);
+	PlatformCtrl_OutPlatformDemand(pObj);
 
-    pObj->inter.output.iTrkAlgState = pInput->iTrkAlgState;
-    pObj->inter.output.fBoresightPositionX = pInput->fBoresightPositionX;
-    pObj->inter.output.fBoresightPositionY = pInput->fBoresightPositionY;
-    pObj->inter.output.fTargetBoresightErrorX = pInput->fTargetBoresightErrorX;
-    pObj->inter.output.fTargetBoresightErrorY = pInput->fTargetBoresightErrorY;
+	pObj->inter.output.iTrkAlgState = pInput->iTrkAlgState;
 
-    if(pInput->iTrkAlgState == 0 || pInput->iTrkAlgState == 1)
-    {
-        pObj->inter.output.fWindowPositionX = pInput->fAcqWindowPositionX;
-        pObj->inter.output.fWindowPositionY = pInput->fAcqWindowPositionY;
-        pObj->inter.output.fWindowSizeX = pInput->fAcqWindowSizeX;
-        pObj->inter.output.fWindowSizeY = pInput->fAcqWindowSizeY;
 
-        if(pObj->privates.iTrkAlgStateBak > 1)
-        {
-        	_Kalman->KalmanInitParam(pObj->privates.hWinFilter, 0.0, 0.0, 0, 0.0);
-        }
-    }
-    else
-    {
-        pObj->inter.output.fWindowPositionX = pInput->fTargetBoresightErrorX;
-        pObj->inter.output.fWindowPositionY = pInput->fTargetBoresightErrorY;
-        pObj->inter.output.fWindowSizeX = pInput->fTargetSizeX;
-        pObj->inter.output.fWindowSizeY = pInput->fTargetSizeY;
+	#if 0
+		pObj->inter.output.fTargetBoresightErrorX = pInput->fTargetBoresightErrorX;
+		pObj->inter.output.fTargetBoresightErrorY = pInput->fTargetBoresightErrorY;
 
-        if(pObj->params.bTrkWinFilter)
-        {
-            double dbM[3];
-            dbM[0] = 0.0f;
-            dbM[1] = pInput->fTargetBoresightErrorX;
-            dbM[2] = pInput->fTargetBoresightErrorY;
-            _Kalman->Kalman(pObj->privates.hWinFilter, dbM, NULL);
+		if(pInput->iTrkAlgState == 0 || pInput->iTrkAlgState == 1)
+		{
+			if(pObj->privates.iTrkAlgStateBak > 1)
+			{
+			_Kalman->KalmanInitParam(pObj->privates.hWinFilter, 0.0, 0.0, 0, 0.0);
+			}
+		}
+		else
+		{
+			pObj->inter.output.fWindowPositionX = pInput->fTargetBoresightErrorX;
+			pObj->inter.output.fWindowPositionY = pInput->fTargetBoresightErrorY;
 
-            pObj->inter.output.fWindowPositionX = (float)pObj->privates.hWinFilter->state_post[2];
-            pObj->inter.output.fWindowPositionY = (float)pObj->privates.hWinFilter->state_post[4];
-        }
-    }
+			if(pObj->params.bTrkWinFilter)
+			{
+				double dbM[3];
+				dbM[0] = 0.0f;
+				dbM[1] = pInput->fTargetBoresightErrorX;
+				dbM[2] = pInput->fTargetBoresightErrorY;
+				_Kalman->Kalman(pObj->privates.hWinFilter, dbM, NULL);
 
-    PlatformCtrl_ProccesDevUsrInput(pObj);
+				pObj->inter.output.fWindowPositionX = (float)pObj->privates.hWinFilter->state_post[2];
+				pObj->inter.output.fWindowPositionY = (float)pObj->privates.hWinFilter->state_post[4];
+			}
+		}
+	#endif
 
-    pObj->privates.iTrkAlgStateBak = pInput->iTrkAlgState;
-
-    pObj->privates.acqOutputTypeBak = pObj->params.acqOutputType;
-
-    return iRet;
+	PlatformCtrl_ProccesDevUsrInput(pObj);
+	pObj->privates.iTrkAlgStateBak = pInput->iTrkAlgState;
+	pObj->privates.acqOutputTypeBak = pObj->params.acqOutputType;
+	return iRet;
 }
 
 
