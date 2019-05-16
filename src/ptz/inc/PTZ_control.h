@@ -25,8 +25,6 @@ typedef enum{
 
 class CPTZControl : CptzInterface
 {
-	port_handle *m_port;
-
     OSA_ThrHndl thrHandleDataIn;
     volatile Bool exitDataInThread;
     static Void * port_dataInFxn(Void * prm){
