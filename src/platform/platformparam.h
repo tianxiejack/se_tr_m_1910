@@ -57,13 +57,6 @@ typedef enum{
 	Bleed_PlatformDemand = 2
 }ePlatfromCtrlBleed;
 
-typedef enum
-{
-	error = -1,
-	SENSORCOMP_MODE_RUN = 0,
-	SENSORCOMP_MODE_CORR_NORMAL,
-	SENSORCOMP_MODE_CORR_CLEAN,
-} SENSORCOMP_MODE;
 
 #pragma pack (4)
 
@@ -89,9 +82,7 @@ typedef struct
 	float fFovMin;
 	float fFovMax;
 	float fFovY;
-	SensorComp_BoresightPos *initTab;
 	int nInitTabSize;
-	SENSORCOMP_MODE initMode;
 }SensorComp_CreateParams;
 
 

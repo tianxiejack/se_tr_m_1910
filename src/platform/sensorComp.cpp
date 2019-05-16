@@ -18,23 +18,10 @@ typedef struct {
 }SensorComp_BoresightPosTab;
 
 typedef struct {
-
 	SensorComp_CreateParams params;
-
-	SensorComp_BoresightPosTab *pBoresightPosRunTab;
-
-	SensorComp_BoresightPosTab *pBoresightPosCorrTab;
-
-	SENSORCOMP_MODE curMode;
-
-	SensorComp_BoresightPosTab *pCurTab;
-
 	int iCurPos;
-
 	float fCurFov;
-
 	int iCurX, iCurY;
-
 }SensorComp_Obj;
 
 View* CSensorComp::backParams()
@@ -642,7 +629,6 @@ void CSensorComp::SensorComp_CreateParams_Init(SensorComp_CreateParams *pPrm, in
 	pPrm->fFovMin = 3.0f;
 	pPrm->fFovMax = Pserson->level_Fov_fix[i];
 	pPrm->fFovY = Pserson->vertical_Fov_fix[i];
-	pPrm->initMode = SENSORCOMP_MODE_RUN;
 	return ;
 }
 
