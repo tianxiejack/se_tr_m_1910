@@ -8,13 +8,8 @@
 using namespace std;
 
 const double PI = 3.14159269798;
-#define SENSORCOMP_BORESIGHTPOS_TAB_DEF_SIZE		(2)
-
-#define SENSORCOMP_BORESIGHTPOS_TAB_MAX_SIZE		(32)
-
 
 const char chid_camera = 5;
-
 
 typedef struct{
     /*固定视场*/
@@ -134,12 +129,12 @@ public:
 	CSensorComp(){};
 	~CSensorComp(){};
 
-	View* backParams();
-	HSENSORCOMP SensorComp_Create(SensorComp_CreateParams *pPrm);
-	void SensorComp_Delete(HSENSORCOMP hComp);
-	BoresightPos_s UpdateParams(float* data, int block, int field, int curChid, PlatformCtrl_Obj* pObj);
-	void SensorComp_CreateParams_Init(SensorComp_CreateParams *pPrm, int i, View* Pserson,int width ,int height);
 
+	View* backParams();
+	BoresightPos_s UpdateParams(float* data, int block, int field, int curChid, PlatformCtrl_Obj* pObj);
+
+	void SensorComp_CreateParams_Init(SensorComp_CreateParams *pPrm, int i, View* Pserson,int width ,int height);
+	
 	float ZoomLevelFovCompensation(unsigned short zoom, int chid);
 	float ZoomVerticalFovCompensation(unsigned short zoom, int chid);
 
@@ -152,16 +147,8 @@ private:
 	void UpdateContinueFovParams_four(int chid, int field, int curChid, PlatformCtrl_Obj* pObj);
 	void UpdateContinueFovParams_five(int chid, int field, int curChid, PlatformCtrl_Obj* pObj);
 
-	int SensorComp_SwitchMode(HSENSORCOMP hComp, SENSORCOMP_MODE mode, int flag);
 	float linear_interpolation_Fov(float x0, float x1, float y0, float y1, float x);
 
-	//no used
-	int SensorComp_GetIndex(HSENSORCOMP hComp);
-	SENSORCOMP_MODE SensorComp_GetMode(HSENSORCOMP hComp);
-	int SensorComp_GetBoresightPos(HSENSORCOMP hComp, float fFov, int *pX, int *pY);
-	int SensorComp_SetBoresightPos(HSENSORCOMP hComp, float fFov, int x, int y);
-	int SensorComp_GetTab(HSENSORCOMP hComp, SensorComp_BoresightPos **ppTab, int *pSize);
-	int SensorComp_CleanTab(HSENSORCOMP hComp);
 
 private:
 	View m_viewParam;

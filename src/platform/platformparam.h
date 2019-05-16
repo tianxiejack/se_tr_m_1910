@@ -177,7 +177,6 @@ typedef PlatformCtrlParam PlatformCtrl_CreateParams;
 #pragma pack (4)
 typedef struct
 {
-	HSENSORCOMP hSensor[SENSOR_COUNT];
 	float fovX;//mRad
 	float fovY;//mRad
 	float width;//pix
@@ -190,8 +189,6 @@ typedef struct
 
 	HPLTFILTER filter[2];
 	int iFilter;
-	HPLTFILTER joystickIntegrator[2];
-	PlatformFilterParam joystickIntegratorParam[2];
 	HKalman hWinFilter;
 	int iTrkAlgStateBak;
 	int acqOutputTypeBak;
