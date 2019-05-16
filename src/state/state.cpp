@@ -23,11 +23,6 @@ State::State()
 	if(m_ptzSpeed == NULL)
 		m_ptzSpeed = new CPTZSpeedTransfer();
 
-	//m_Platform->PlatformCtrl_sensor_Init(cfg_value);
-	//m_Platform->PlatformCtrl_CreateParams_Init(&m_cfgPlatParam, cfg_value, &viewParam);
-	//OSA_assert(m_plt == NULL);
-	//m_plt = m_Platform->PlatformCtrl_Create(&m_cfgPlatParam);
-
 	curState = STATE_PTZ;
 	selectch = {1, 1, 1, 1, 1, 0};
 	curValidChid = selectch.idx;
@@ -36,6 +31,15 @@ State::State()
 State::~State()
 {
 
+}
+
+void State::platformCreate()
+{
+	viewParam = m_Platform->sensorParams();
+	m_Platform->PlatformCtrl_sensor_Init(cfg_value);
+	m_Platform->PlatformCtrl_CreateParams_Init(&m_cfgPlatParam, cfg_value, viewParam);
+	OSA_assert(m_plt == NULL);
+	m_plt = m_Platform->PlatformCtrl_Create(&m_cfgPlatParam);
 }
 
 void State::StateInit()
@@ -50,6 +54,7 @@ void State::StateInit()
 		st4 = new BoxCapture();
 	if(st5 == NULL)
 		st5 = new ManualMtdCapture();
+	platformCreate();
 }
 
 int State::ChangeState(StateManger* con, char nextState)

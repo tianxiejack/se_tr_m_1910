@@ -21,6 +21,7 @@ typedef struct
 }selectCh_t;
 
 typedef enum{
+	ROUTINE_STATE,
 	STATE_AUTOMTD,
 	STATE_SCENETRK,
 	STATE_PTZ,
@@ -45,6 +46,8 @@ public:
 public:
 	const int jos_value = 0xFF;
 	int curState;
+	float* cfg_value;
+	View* viewParam;
 	HPLTCTRL  m_plt;
 	PLATFORMCTRL_TrackerInput m_pltInput;
 	PLATFORMCTRL_Output m_pltOutput;
@@ -62,6 +65,9 @@ private:
 	static CPTZSpeedTransfer*  m_ptzSpeed;
 	char curValidChid;
 	selectCh_t selectch;
+
+private:
+	void platformCreate();
 };
 
 class StateAuto_Mtd:public State

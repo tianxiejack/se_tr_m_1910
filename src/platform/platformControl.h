@@ -10,8 +10,9 @@ public:
 	CplatFormControl();
 	~CplatFormControl();
 
-	void PlatformCtrl_sensor_Init(vector<float> data);
-	void PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams *pPrm, vector<float> m_Prm, View* m_Sensor);
+	View* sensorParams();
+	void PlatformCtrl_sensor_Init(float* data);
+	void PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams *pPrm, float* m_Prm, View* m_Sensor);
 	HPLTCTRL PlatformCtrl_Create(PlatformCtrl_CreateParams *pPrm);
 
 	void PlatformCtrl_Delete(HPLTCTRL handle);
@@ -21,8 +22,8 @@ public:
 	int PlatformCtrl_TrackerOutput(HPLTCTRL handle, PLATFORMCTRL_Output *pOutput);
 	int PlatformCtrl_VirtualInput(HPLTCTRL handle, int iIndex, float fValue);
 	int PlatformCtrl_sensorCompensation(HPLTCTRL handle, int chid,unsigned int zoom);
-	void PlatformCtrl_UpdateParams(HPLTCTRL handle, vector<float> data, int block);
-	BoresightPos_s PlatformCtrl_SensorUpdateParams(vector<float> data, int block, int field, int curChid, PlatformCtrl_Obj *pObj);
+	void PlatformCtrl_UpdateParams(HPLTCTRL handle, float* data, int block);
+	BoresightPos_s PlatformCtrl_SensorUpdateParams(float* data, int block, int field, int curChid, PlatformCtrl_Obj *pObj);
 
 private:
 	void PlatformCtrl_ClassInit();

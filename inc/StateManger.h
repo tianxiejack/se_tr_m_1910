@@ -17,6 +17,7 @@ public:
 	StateManger();
 	StateManger(State* state);
 	~StateManger();
+	void GetParams(float* p);
 	int CurStateInterface();
 	void ToStateAuto_Mtd();
 	void ToStateSceneSelect();
@@ -41,6 +42,7 @@ private:
 private:
 	State* _state;
 	int curState;
+	float* cfg_param;
 };
 #endif /*~_CONTEXT_H_*/
 

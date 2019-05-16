@@ -16,6 +16,11 @@ StateManger::~StateManger()
 	delete _state;
 }
 
+void StateManger::GetParams(float* p)
+{
+	_state->cfg_value = p;
+}
+
 void StateManger::OperationInterface()
 {
 	_state->OperationInterface(this);
