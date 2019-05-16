@@ -74,9 +74,6 @@ HPLTCTRL CplatFormControl::PlatformCtrl_Create(PlatformCtrl_CreateParams *pPrm)
 	pObj->inter.object = pObj;
 	pObj->privates.iTrkAlgStateBak = 0;
 
-	for(i = 0; i < SENSOR_COUNT; i++)
-	    pObj->privates.hSensor[i] = _Sensor->SensorComp_Create(&pObj->params.sensorParams[i]);
-
 	pObj->inter.output.iSensor = pObj->params.iSensorInit;
 	pObj->privates.fovX = pObj->params.fFovx[pObj->inter.output.iSensor];
 	pObj->privates.fovY = pObj->params.fFovy[pObj->inter.output.iSensor];
@@ -88,19 +85,6 @@ HPLTCTRL CplatFormControl::PlatformCtrl_Create(PlatformCtrl_CreateParams *pPrm)
 
 	pObj->privates.filter[0] = _Fiter->PlatformFilter_Create(&pObj->params.platformFilterParam[0]);
 	pObj->privates.filter[1] = _Fiter->PlatformFilter_Create(&pObj->params.platformFilterParam[1]);
-
-	pObj->privates.joystickIntegratorParam[0].Ki
-	    = pObj->params.joystickRateDemandParam.fPlatformIntegratingGain_X;
-	pObj->privates.joystickIntegratorParam[0].Kd
-	    = (-1.0f) * pObj->params.joystickRateDemandParam.fPlatformIntegratingDecayGain;
-	pObj->privates.joystickIntegrator[0]
-	    = _Fiter->PlatformFilter_Create(&pObj->privates.joystickIntegratorParam[0]);
-	pObj->privates.joystickIntegratorParam[1].Ki
-	    = pObj->params.joystickRateDemandParam.fPlatformIntegratingGain_Y;
-	pObj->privates.joystickIntegratorParam[1].Kd
-	    = (-1.0f) * pObj->params.joystickRateDemandParam.fPlatformIntegratingDecayGain;
-	pObj->privates.joystickIntegrator[1]
-	    = _Fiter->PlatformFilter_Create(&pObj->privates.joystickIntegratorParam[1]);
 
 	pObj->privates.hWinFilter = _Kalman->KalmanOpen(6, 3, 0);
 	_Kalman->KalmanInitParam(pObj->privates.hWinFilter, 0.0, 0.0, 0, 0.0);
@@ -191,16 +175,11 @@ void CplatFormControl::PlatformCtrl_Delete(HPLTCTRL handle)
 	_Fiter->PlatformFilter_Delete(pObj->privates.filter[0]);
 	_Fiter->PlatformFilter_Delete(pObj->privates.filter[1]);
 
-	_Fiter->PlatformFilter_Delete(pObj->privates.joystickIntegrator[0]);
-	_Fiter->PlatformFilter_Delete(pObj->privates.joystickIntegrator[1]);
-
 	_Kalman->KalmanClose(pObj->privates.hWinFilter);
 
 	for(i = 0; i < DevUsr_MAX; i++)
 		_DeviceUser->DeviceUser_Delete(pObj->privates.hDevUsers[i]);
 
-	for(i = 0; i < SENSOR_COUNT; i++)
-		_Sensor->SensorComp_Delete(pObj->privates.hSensor[i]);
 	free(pObj);
 	return;
 }
@@ -333,8 +312,6 @@ void CplatFormControl::joyXHandle(PlatformCtrl_Obj *pObj)
 	fTmp *= pParam->fPlatformAcquisitionModeGain_X;
 
 	if(pObj->params.acqOutputType == AcqOutputType_ShapedAndGainedAndIntegrated){
-		if(pObj->privates.acqOutputTypeBak != pObj->params.acqOutputType)
-			_Fiter->PlatformFilter_Reset(pObj->privates.joystickIntegrator[0]);
 	}
 	else
 		_Fiter->calcCurPlatAvrRate(pObj->privates.filter[0], fTmp);
@@ -410,8 +387,6 @@ void CplatFormControl::joyYHandle(PlatformCtrl_Obj *pObj)
 	fTmp *= pParam->fPlatformAcquisitionModeGain_Y;
 
 	if(pObj->params.acqOutputType == AcqOutputType_ShapedAndGainedAndIntegrated){
-		if(pObj->privates.acqOutputTypeBak != pObj->params.acqOutputType)
-			_Fiter->PlatformFilter_Reset(pObj->privates.joystickIntegrator[1]);
 	}
 	else
 		_Fiter->calcCurPlatAvrRate(pObj->privates.filter[1], fTmp);
