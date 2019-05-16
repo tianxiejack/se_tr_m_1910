@@ -38,6 +38,7 @@ State::~State()
 
 void State::platformCreate()
 {
+	m_plt = NULL;
 	viewParam = m_Platform->sensorParams();
 	m_Platform->PlatformCtrl_sensor_Init(cfg_value);
 	m_Platform->PlatformCtrl_CreateParams_Init(&m_cfgPlatParam, cfg_value, viewParam);
@@ -90,32 +91,34 @@ int State::ChangeState(StateManger* con, char nextState)
 
 void State::TrkCtrl(char Enable)
 {
-	//m_ipc->ipcTrackCtrl(Enable);
+	ipcParam.intPrm[0] = Enable;
+	m_ipc->IPCSendMsg(trk, ipcParam.intPrm, 4);
 }
 
 void State::switchSensor(char chid)
 {
 
-	int SensorStat; //= GetIpcAddress(Sensor);
+	int SensorStat = cfg_value[CFGID_RTS_mainch];
 	if(chid == 0xff)
 	{
-		if(1)//SensorStat != selectch.idx)
+		if(SensorStat != selectch.idx)
 			selectch.idx = SensorStat;
 		do{
 				selectch.idx++;
 				selectch.idx = selectch.idx%5;
 		}while(!selectch.validCh[selectch.idx]);
-		//m_GlobalDate->chid_camera = selectch.idx;
-		//m_ipc->IpcSensorSwitch(selectch.idx);
+		ipcParam.intPrm[0] = selectch.idx;
+		m_ipc->IPCSendMsg(sensor, ipcParam.intPrm, 4);
 	}
 	else
 	{
 		if(selectch.validCh[chid] == 1)
 		{
-			selectch.idx = chid;
-			//m_ipc->IpcSensorSwitch(selectch.idx);
+			ipcParam.intPrm[0] = selectch.idx = chid;
+			m_ipc->IPCSendMsg(sensor, ipcParam.intPrm, 4);
 		}
 	}
+
 	curValidChid = selectch.idx;
 }
 
