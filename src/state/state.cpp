@@ -8,6 +8,7 @@ State *st1 = NULL, *st2 = NULL, *st3 = NULL, *st4 = NULL, *st5 = NULL;
 CPTZControl* State::_ptz = NULL;
 AgreeMentBaseFormat* State::_agreement = NULL;
 CPlatformInterface* State::m_Platform = NULL;
+CPTZSpeedTransfer*  State::m_ptzSpeed = NULL;
 
 State::State()
 {
@@ -19,6 +20,14 @@ State::State()
 		_ptz = new CPTZControl(_agreement);
 	if(m_Platform == NULL)
 		m_Platform = new CplatFormControl();
+	if(m_ptzSpeed == NULL)
+		m_ptzSpeed = new CPTZSpeedTransfer();
+
+	//m_Platform->PlatformCtrl_sensor_Init(cfg_value);
+	//m_Platform->PlatformCtrl_CreateParams_Init(&m_cfgPlatParam, cfg_value, &viewParam);
+	//OSA_assert(m_plt == NULL);
+	//m_plt = m_Platform->PlatformCtrl_Create(&m_cfgPlatParam);
+
 	curState = STATE_PTZ;
 	selectch = {1, 1, 1, 1, 1, 0};
 	curValidChid = selectch.idx;
@@ -102,159 +111,26 @@ void State::switchSensor(char chid)
 	curValidChid = selectch.idx;
 }
 
-void State::axisMove(int iDirection, int speed)
-{
-	_ptz->ptzMove(iDirection, speed);
-}
-
 void State::ZoomCtrl(char type)
 {
 	if(type == 0x01)
-		_ptz->ptzZoomTele();
+		_ptz->m_iSetZoomSpeed = -1;
 	else if(type == 0x02)
-		_ptz->ptzZoomWide();
+		_ptz->m_iSetZoomSpeed = 1;
 	else
-		_ptz->ptzZoomStop();
+		_ptz->m_iSetZoomSpeed = 0;
 }
 
-
-
-
-
-/*=====================================*/
-
-
-StateAuto_Mtd::StateAuto_Mtd()
+void State::axisMove(int x, int y)
 {
+	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickXInput, x/jos_value);
+	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickYInput, y/jos_value);
 
+	m_pltInput.iTrkAlgState= 0;
+	m_Platform->PlatformCtrl_TrackerInput(m_plt, &m_pltInput);
+	m_Platform->PlatformCtrl_TrackerOutput(m_plt, &m_pltOutput);
 }
 
-StateAuto_Mtd::~StateAuto_Mtd()
-{
 
-}
 
-void StateAuto_Mtd::OperationInterface(StateManger*con)
-{
-	cout<<"1  StateAuto_Mtd......"<<endl;
-}
 
-void StateAuto_Mtd::OperationChangeState(StateManger* con)
-{
-	OperationInterface(con);
-}
-
-int StateAuto_Mtd::curStateInterface()
-{
-	if(curState != STATE_AUTOMTD)
-		curState = STATE_AUTOMTD;
-	return curState;
-}
-
-StateSceneSelect::StateSceneSelect()
-{
-
-}
-
-StateSceneSelect::~StateSceneSelect()
-{
-
-}
-
-void StateSceneSelect::OperationInterface(StateManger* con)
-{
-	cout<<"2  StateSceneSelect"<<endl;
-}
-
-void StateSceneSelect::OperationChangeState(StateManger* con)
-{
-	OperationInterface(con);
-}
-
-int StateSceneSelect::curStateInterface()
-{
-	if(curState != STATE_SCENETRK)
-		curState = STATE_SCENETRK;
-	return curState;
-}
-
-PlatFormCapture::PlatFormCapture()
-{
-
-}
-
-PlatFormCapture::~PlatFormCapture()
-{
-
-}
-
-void PlatFormCapture::OperationInterface(StateManger* con)
-{
-	cout<<"3  PlatFormCapture"<<endl;
-}
-
-void PlatFormCapture::OperationChangeState(StateManger* con)
-{
-	OperationInterface(con);
-}
-
-int PlatFormCapture::curStateInterface()
-{
-	if(curState != STATE_PTZ)
-		curState = STATE_PTZ;
-	return curState;
-}
-
-BoxCapture::BoxCapture()
-{
-
-}
-
-BoxCapture::~BoxCapture()
-{
-
-}
-
-void BoxCapture::OperationInterface(StateManger* con)
-{
-	cout<<"4  BoxCapture"<<endl;
-}
-
-void BoxCapture::OperationChangeState(StateManger* con)
-{
-	OperationInterface(con);
-}
-
-int BoxCapture::curStateInterface()
-{
-	if(curState != STATE_BOX)
-		curState = STATE_BOX;
-	return curState;
-}
-
-ManualMtdCapture::ManualMtdCapture()
-{
-
-}
-
-ManualMtdCapture::~ManualMtdCapture()
-{
-
-}
-
-void ManualMtdCapture::OperationInterface(StateManger* con)
-{
-	cout<<"5  ManualMtdCapture"<<endl;
-}
-
-void ManualMtdCapture::OperationChangeState(StateManger* con)
-{
-	OperationInterface(con);
-}
-
-int ManualMtdCapture::curStateInterface()
-{
-	if(curState != STATE_MANUALMTD)
-		curState = STATE_MANUALMTD;
-	return curState;
-}

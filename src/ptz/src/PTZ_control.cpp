@@ -412,7 +412,6 @@ int CPTZControl::Move()
 
 	m_changeZoom = 1;
 	
-
 	m_iCurPanSpeed = m_iSetPanSpeed;
 	m_iCurTiltSpeed = m_iSetTiltSpeed;
 	m_iCurZoomSpeed = m_iSetZoomSpeed;

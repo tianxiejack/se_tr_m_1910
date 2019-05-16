@@ -84,12 +84,12 @@ void StateManger::inter_ZoomCtrl(char type)
 	_state->ZoomCtrl(type);
 }
 
-void StateManger::inter_AxisPos(void* p)
+void StateManger::inter_AxisPos(int x, int y)
 {
-	//ComParams_t *tmp = (ComParams_t *)p;
+
 }
 
-void StateManger::inter_AxisMove(int iDirection, int speed)
+void StateManger::inter_AxisMove(int x, int y)
 {
-	_state->axisMove(iDirection, speed);
+	_state->axisMove(x, y);
 }

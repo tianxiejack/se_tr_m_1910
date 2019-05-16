@@ -43,15 +43,23 @@ public:
 	virtual int ChangeState(StateManger* con, char nextState);
 
 public:
+	const int jos_value = 0xFF;
+	int curState;
+	HPLTCTRL  m_plt;
+	PLATFORMCTRL_TrackerInput m_pltInput;
+	PLATFORMCTRL_Output m_pltOutput;
+	PlatformCtrl_CreateParams m_cfgPlatParam;
+
+public:
 	virtual void TrkCtrl(char Enable);
 	virtual void switchSensor(char chid);
 	virtual void ZoomCtrl(char type);
-	virtual void axisMove(int iDirection, int speed);
-public:
+	virtual void axisMove(int x, int y);
+private:
 	static CPTZControl* _ptz;
 	static AgreeMentBaseFormat* _agreement;
 	static CPlatformInterface* m_Platform;
-	int curState;
+	static CPTZSpeedTransfer*  m_ptzSpeed;
 	char curValidChid;
 	selectCh_t selectch;
 };
@@ -61,9 +69,12 @@ class StateAuto_Mtd:public State
 public:
 	StateAuto_Mtd();
 	virtual ~StateAuto_Mtd();
+private:
 	virtual  void OperationInterface(StateManger* con);
 	virtual  void OperationChangeState(StateManger* con);
 	virtual int curStateInterface();
+	virtual void axisMove(int x, int y){};
+	virtual void ZoomCtrl(char type){};
 };
 
 class StateSceneSelect:public State
@@ -74,6 +85,7 @@ public:
 	virtual  void OperationInterface(StateManger* con );
 	virtual  void OperationChangeState(StateManger* con);
 	virtual int curStateInterface();
+	virtual void axisMove(int x, int y);
 };
 
 class PlatFormCapture:public State
@@ -81,9 +93,11 @@ class PlatFormCapture:public State
 public:
 	PlatFormCapture();
 	virtual ~PlatFormCapture();
+private:
 	virtual  void OperationInterface(StateManger* con);
 	virtual  void OperationChangeState(StateManger* con);
 	virtual int curStateInterface();
+	virtual void axisMove(int x, int y);
 };
 
 class BoxCapture:public State
@@ -91,9 +105,11 @@ class BoxCapture:public State
 public:
 	BoxCapture();
 	virtual ~BoxCapture();
+private:
 	virtual  void OperationInterface(StateManger* con);
 	virtual  void OperationChangeState(StateManger* con);
 	virtual int curStateInterface();
+	virtual void axisMove(int x, int y);
 };
 
 class ManualMtdCapture:public State
@@ -101,9 +117,11 @@ class ManualMtdCapture:public State
 public:
 	ManualMtdCapture();
 	virtual ~ManualMtdCapture();
+private:
 	virtual  void OperationInterface(StateManger* con);
 	virtual  void OperationChangeState(StateManger* con);
 	virtual int curStateInterface();
+	virtual void axisMove(int x, int y);
 };
 
 

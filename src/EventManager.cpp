@@ -133,7 +133,14 @@ void CEventManager::MSG_WorkMode(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
 	if(tmp->workmode == 0)
-		printf("ptz or box or manual Mtd \n");//pThis->_StateManager->ToStateConvention();
+	{
+		if(tmp->capturemode == 0)
+			pThis->_StateManager->ToPlatFormCapture();
+		else if(tmp->capturemode == 1)
+			pThis->_StateManager->ToBoxCapture();
+		else if(tmp->capturemode == 2)
+			pThis->_StateManager->ToManualMtdCapture();
+	}
 	else if(tmp->workmode == 1)
 		pThis->_StateManager->ToStateAuto_Mtd();
 	else if(tmp->workmode == 2)
@@ -187,10 +194,10 @@ void CEventManager::MSG_JosPos(void* p)
 	//MSG_Com_FocusCtrl(p);
 	//MSG_Com_Gatemove(p);
 #if 0
-	if(jos[0] > 0 && jos[0] < 0x7a)
-		pThis->_StateManager->inter_AxisMove(PTZ_MOVE_Left, jos[0]);
-	else if(jos[0] > 0x90 && jos[0] < 0xff)
-		pThis->_StateManager->inter_AxisMove(PTZ_MOVE_Right, jos[0]);
+	if(tmp->platspeedx > 0 &&tmp->platspeedx < 0x7a)
+		pThis->_StateManager->inter_AxisMove(PTZ_MOVE_Left, tmp->platspeedx);
+	else if(tmp->platspeedx > 0x90 &&tmp->platspeedx < 0xff)
+		pThis->_StateManager->inter_AxisMove(PTZ_MOVE_Right,tmp->platspeedx);
 	else
 		pThis->_StateManager->inter_AxisMove(PTZ_MOVE_Stop, 0);
 #endif

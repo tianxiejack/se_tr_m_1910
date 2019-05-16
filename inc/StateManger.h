@@ -27,8 +27,8 @@ public:
 	void inter_TrkCtrl(char Enable);
 	void inter_SwitchSensor(char chid);
 	void inter_ZoomCtrl(char type);
-	void inter_AxisPos(void* p);
-	void inter_AxisMove(int iDirection, int speed);
+	void inter_AxisPos(int x, int y);
+	void inter_AxisMove(int x, int y);
 
 protected:
 
