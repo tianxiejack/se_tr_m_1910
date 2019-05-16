@@ -9,6 +9,7 @@ CPTZControl* State::_ptz = NULL;
 AgreeMentBaseFormat* State::_agreement = NULL;
 CPlatformInterface* State::m_Platform = NULL;
 CPTZSpeedTransfer*  State::m_ptzSpeed = NULL;
+CIPCProc* State::m_ipc = NULL;
 
 State::State()
 {
@@ -22,6 +23,8 @@ State::State()
 		m_Platform = new CplatFormControl();
 	if(m_ptzSpeed == NULL)
 		m_ptzSpeed = new CPTZSpeedTransfer();
+	if(m_ipc == NULL)
+		m_ipc = new CIPCProc();
 
 	curState = STATE_PTZ;
 	selectch = {1, 1, 1, 1, 1, 0};
