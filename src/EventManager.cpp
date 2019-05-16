@@ -17,14 +17,14 @@ using namespace cv;
 CEventManager::CEventManager()
 {
 	pThis = this;
-	m_ipc = new CIPCProc();
-	IPC_Creat();
 
 	_Msg = CMessage::getInstance();
 	_state = new PlatFormCapture();
 	_StateManager = new StateManger(_state);
 	_Handle = _Msg->MSGDRIV_create();
 	MSG_register();
+	m_ipc = (CIPCProc*)_StateManager->returnIpc();
+	IPC_Creat();
 	configAvtFromFile();
 	_StateManager->GetParams(cfg_value);
 	_state->StateInit();

@@ -17,8 +17,11 @@ public:
 	StateManger();
 	StateManger(State* state);
 	~StateManger();
+
+	void* returnIpc();
 	void GetParams(float* p);
 	int CurStateInterface();
+
 	void ToStateAuto_Mtd();
 	void ToStateSceneSelect();
 	void ToPlatFormCapture();

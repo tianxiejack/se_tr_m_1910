@@ -16,6 +16,11 @@ StateManger::~StateManger()
 	delete _state;
 }
 
+void* StateManger::returnIpc()
+{
+	return _state->m_ipc;
+}
+
 void StateManger::GetParams(float* p)
 {
 	_state->cfg_value = p;

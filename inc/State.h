@@ -13,6 +13,7 @@
 #include "PTZ_control.h"
 #include "StateManger.h"
 #include "platformControl.h"
+#include "ipcProc.h"
 
 typedef struct
 {
@@ -58,7 +59,8 @@ public:
 	virtual void switchSensor(char chid);
 	virtual void ZoomCtrl(char type);
 	virtual void axisMove(int x, int y);
-private:
+public:
+	static 	CIPCProc* m_ipc;
 	static CPTZControl* _ptz;
 	static AgreeMentBaseFormat* _agreement;
 	static CPlatformInterface* m_Platform;
