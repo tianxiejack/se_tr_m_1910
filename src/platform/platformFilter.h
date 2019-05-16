@@ -47,7 +47,7 @@ public:
 	void PlatformFilter_Reset(HPLTFILTER hFilter);
 	int PlatformFilter_reset4trk(HPLTFILTER hFilter);
 	void calcCurPlatAvrRate(HPLTFILTER hFilter , float curRate);
-	void PlatformFilter_updatePidParams(PlatformFilter_CreateParams *pPrm,PlatformFilter_CreateParams *pPrm2, vector<float> m_Prm);
+	void PlatformFilter_updatePidParams(PlatformFilter_CreateParams *pPrm,PlatformFilter_CreateParams *pPrm2, float* m_Prm);
 	float pidAlg(HPLTFILTER hFilter, float curXc);
 
 private:

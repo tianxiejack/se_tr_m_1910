@@ -225,7 +225,7 @@ int CEventParsing::thread_ReclaimConnect()
 void CEventParsing::parsingJostickEvent(unsigned char* jos_data)
 {
 	static int povbak=0, butbak=0, xBak=0, yBak=0;
-
+	static int Iris_Focus;
 	/*joystick button event*/
 	if(jos_data[POV_BUTTON] != povbak)
 	{
@@ -257,10 +257,18 @@ void CEventParsing::parsingJostickEvent(unsigned char* jos_data)
 			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_SwitchSensor, &ComParams);
 			break;
 		case js_3:
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_ZOOMLONGCTRL, jos_data);
+			if(ComParams.zoomctrl == 0)
+				ComParams.zoomctrl = 2;
+			else
+				ComParams.zoomctrl = 0;
+			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_ZOOMLONGCTRL, &ComParams);
 			break;
 		case js_4:
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_ZOOMSHORTCTRL, jos_data);
+			if(ComParams.zoomctrl == 0)
+				ComParams.zoomctrl = 1;
+			else
+				ComParams.zoomctrl = 0;
+			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_ZOOMSHORTCTRL, &ComParams);
 			break;
 		}
 		povbak = jos_data[POV_BUTTON];
@@ -291,7 +299,20 @@ void CEventParsing::parsingJostickEvent(unsigned char* jos_data)
 			//_Msg->MSGDRIV_send(, jos_data);
 			break;
 		case js_11:
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_IrisAndFocusAndExit, jos_data);
+			Iris_Focus= (Iris_Focus + 1)%3;
+			if(Iris_Focus == 1)
+			{
+				ComParams.irisctrl= 0x03;
+				ComParams.focusctrl = 0;
+			}
+			else if(Iris_Focus == 2)
+			{
+				ComParams.focusctrl = 0x03;
+				ComParams.irisctrl= 0;
+			}
+			else
+				ComParams.irisctrl = ComParams.focusctrl = 0;
+			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_IrisAndFocusAndExit, &ComParams);
 			break;
 		case js_12:
 			ComParams.workmode = (ComParams.workmode + 1)%3;
@@ -303,13 +324,15 @@ void CEventParsing::parsingJostickEvent(unsigned char* jos_data)
 
 	if(jos_data[AXIS_X] != xBak)
 	{
-		_Msg->MSGDRIV_send(MSGID_EXT_INPUT_JOSPOS, jos_data);
+		ComParams.platspeedx = jos_data[AXIS_X];
+		_Msg->MSGDRIV_send(MSGID_EXT_INPUT_JOSPOS, &ComParams);
 		xBak = jos_data[AXIS_X];
 	}
 
 	if(jos_data[AXIS_Y] != yBak)
 	{
-		_Msg->MSGDRIV_send(MSGID_EXT_INPUT_JOSPOS, jos_data);
+		ComParams.platspeedy = jos_data[AXIS_Y];
+		_Msg->MSGDRIV_send(MSGID_EXT_INPUT_JOSPOS, &ComParams);
 		yBak = jos_data[AXIS_Y];
 	}
 }
@@ -451,7 +474,7 @@ int CEventParsing::parsingComEvent(int fd)
 				_Msg->MSGDRIV_send(MSGID_COM_INPUT_ZOOMCTRL, &ComParams);
 				break;
 			case 0x0D:
-				ComParams.aperturectrl = rcvBufQue.at(5);
+				ComParams.irisctrl = rcvBufQue.at(5);
 				_Msg->MSGDRIV_send(MSGID_COM_INPUT_APERTURECTRL, &ComParams);
 				break;
 			case 0x0E:

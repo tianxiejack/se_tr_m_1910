@@ -8,8 +8,7 @@
 #define EVENTMANAGER_HPP_
 #include "eventParsing.hpp"
 #include "StateManger.h"
-#include "State.h"
-#include "ipcProc.h"
+
 
 class CEventManager
 {
@@ -21,8 +20,8 @@ private:
 	CMessage* _Msg;
 	StateManger* _StateManager;
 	State* _state;
-	static CEventManager* pThis;
 	CIPCProc* m_ipc;
+	static CEventManager* pThis;
 	float *cfg_value;
 	void *usr_value;
 	void IPC_Creat();
@@ -47,7 +46,7 @@ private:
 	static void MSG_Com_MtdSelect(void* p);
 	static void MSG_Com_Gatemove(void* p);
 	static void MSG_Com_ZoomCtrl(void* p);
-	static void MSG_Com_ApertureCtrl(void* p);
+	static void MSG_Com_IrisCtrl(void* p);
 	static void MSG_Com_FocusCtrl(void* p);
 	static void MSG_Com_SetPlatSpeed(void* p);
 	static void MSG_Com_SetPlatAngle(void* p);

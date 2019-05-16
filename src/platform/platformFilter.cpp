@@ -65,7 +65,7 @@ void CPlatformFilter::PlatformFilter_Reset(HPLTFILTER hFilter)
 
 
 
-void CPlatformFilter::PlatformFilter_updatePidParams(PlatformFilter_CreateParams *pPrm,PlatformFilter_CreateParams *pPrm2,vector<float> m_Prm)
+void CPlatformFilter::PlatformFilter_updatePidParams(PlatformFilter_CreateParams *pPrm,PlatformFilter_CreateParams *pPrm2,float* m_Prm)
 {
 	if(pPrm == NULL || pPrm2 == NULL)
 		return;

@@ -17,18 +17,22 @@ public:
 	StateManger();
 	StateManger(State* state);
 	~StateManger();
+
+	void* returnIpc();
+	void GetParams(float* p);
 	int CurStateInterface();
-	void ToStateConvention();
+
 	void ToStateAuto_Mtd();
 	void ToStateSceneSelect();
 	void ToPlatFormCapture();
 	void ToBoxCapture();
 	void ToManualMtdCapture();
-	void ToStateTrk();
-	void ToStateAcq();
 
+	void inter_TrkCtrl(char Enable);
 	void inter_SwitchSensor(char chid);
-	void inter_AxisMove(int iDirection, int speed);
+	void inter_ZoomCtrl(char type);
+	void inter_AxisPos(int x, int y);
+	void inter_AxisMove(int x, int y);
 
 protected:
 
@@ -41,6 +45,7 @@ private:
 private:
 	State* _state;
 	int curState;
+	float* cfg_param;
 };
 #endif /*~_CONTEXT_H_*/
 

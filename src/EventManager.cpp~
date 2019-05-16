@@ -371,6 +371,7 @@ int  CEventManager::ReadConfigFile()
 	cfgAvtFile = "Profile.yml";
 	FILE *fp = fopen(cfgAvtFile.c_str(), "rt");
 
+<<<<<<< HEAD
 	if(fp != NULL){
 		fseek(fp, 0, SEEK_END);
 		int len = ftell(fp);
@@ -403,7 +404,10 @@ int  CEventManager::ReadConfigFile()
 		exit (-1);
 	}
 	m_ipc->IPCSendMsg(read_shm_config, NULL, 0);
+=======
+	//m_ipc->IPCSendMsg(read_shm_config, NULL, 0);
 	return 0;
+>>>>>>> 7eca431e5b83584b339af87e2d36db65d6a89809
 }
 
 int CEventManager::SetConfig(int block, int field, float value,char *inBuf)

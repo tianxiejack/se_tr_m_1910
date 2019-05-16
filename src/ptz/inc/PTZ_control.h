@@ -25,8 +25,6 @@ typedef enum{
 
 class CPTZControl : CptzInterface
 {
-	port_handle *m_port;
-
     OSA_ThrHndl thrHandleDataIn;
     volatile Bool exitDataInThread;
     static Void * port_dataInFxn(Void * prm){
@@ -62,10 +60,15 @@ public:
 
 	int Move();
 
+
 	int Preset(int nCtrlType, int iPresetNum);
 	int Pattern(int nCtrlType, int iPatternNum);
 	int Query(int iQueryType);
 	int Dummy();
+
+	void ptzZoomWide();
+	void ptzZoomTele();
+	void ptzZoomStop();
 
 	int ptzMove(INT32 iDirection, UINT8 bySpeed);
 	int ptzStop();
