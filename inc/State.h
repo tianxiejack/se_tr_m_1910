@@ -21,6 +21,7 @@ typedef struct
 }selectCh_t;
 
 typedef enum{
+	ROUTINE_STATE,
 	STATE_AUTOMTD,
 	STATE_SCENETRK,
 	STATE_PTZ,

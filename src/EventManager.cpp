@@ -116,13 +116,23 @@ void CEventManager::MSG_TrkSearch(void* p)
 }
 void CEventManager::MSG_CaptureMode(void* p)
 {
+	static int captureModeBack;
 	ComParams_t *tmp = (ComParams_t *)p;
-	if(tmp->capturemode == 0)
-		pThis->_StateManager->ToPlatFormCapture();
-	else if(tmp->capturemode == 1)
-		pThis->_StateManager->ToBoxCapture();
-	else if(tmp->capturemode == 2)
-		pThis->_StateManager->ToManualMtdCapture();
+	if(tmp->workmode == ROUTINE_STATE)
+	{
+		if(tmp->capturemode == 0)
+			pThis->_StateManager->ToPlatFormCapture();
+		else if(tmp->capturemode == 1)
+			pThis->_StateManager->ToBoxCapture();
+		else if(tmp->capturemode == 2)
+			pThis->_StateManager->ToManualMtdCapture();
+		captureModeBack = tmp->capturemode;
+	}
+	else
+	{
+		tmp->capturemode = captureModeBack;
+	}
+
 }
 void CEventManager::MSG_IrisAndFocus(void* p)
 {
@@ -132,7 +142,7 @@ void CEventManager::MSG_IrisAndFocus(void* p)
 void CEventManager::MSG_WorkMode(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
-	if(tmp->workmode == 0)
+	if(tmp->workmode == ROUTINE_STATE)
 	{
 		if(tmp->capturemode == 0)
 			pThis->_StateManager->ToPlatFormCapture();
@@ -141,9 +151,9 @@ void CEventManager::MSG_WorkMode(void* p)
 		else if(tmp->capturemode == 2)
 			pThis->_StateManager->ToManualMtdCapture();
 	}
-	else if(tmp->workmode == 1)
+	else if(tmp->workmode == STATE_AUTOMTD)
 		pThis->_StateManager->ToStateAuto_Mtd();
-	else if(tmp->workmode == 2)
+	else if(tmp->workmode == STATE_SCENETRK)
 		pThis->_StateManager->ToStateSceneSelect();
 }
 void CEventManager::MSG_JosPos(void* p)
