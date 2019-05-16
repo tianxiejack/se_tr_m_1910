@@ -17,7 +17,6 @@ using namespace cv;
 CEventManager::CEventManager()
 {
 	pThis = this;
-
 	_Msg = CMessage::getInstance();
 	_state = new PlatFormCapture();
 	_StateManager = new StateManger(_state);
@@ -87,6 +86,11 @@ void CEventManager::MSG_register()
 void CEventManager::MSG_Trk(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
+	if(tmp->trkctrl == 0)
+		tmp->trkctrl = 1;
+	else
+		tmp->trkctrl = 0;
+
 	pThis->_StateManager->inter_TrkCtrl(tmp->trkctrl);
 }
 void CEventManager::MSG_SwitchSensor(void* p)
@@ -360,7 +364,7 @@ int  CEventManager::configAvtFromFile()
 	cfg_value = (float *)ipc_getSharedMem(IPC_IMG_SHA);
 	usr_value = ipc_getSharedMem(IPC_USER_SHA);
 
-	//m_ipc->IPCSendMsg(read_shm_config, NULL, 0);
+	m_ipc->IPCSendMsg(read_shm_config, NULL, 0);
 	return 0;
 }
 

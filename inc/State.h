@@ -49,6 +49,7 @@ public:
 	int curState;
 	float* cfg_value;
 	View* viewParam;
+	IPC_PRM_INT ipcParam;
 	HPLTCTRL  m_plt;
 	PLATFORMCTRL_TrackerInput m_pltInput;
 	PLATFORMCTRL_Output m_pltOutput;

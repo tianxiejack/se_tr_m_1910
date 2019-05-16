@@ -90,7 +90,8 @@ int State::ChangeState(StateManger* con, char nextState)
 
 void State::TrkCtrl(char Enable)
 {
-	//m_ipc->ipcTrackCtrl(Enable);
+	ipcParam.intPrm[0] = Enable;
+	m_ipc->IPCSendMsg(trk, ipcParam.intPrm, 4);
 }
 
 void State::switchSensor(char chid)
