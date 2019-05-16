@@ -72,7 +72,7 @@ unsigned char* CjoyStick::JoystickProcess()
 	if(rv < 0)
 	{
 		printf("*** bulk_transfer failed!   rv = %d \n",rv);
-		return (unsigned char*)-1;
+		//return (unsigned char*)-1;
 	}
 #if 0
 	else

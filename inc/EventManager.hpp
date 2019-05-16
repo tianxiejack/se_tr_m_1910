@@ -8,7 +8,6 @@
 #define EVENTMANAGER_HPP_
 #include "eventParsing.hpp"
 #include "StateManger.h"
-#include "State.h"
 
 class CEventManager
 {
@@ -42,7 +41,7 @@ private:
 	static void MSG_Com_MtdSelect(void* p);
 	static void MSG_Com_Gatemove(void* p);
 	static void MSG_Com_ZoomCtrl(void* p);
-	static void MSG_Com_ApertureCtrl(void* p);
+	static void MSG_Com_IrisCtrl(void* p);
 	static void MSG_Com_FocusCtrl(void* p);
 	static void MSG_Com_SetPlatSpeed(void* p);
 	static void MSG_Com_SetPlatAngle(void* p);

@@ -18,16 +18,16 @@ public:
 	StateManger(State* state);
 	~StateManger();
 	int CurStateInterface();
-	void ToStateConvention();
 	void ToStateAuto_Mtd();
 	void ToStateSceneSelect();
 	void ToPlatFormCapture();
 	void ToBoxCapture();
 	void ToManualMtdCapture();
-	void ToStateTrk();
-	void ToStateAcq();
 
+	void inter_TrkCtrl(char Enable);
 	void inter_SwitchSensor(char chid);
+	void inter_ZoomCtrl(char type);
+	void inter_AxisPos(void* p);
 	void inter_AxisMove(int iDirection, int speed);
 
 protected:

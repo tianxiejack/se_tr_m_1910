@@ -137,7 +137,7 @@ typedef struct{
 	unsigned short gatestepx;
 	unsigned short gatestepy;
 	int zoomctrl;
-	int aperturectrl;
+	int irisctrl;
 	int focusctrl;
 	short platspeedx;
 	short platspeedy;

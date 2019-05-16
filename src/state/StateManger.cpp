@@ -8,6 +8,7 @@ StateManger::StateManger()
 StateManger::StateManger(State* state)
 {
 	this->_state = state;
+	curState = _state->curStateInterface();
 }
 
 StateManger::~StateManger()
@@ -35,12 +36,6 @@ int StateManger::CurStateInterface()
 {
 	printf("_state->curState  = %d  \n", curState);
 	return curState;
-}
-
-void StateManger::ToStateConvention()
-{
-	curState = _state->State::ChangeState(this, STATE_CONVENTION);
-	_state->OperationChangeState(this);
 }
 
 void StateManger::ToStateAuto_Mtd()
@@ -73,21 +68,25 @@ void StateManger::ToManualMtdCapture()
 	_state->OperationChangeState(this);
 }
 
-void StateManger::ToStateTrk()
-{
-	curState = _state->State::ChangeState(this, STATE_TRK);
-	_state->OperationChangeState(this);
-}
 
-void StateManger::ToStateAcq()
+void StateManger::inter_TrkCtrl(char Enable)
 {
-	curState = _state->State::ChangeState(this, STATE_ACQ);
-	_state->OperationChangeState(this);
+	_state->TrkCtrl(Enable);
 }
 
 void StateManger::inter_SwitchSensor(char chid)
 {
 	_state->switchSensor(chid);
+}
+
+void StateManger::inter_ZoomCtrl(char type)
+{
+	_state->ZoomCtrl(type);
+}
+
+void StateManger::inter_AxisPos(void* p)
+{
+	//ComParams_t *tmp = (ComParams_t *)p;
 }
 
 void StateManger::inter_AxisMove(int iDirection, int speed)

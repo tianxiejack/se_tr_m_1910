@@ -21,14 +21,11 @@ typedef struct
 }selectCh_t;
 
 typedef enum{
-	STATE_CONVENTION = 0,
 	STATE_AUTOMTD,
 	STATE_SCENETRK,
 	STATE_PTZ,
 	STATE_BOX,
 	STATE_MANUALMTD,
-	STATE_TRK,
-	STATE_ACQ
 }state_st;
 
 class StateManger;
@@ -38,31 +35,26 @@ class State
 public:
 	State();
 	virtual void StateInit();
+	void create();
 	virtual ~State();
 	virtual void OperationInterface(StateManger* con) = 0;
 	virtual void OperationChangeState(StateManger* con) = 0;
+	virtual int curStateInterface() = 0;
 	virtual int ChangeState(StateManger* con, char nextState);
+
+public:
+	virtual void TrkCtrl(char Enable);
 	virtual void switchSensor(char chid);
+	virtual void ZoomCtrl(char type);
 	virtual void axisMove(int iDirection, int speed);
-private:
-	CPTZControl* _ptz;
-	AgreeMentBaseFormat* _agreement;
+public:
+	static CPTZControl* _ptz;
+	static AgreeMentBaseFormat* _agreement;
+	static CPlatformInterface* m_Platform;
 	int curState;
 	char curValidChid;
 	selectCh_t selectch;
-	CPlatformInterface* m_Platform;
-	
 };
-
-class StateConvention:public State
-{
-public:
-	StateConvention();
-	virtual ~StateConvention();
-	virtual  void OperationInterface(StateManger* con);
-	virtual  void OperationChangeState(StateManger* con);
-};
-
 
 class StateAuto_Mtd:public State
 {
@@ -71,6 +63,7 @@ public:
 	virtual ~StateAuto_Mtd();
 	virtual  void OperationInterface(StateManger* con);
 	virtual  void OperationChangeState(StateManger* con);
+	virtual int curStateInterface();
 };
 
 class StateSceneSelect:public State
@@ -80,53 +73,37 @@ public:
 	virtual ~StateSceneSelect();
 	virtual  void OperationInterface(StateManger* con );
 	virtual  void OperationChangeState(StateManger* con);
+	virtual int curStateInterface();
 };
 
-class StateTrk:public State
-{
-public:
-	StateTrk();
-	virtual ~StateTrk();
-	virtual  void OperationInterface(StateManger* con);
-	virtual  void OperationChangeState(StateManger* con);
-};
-
-
-class StateAcq:public State
-{
-public:
-	StateAcq();
-	virtual ~StateAcq();
-	virtual  void OperationInterface(StateManger* con);
-	virtual  void OperationChangeState(StateManger* con);
-};
-
-
-class PlatFormCapture:public StateConvention
+class PlatFormCapture:public State
 {
 public:
 	PlatFormCapture();
 	virtual ~PlatFormCapture();
 	virtual  void OperationInterface(StateManger* con);
 	virtual  void OperationChangeState(StateManger* con);
+	virtual int curStateInterface();
 };
 
-class BoxCapture:public StateConvention
+class BoxCapture:public State
 {
 public:
 	BoxCapture();
 	virtual ~BoxCapture();
 	virtual  void OperationInterface(StateManger* con);
 	virtual  void OperationChangeState(StateManger* con);
+	virtual int curStateInterface();
 };
 
-class ManualMtdCapture:public StateConvention
+class ManualMtdCapture:public State
 {
 public:
 	ManualMtdCapture();
 	virtual ~ManualMtdCapture();
 	virtual  void OperationInterface(StateManger* con);
 	virtual  void OperationChangeState(StateManger* con);
+	virtual int curStateInterface();
 };
 
 

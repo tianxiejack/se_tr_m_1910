@@ -42,7 +42,7 @@ CPTZControl::CPTZControl(AgreeMentBaseFormat* _imp):pCom(NULL), exitQuery_X(fals
 	memset(&sendBuffer1, 0, sizeof(sendBuffer1));
 	memset(&recvBuffer, 0, sizeof(recvBuffer));
 	memset(&sendBuffer, 0, sizeof(sendBuffer));
-
+	Create();
 }
 
 CPTZControl::~CPTZControl()
@@ -70,7 +70,7 @@ int CPTZControl::Create()
 		OSA_thrCreate(&thrHandleMove,MoveThrdFxn, DATAIN_TSK_PRI, DATAIN_TSK_STACK_SIZE, this);
 		DXTimerCreat();
 	}
-    if(_GlobalDate->outputMode == NULL)
+    if(_GlobalDate->outputMode == 0)
     {
     	outputMode = 3;
     	return 0;
@@ -456,8 +456,26 @@ int CPTZControl::ptzMove(INT32 iDirection, UINT8 bySpeed)
 
 int CPTZControl::ptzStop()
 {
-	_agreeMent->PktFormat(m_pReqMove, 0, 0, 0, 0, m_byAddr);
-	sendCmd(m_pReqMove, PELCO_RESPONSE_Null);
+	_agreeMent->PktFormat(m_pReq, 0, 0, 0, 0, m_byAddr);
+	sendCmd(m_pReq, PELCO_RESPONSE_Null);
+}
+
+void CPTZControl::ptzZoomWide()
+{
+	_agreeMent->MakeZoomWide(m_pReq, m_byAddr);
+	sendCmd(m_pReq, PELCO_RESPONSE_Null);
+}
+
+void CPTZControl::ptzZoomTele()
+{
+	_agreeMent->MakeZoomTele(m_pReq, m_byAddr);
+	sendCmd(m_pReq, PELCO_RESPONSE_Null);
+}
+
+void CPTZControl::ptzZoomStop()
+{
+	_agreeMent->MakeZoomStop(m_pReq, m_byAddr);
+	sendCmd(m_pReq, PELCO_RESPONSE_Null);
 }
 
 void CPTZControl::ptzSetPos(Uint16 posx, Uint16 posy)

@@ -11,7 +11,7 @@ CEventManager::CEventManager()
 {
 	pThis = this;
 	_Msg = CMessage::getInstance();
-	_state = new StateConvention();
+	_state = new PlatFormCapture();
 	_state->StateInit();
 	_StateManager = new StateManger(_state);
 	_Handle = _Msg->MSGDRIV_create();
@@ -44,7 +44,7 @@ void CEventManager::MSG_register()
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_MTDSELECT, MSG_Com_MtdSelect, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_GATEMOVE, MSG_Com_Gatemove, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_FOCUSCTRL, MSG_Com_FocusCtrl, NULL);
-	_Msg->MSGDRIV_register(MSGID_COM_INPUT_APERTURECTRL, MSG_Com_ApertureCtrl, NULL);
+	_Msg->MSGDRIV_register(MSGID_COM_INPUT_APERTURECTRL, MSG_Com_IrisCtrl, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_ZOOMCTRL, MSG_Com_ZoomCtrl, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SETPLATSPEED, MSG_Com_SetPlatSpeed, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SETPLATANGLE, MSG_Com_SetPlatAngle, NULL);
@@ -64,12 +64,7 @@ void CEventManager::MSG_register()
 void CEventManager::MSG_Trk(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
-	if(tmp->trkctrl)
-		pThis->_StateManager->ToStateTrk();
-	else if(tmp->trkctrl == 0x02)
-		pThis->_StateManager->ToStateAcq();
-	else if(tmp->trkctrl == 0x00)
-		printf("ipc ctrl \n");
+	pThis->_StateManager->inter_TrkCtrl(tmp->trkctrl);
 }
 void CEventManager::MSG_SwitchSensor(void* p)
 {
@@ -81,16 +76,20 @@ void CEventManager::MSG_SwitchSensor(void* p)
 }
 void CEventManager::MSG_ZoomLong(void* p)
 {
-
+	ComParams_t *tmp = (ComParams_t *)p;
+	printf(" 3 => long = %d \n", tmp->zoomctrl);
+	pThis->_StateManager->inter_ZoomCtrl(tmp->zoomctrl);
 }
 void CEventManager::MSG_ZoomShort(void* p)
 {
-
+	ComParams_t *tmp = (ComParams_t *)p;
+	printf(" 4 => short = %d \n", tmp->zoomctrl);
+	pThis->_StateManager->inter_ZoomCtrl(tmp->zoomctrl);
 }
 void CEventManager::MSG_TrkSearch(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
-	printf("tmp->sectrkctrl = %d \n", tmp->sectrkctrl);
+	printf(" 1111  tmp->sectrkctrl = %d \n", tmp->sectrkctrl);
 }
 void CEventManager::MSG_CaptureMode(void* p)
 {
@@ -104,13 +103,14 @@ void CEventManager::MSG_CaptureMode(void* p)
 }
 void CEventManager::MSG_IrisAndFocus(void* p)
 {
-
+	ComParams_t *tmp = (ComParams_t *)p;
+	printf("tmp->irisctrl = %d , tmp->focusctrl = %d \n", tmp->irisctrl, tmp->focusctrl);
 }
 void CEventManager::MSG_WorkMode(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
 	if(tmp->workmode == 0)
-		pThis->_StateManager->ToStateConvention();
+		printf("ptz or box or manual Mtd \n");//pThis->_StateManager->ToStateConvention();
 	else if(tmp->workmode == 1)
 		pThis->_StateManager->ToStateAuto_Mtd();
 	else if(tmp->workmode == 2)
@@ -118,14 +118,52 @@ void CEventManager::MSG_WorkMode(void* p)
 }
 void CEventManager::MSG_JosPos(void* p)
 {
-	MSG_Com_ApertureCtrl(p);
-	MSG_Com_FocusCtrl(p);
-	MSG_Com_Gatemove(p);
-
-
-	char* jos = (char*)p;
-	//printf("X = %x, Y = %x \n", jos[0], jos[1]);
-#if 1
+	ComParams_t *tmp = (ComParams_t *)p;
+	int curState = pThis->_StateManager->CurStateInterface();
+	switch(curState)
+	{
+	case STATE_PTZ:
+		if(tmp->sectrkctrl == 0x01)
+			printf("ptz search\n");
+		else if(tmp->irisctrl == 0x03)
+			printf("ptz iris \n");
+		else if(tmp->focusctrl == 0x03)
+			printf("ptz  focus \n");
+		else
+			printf("ptz jos move \n");
+		break;
+	case STATE_BOX:
+		if(tmp->sectrkctrl == 0x01)
+			printf("Box search\n");
+		else if(tmp->irisctrl == 0x03)
+			printf("Box iris \n");
+		else if(tmp->focusctrl == 0x03)
+			printf("Box  focus \n");
+		else
+			printf("Box jos move \n");
+		break;
+	case STATE_MANUALMTD:
+		if(tmp->irisctrl == 0x03)
+			printf("manual iris \n");
+		else if(tmp->focusctrl == 0x03)
+			printf("manual  focus \n");
+		else
+			printf("manual Mtd jos move \n");
+		break;
+	case STATE_SCENETRK:
+		if(tmp->irisctrl == 0x03)
+			printf("scene iris \n");
+		else if(tmp->focusctrl == 0x03)
+			printf("scene  focus \n");
+		else
+			printf("scene jos move\n");
+		break;
+	}
+	//if(tmp->sectrkctrl);
+	//MSG_Com_ApertureCtrl(p);
+	//MSG_Com_FocusCtrl(p);
+	//MSG_Com_Gatemove(p);
+#if 0
 	if(jos[0] > 0 && jos[0] < 0x7a)
 		pThis->_StateManager->inter_AxisMove(PTZ_MOVE_Left, jos[0]);
 	else if(jos[0] > 0x90 && jos[0] < 0xff)
@@ -179,21 +217,19 @@ void CEventManager::MSG_Com_Gatemove(void* p)
 }
 void CEventManager::MSG_Com_ZoomCtrl(void* p)
 {
-	MSG_ZoomLong(p);
-	MSG_ZoomShort(p);
+	//MSG_ZoomLong(p);
+	//MSG_ZoomShort(p);
 
 }
-void CEventManager::MSG_Com_ApertureCtrl(void* p)
+void CEventManager::MSG_Com_IrisCtrl(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
-	int aperturectrl = tmp->aperturectrl;
-	printf("aperturectrl=%d\n",aperturectrl);
+	printf("aperturectrl=%d\n",tmp->irisctrl);
 }
 void CEventManager::MSG_Com_FocusCtrl(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
-	int focusctrl = tmp->focusctrl;
-	printf("focusctrl=%d\n",focusctrl);
+	printf("focusctrl=%d\n",tmp->focusctrl);
 }
 void CEventManager::MSG_Com_SetPlatSpeed(void* p)
 {
