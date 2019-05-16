@@ -115,11 +115,22 @@ typedef enum
 typedef enum 
 {
 	CFGID_PID_BASE = CFGID_BUILD( CFGID_PID_BKID, 0 ),
+
+
+
+
+
+	
 }CFGID_PID;
 
 typedef enum 
 {
 	CFGID_PLATFM_BASE = CFGID_BUILD( CFGID_PLATFM_BKID, 0 ),
+
+
+
+
+	
 }CFGID_PLATFM;
 
 // user osd part1 ID 0-15
