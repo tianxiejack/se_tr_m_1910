@@ -7,9 +7,12 @@
 #include "eventParsing.hpp"
 #include <unistd.h>
 #include <arpa/inet.h>
+#include "osa_sem.h"
 
 CEventParsing* CEventParsing::pThis = NULL;
 ACK_ComParams_t ACK_ComParams;
+OSA_SemHndl  m_semHndl;
+OSA_SemHndl m_semHndl_s;
 
 CEventParsing::CEventParsing()
 {
@@ -18,6 +21,9 @@ CEventParsing::CEventParsing()
 	_Msg = CMessage::getInstance();
 	_Js = new CjoyStick();
 
+	OSA_semCreate(&m_semHndl, 1, 0);
+	OSA_semCreate(&m_semHndl_s, 1, 0);
+	OSA_semSignal(&m_semHndl_s);
 	memset(&ComParams, 0, sizeof(ComParams));
 	exit_comParsing = false;
 	pCom1 = PortFactory::createProduct(1);
@@ -35,6 +41,8 @@ CEventParsing::~CEventParsing()
 	delete _Msg;
 	delete pThis;
 
+	OSA_semDelete(&m_semHndl);
+	OSA_semDelete(&m_semHndl_s);
 	exit_comParsing = true;
 	exit_netParsing = true;
 	pCom1->cclose();
@@ -65,21 +73,28 @@ void CEventParsing::thread_comrecvEvent()
 		sizeRcv= pThis->pCom1->crecv(pThis->comfd, (void *)tmpRcvBuff,RECV_BUF_SIZE);
 		pThis->parsingframe(tmpRcvBuff, sizeRcv, pThis->comfd);
 	}
-
 }
 
 void CEventParsing::thread_comsendEvent()
 {
-	char buf[128] = {0xEB,0x53,0x02,0x00,0x07,0x09, 0x0E};
+	sendInfo repSendBuffer;
+	repSendBuffer.sendBuff[0] = 0xEB;
+	repSendBuffer.sendBuff[1] = 0x53;
+	
 	while(!pThis->exit_comParsing)
 	{
+		OSA_semWait(&m_semHndl,OSA_TIMEOUT_FOREVER);
+		pThis->getSendInfo(&repSendBuffer);
+	
 		OSA_mutexLock(&pThis->mutexConn);
 		if((pThis->connetVector.size()>0) && (pThis->connetVector[0]->bConnecting))
 		{
-			pThis->pCom1->csend(pThis->pThis->connetVector[0]->connfd, buf, 7);
+			pThis->pCom1->csend(repSendBuffer.fd, &repSendBuffer.sendBuff, repSendBuffer.byteSizeSend);
 		}
 		OSA_mutexUnlock(&pThis->mutexConn);
-		sleep(1);
+		
+		if(ACK_ComParams.cmdid == ACK_GetConfig)
+			OSA_semSignal(&m_semHndl_s);
 	}
 }
 
@@ -548,4 +563,42 @@ unsigned char CEventParsing::check_sum(int len_t)
         cksum ^= rcvBufQue.at(n);
     }
     return  cksum;
+}
+
+int  CEventParsing::getSendInfo(sendInfo * psendBuf)
+{
+	int respondId = ACK_ComParams.cmdid;
+	switch(respondId){
+		case ACK_GetConfig:
+			package_ACK_GetConfig(psendBuf);
+			break;
+		default:
+			break;
+	}
+	return 0;
+}
+
+int  CEventParsing::package_ACK_GetConfig(sendInfo *psendBuf)
+{
+	int length;
+	unsigned char sumcheck;
+	length = 7;
+	psendBuf->sendBuff[2] = length&0xff;
+	psendBuf->sendBuff[3] = (length>>8)&0xff;
+	psendBuf->sendBuff[4] = 0x52;
+	psendBuf->sendBuff[5] = ACK_ComParams.getConfigQueue[0].block;
+	psendBuf->sendBuff[6] = ACK_ComParams.getConfigQueue[0].field;
+	memcpy(psendBuf->sendBuff+7, &ACK_ComParams.getConfigQueue[0].value, 4);
+	sumcheck=sendcheck_sum(length, psendBuf->sendBuff+4);
+	psendBuf->sendBuff[length+4]=(sumcheck&0xff);
+	psendBuf->byteSizeSend = length + 5;
+	psendBuf->fd = ACK_ComParams.fd;
+	ACK_ComParams.getConfigQueue.erase(ACK_ComParams.getConfigQueue.begin());
+}
+unsigned char CEventParsing::sendcheck_sum(int len, unsigned char *tmpbuf)
+{
+	unsigned char ckeSum=0;
+	for(int n=0; n < len; n++)
+		ckeSum ^= tmpbuf[n];
+	return ckeSum;
 }

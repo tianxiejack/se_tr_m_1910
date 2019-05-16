@@ -10,7 +10,6 @@
 
 #include "AgreeMentBase.h"
 #include "globalDate.h"
-#include "port.hpp"
 #include "osa_thr.h"
 #include <time.h>
 #include <osa_mutex.h>
