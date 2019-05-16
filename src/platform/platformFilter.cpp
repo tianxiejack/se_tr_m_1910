@@ -17,41 +17,40 @@ CPlatformFilter::CPlatformFilter(int frameNum,float speedDiff2integral,float spe
 
 int CPlatformFilter::PlatformFilter_GetIndex(HPLTFILTER hFilter)
 {
-    PlatformFilter_Obj *pObj = (PlatformFilter_Obj*)hFilter;
+	PlatformFilter_Obj *pObj = (PlatformFilter_Obj*)hFilter;
 
-    if(pObj == NULL)
-        return -1;
+	if(pObj == NULL)
+		return -1;
 
-    return pObj->params.iIndex;
+	return pObj->params.iIndex;
 }
 
 HPLTFILTER CPlatformFilter::PlatformFilter_Create(PlatformFilter_CreateParams *pPrm)
 {
-    PlatformFilter_Obj *pObj;
+	PlatformFilter_Obj *pObj;
 
-    if(pPrm == NULL)
-        return NULL;
+	if(pPrm == NULL)
+		return NULL;
 
-    pObj = (PlatformFilter_Obj *)malloc(sizeof(PlatformFilter_Obj));
+	pObj = (PlatformFilter_Obj *)malloc(sizeof(PlatformFilter_Obj));
 
-    if(pObj == NULL)
-        return NULL;
+	if(pObj == NULL)
+		return NULL;
 
-    memset(pObj, 0, sizeof(PlatformFilter_Obj));
-
-    memcpy(&pObj->params, pPrm, sizeof(PlatformFilter_CreateParams));
-
-    return pObj;
+	memset(pObj, 0, sizeof(PlatformFilter_Obj));
+	memcpy(&pObj->params, pPrm, sizeof(PlatformFilter_CreateParams));
+	return pObj;
 }
 
 void CPlatformFilter::PlatformFilter_Delete(HPLTFILTER hFilter)
 {
-    PlatformFilter_Obj *pObj = (PlatformFilter_Obj*)hFilter;
+	PlatformFilter_Obj *pObj = (PlatformFilter_Obj*)hFilter;
 
-    if(pObj == NULL)
-        return ;
+	if(pObj == NULL)
+		return ;
 
-    free(pObj);
+	free(pObj);
+	return;
 }
 
 void CPlatformFilter::PlatformFilter_Reset(HPLTFILTER hFilter)
@@ -70,6 +69,7 @@ void CPlatformFilter::PlatformFilter_updatePidParams(PlatformFilter_CreateParams
 {
 	if(pPrm == NULL || pPrm2 == NULL)
 		return;
+	
 	int i = 1441;
 	if(pPrm->Kp  != m_Prm[i])
 		pPrm->Kp  = m_Prm[i];
@@ -88,7 +88,10 @@ void CPlatformFilter::PlatformFilter_updatePidParams(PlatformFilter_CreateParams
 		pPrm2->Kd = m_Prm[i];
 	if(pPrm2->K != m_Prm[++i])
 		pPrm2->K = m_Prm[i];
+
+	return ;
 }
+
 
 
 int CPlatformFilter::PlatformFilter_reset4trk(HPLTFILTER hFilter)
@@ -134,7 +137,6 @@ void CPlatformFilter::calcCurPlatAvrRate(HPLTFILTER hFilter , float curRate)
 
 float CPlatformFilter::pidAlg(HPLTFILTER hFilter, float curXc)
 {
-
 	float ret = 0.0;
 	float Kp = 0.0;
 	float Ki = 0.0;

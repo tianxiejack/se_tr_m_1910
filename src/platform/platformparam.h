@@ -98,30 +98,14 @@ typedef struct
 typedef struct{
 	int iSensor;
 	ONLYREAD int iTrkAlgState;
-	ONLYREAD float fBoresightPositionX;
-	ONLYREAD float fBoresightPositionY;
-	ONLYREAD float fTargetBoresightErrorX;
-	ONLYREAD float fTargetBoresightErrorY;
-	ONLYREAD float fWindowPositionX;
-	ONLYREAD float fWindowPositionY;
-	ONLYREAD float fWindowSizeX;
-	ONLYREAD float fWindowSizeY;
 	ONLYREAD float fPlatformDemandX;
 	ONLYREAD float fPlatformDemandY;
 }PLATFORMCTRL_Output;
 
 typedef struct{
 	ONLYREAD int iTrkAlgState;
-	ONLYREAD float fBoresightPositionX;
-	ONLYREAD float fBoresightPositionY;
 	ONLYREAD float fTargetBoresightErrorX;
 	ONLYREAD float fTargetBoresightErrorY;
-	ONLYREAD float fAcqWindowPositionX;
-	ONLYREAD float fAcqWindowPositionY;
-	ONLYREAD float fAcqWindowSizeX;
-	ONLYREAD float fAcqWindowSizeY;
-	ONLYREAD float fTargetSizeX;
-	ONLYREAD float fTargetSizeY;
 }PLATFORMCTRL_TrackerInput;
 
 typedef  struct {

@@ -5,23 +5,46 @@
  *      Author: d
  */
 #include "EventManager.hpp"
+#include "configtable.h"
+#include <opencv2/core/core.hpp>
+
 CEventManager* CEventManager::pThis = NULL;
+extern ACK_ComParams_t ACK_ComParams;
+int profileNum = (CFGID_BKID_MAX-1)*16;
+
+using namespace cv;
 
 CEventManager::CEventManager()
 {
 	pThis = this;
+	m_ipc = new CIPCProc();
+	IPC_Creat();
+
 	_Msg = CMessage::getInstance();
 	_state = new PlatFormCapture();
 	_state->StateInit();
 	_StateManager = new StateManger(_state);
 	_Handle = _Msg->MSGDRIV_create();
 	MSG_register();
+
+	configAvtFromFile();
 }
 
 CEventManager::~CEventManager()
 {
 	_Msg->MSGDRIV_destroy(_Handle);
 	delete _Msg;
+}
+
+void CEventManager::IPC_Creat()
+{
+    Ipc_init();
+    int ret = Ipc_create();
+    if(ret == -1)
+    {
+    	printf("[%s] %d ipc create error \n", __func__, __LINE__);
+    	return;
+    }
 }
 
 void CEventManager::MSG_register()
@@ -278,6 +301,7 @@ void CEventManager::MSG_Com_SetCfg(void* p)
 	while(tmp->setConfigQueue.size()){
 		tmpcfg = tmp->setConfigQueue[0];
 		printf("setcfg block,field,value(%d,%d,%f)\n", tmpcfg.block,tmpcfg.field,tmpcfg.value);
+		pThis->modifierAVTProfile( tmpcfg.block, tmpcfg.field, tmpcfg.value, NULL);
 		tmp->setConfigQueue.erase(tmp->setConfigQueue.begin());
 	}
 }
@@ -288,6 +312,7 @@ void CEventManager::MSG_Com_GetCfg(void* p)
 	while(tmp->getConfigQueue.size()){
 		tmpcfg = tmp->getConfigQueue[0];
 		printf("getcfg block,field(%d,%d)\n", tmpcfg.block,tmpcfg.field);
+		pThis->answerRead(tmpcfg.block, tmpcfg.field);
 		tmp->getConfigQueue.erase(tmp->getConfigQueue.begin());
 	}
 }
@@ -311,4 +336,30 @@ void CEventManager::MSG_Com_DefaultCfg(void* p)
 void CEventManager::MSG_Com_SaveCfg(void* p)
 {
 	printf("MSG_Com_SaveCfg start\n");
+}
+
+int  CEventManager::configAvtFromFile()
+{
+	cfg_value = (float *)ipc_getSharedMem(IPC_IMG_SHA);
+	usr_value = ipc_getSharedMem(IPC_USER_SHA);
+
+	//m_ipc->IPCSendMsg(read_shm_config, NULL, 0);
+	
+}
+
+void CEventManager::modifierAVTProfile(int block, int field, float value,char *inBuf)
+{
+	int check = CFGID_BUILD(block-1, field);
+	//cfg_value[check] = value;
+
+}
+int CEventManager::answerRead(int block, int field)
+{
+	string rStr;
+
+	int check = CFGID_BUILD(block-1, field);
+	float value;
+	//value = cfg_value[check];
+
+	return 0;
 }
