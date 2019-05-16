@@ -92,10 +92,9 @@ void CEventManager::MSG_Trk(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
 	if(tmp->trkctrl == 0)
-		tmp->trkctrl = 1;
-	else
+		tmp->trkctrl = !pThis->cfg_value[CFGID_RTS_trkstat];
+	if(tmp->trkctrl == 2)
 		tmp->trkctrl = 0;
-
 	pThis->_StateManager->inter_TrkCtrl(tmp->trkctrl);
 }
 void CEventManager::MSG_SwitchSensor(void* p)
@@ -167,6 +166,7 @@ void CEventManager::MSG_WorkMode(void* p)
 }
 void CEventManager::MSG_JosPos(void* p)
 {
+#if 0
 	ComParams_t *tmp = (ComParams_t *)p;
 	int curState = pThis->_StateManager->CurStateInterface();
 	switch(curState)
@@ -212,6 +212,7 @@ void CEventManager::MSG_JosPos(void* p)
 	//MSG_Com_ApertureCtrl(p);
 	//MSG_Com_FocusCtrl(p);
 	//MSG_Com_Gatemove(p);
+#endif
 #if 0
 	if(tmp->platspeedx > 0 &&tmp->platspeedx < 0x7a)
 		pThis->_StateManager->inter_AxisMove(PTZ_MOVE_Left, tmp->platspeedx);

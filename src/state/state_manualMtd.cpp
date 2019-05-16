@@ -33,6 +33,20 @@ int ManualMtdCapture::curStateInterface()
 	return curState;
 }
 
+void ManualMtdCapture::TrkCtrl(char Enable)
+{
+	if(cfg_value[CFGID_RTS_mtddet] == 1 && Enable == 1)
+	{
+		ipcParam.intPrm[0] = Enable;
+		m_ipc->IPCSendMsg(trk, ipcParam.intPrm, 4);
+	}
+	else if(cfg_value[CFGID_RTS_trken] == 1 && Enable == 0)
+	{
+		ipcParam.intPrm[0] = Enable;
+		m_ipc->IPCSendMsg(trk, ipcParam.intPrm, 4);
+	}
+}
+
 void ManualMtdCapture::axisMove(int x, int y)
 {
 
