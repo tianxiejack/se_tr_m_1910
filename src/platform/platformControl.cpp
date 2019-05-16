@@ -36,9 +36,12 @@ void CplatFormControl::PlatformCtrl_ClassInit()
 	_DeviceUser = new CDeviceUser();
 }
 
+View* CplatFormControl::sensorParams()
+{
+	return _Sensor->backParams();
+}
 
-
-void CplatFormControl::PlatformCtrl_sensor_Init(vector<float> data)
+void CplatFormControl::PlatformCtrl_sensor_Init(float* data)
 {
 	for(int i=24; i<28; i++)
 		_Sensor->UpdateParams(data, i, 0, 0, NULL);
@@ -51,7 +54,7 @@ void CplatFormControl::PlatformCtrl_sensor_Init(vector<float> data)
 
 
 
-BoresightPos_s CplatFormControl::PlatformCtrl_SensorUpdateParams(vector<float> data, int block, int field, int curChid, PlatformCtrl_Obj *pObj)
+BoresightPos_s CplatFormControl::PlatformCtrl_SensorUpdateParams(float* data, int block, int field, int curChid, PlatformCtrl_Obj *pObj)
 {
 	BoresightPos_s pos = _Sensor->UpdateParams(data, block, field, curChid, pObj);
 	return pos;
@@ -110,7 +113,7 @@ HPLTCTRL CplatFormControl::PlatformCtrl_Create(PlatformCtrl_CreateParams *pPrm)
 
 
 
-void CplatFormControl::PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams *pPrm, vector<float> m_Prm, View* m_Sensor)
+void CplatFormControl::PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams *pPrm, float* m_Prm, View* m_Sensor)
 {
 	int i;
 	if(pPrm == NULL || m_Sensor == NULL)
@@ -625,7 +628,7 @@ int CplatFormControl::PlatformCtrl_VirtualInput(HPLTCTRL handle, int iIndex, flo
 
 
 
-void CplatFormControl::PlatformCtrl_UpdateParams(HPLTCTRL handle, vector<float> m_Prm, int block)
+void CplatFormControl::PlatformCtrl_UpdateParams(HPLTCTRL handle, float* m_Prm, int block)
 {
 	 PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)handle->object;
 	 JoystickRateDemandParam *pPrm = &pObj->params.joystickRateDemandParam;

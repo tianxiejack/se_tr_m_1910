@@ -22,12 +22,12 @@ CEventManager::CEventManager()
 
 	_Msg = CMessage::getInstance();
 	_state = new PlatFormCapture();
-	_state->StateInit();
 	_StateManager = new StateManger(_state);
 	_Handle = _Msg->MSGDRIV_create();
 	MSG_register();
-
 	configAvtFromFile();
+	_StateManager->GetParams(cfg_value);
+	_state->StateInit();
 }
 
 CEventManager::~CEventManager()
@@ -351,7 +351,7 @@ int  CEventManager::configAvtFromFile()
 	usr_value = ipc_getSharedMem(IPC_USER_SHA);
 
 	//m_ipc->IPCSendMsg(read_shm_config, NULL, 0);
-	
+	return 0;
 }
 
 void CEventManager::modifierAVTProfile(int block, int field, float value,char *inBuf)

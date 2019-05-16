@@ -134,9 +134,10 @@ public:
 	CSensorComp(){};
 	~CSensorComp(){};
 
+	View* backParams();
 	HSENSORCOMP SensorComp_Create(SensorComp_CreateParams *pPrm);
 	void SensorComp_Delete(HSENSORCOMP hComp);
-	BoresightPos_s UpdateParams(vector<float> data, int block, int field, int curChid, PlatformCtrl_Obj* pObj);
+	BoresightPos_s UpdateParams(float* data, int block, int field, int curChid, PlatformCtrl_Obj* pObj);
 	void SensorComp_CreateParams_Init(SensorComp_CreateParams *pPrm, int i, View* Pserson,int width ,int height);
 
 	float ZoomLevelFovCompensation(unsigned short zoom, int chid);

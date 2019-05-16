@@ -37,9 +37,12 @@ typedef struct {
 
 }SensorComp_Obj;
 
+View* CSensorComp::backParams()
+{
+	return &m_viewParam;
+}
 
-
-BoresightPos_s CSensorComp::UpdateParams(vector<float> data, int block, int field, int curChid, PlatformCtrl_Obj* pObj)
+BoresightPos_s CSensorComp::UpdateParams(float* data, int block, int field, int curChid, PlatformCtrl_Obj* pObj)
 {
 	int check, chid;
 	float value;
