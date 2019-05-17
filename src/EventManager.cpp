@@ -405,7 +405,7 @@ int  CEventManager::ReadConfigFile()
 			{
 				for(int i=0; i<configId_Max; i++)
 				{
-					sprintf(cfg_avt, "cfg_avt_%d", i);
+					sprintf(cfg_avt, "cfg_avt_%03d_%02d", i/CFGID_BKFEILD_MAX, i%CFGID_BKFEILD_MAX);
 					float value = fr[cfg_avt];
 					//printf("read value[%d]=%f\n", i, value);
 					cfg_value[i] = value;
@@ -429,7 +429,8 @@ int  CEventManager::ReadConfigFile()
 
 int CEventManager::SetConfig(int block, int field, float value,char *inBuf)
 {
-	int cfgid = CFGID_BUILD(block-1, field);
+	block -= 1;
+	int cfgid = CFGID_BUILD(block, field);
 	cfg_value[cfgid] = value;
 	m_ipc->IPCSendMsg(read_shm_single, &cfgid, 4);
 
@@ -450,6 +451,7 @@ int CEventManager::GetConfig(comtype_t comtype, int block, int field)
 }
 int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
 {
+	blockId -= 1;
 	string cfgAvtFile;
 	int configId_Max =profileNum;
 	char  cfg_avt[20] = "cfg_avt_";
@@ -470,10 +472,10 @@ int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
 			{
 				for(int i=0; i<configId_Max; i++)
 				{
-					sprintf(cfg_avt, "cfg_avt_%d", i);
+					sprintf(cfg_avt, "cfg_avt_%03d_%02d",  i/CFGID_BKFEILD_MAX, i%CFGID_BKFEILD_MAX);
 					
-					int block = CFGID_blkId(i) + 1;
-					if(block != 3)
+					int block = CFGID_blkId(i);
+					if(block != CFGID_RTS_BKID)
 					{
 						if(0 == blockId)
 						{
@@ -486,7 +488,7 @@ int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
 					}
 				}
 
-				if(0 == blockId)
+				if(-1 == blockId)
 				{
 					m_ipc->IPCSendMsg(read_shm_config, NULL, 0);
 				}
@@ -532,7 +534,7 @@ int CEventManager::SaveConfig()
 			{
 				for(int i=0; i<configId_Max; i++)
 				{
-					sprintf(cfg_avt, "cfg_avt_%d", i);
+					sprintf(cfg_avt, "cfg_avt_%03d_%02d",  i/CFGID_BKFEILD_MAX, i%CFGID_BKFEILD_MAX);
 					float value = cfg_value[i];
 					fr<< cfg_avt << value;
 				}
