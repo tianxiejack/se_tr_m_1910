@@ -15,6 +15,7 @@ int main()
 	std::thread T3(CEventParsing::thread_comsendEvent);
 	std::thread T4(CEventParsing::thread_Getaccept);
 	std::thread T5(CEventParsing::thread_ReclaimConnect);
+	std::thread T6(CEventManager::thread_ipcEvent);
 
 	struct timeval tmp;
 	while(1)
@@ -29,6 +30,7 @@ int main()
 	T3.join();
 	T4.join();
 	T5.join();
+	T6.join();
 	return 0;
 }
 

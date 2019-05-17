@@ -103,3 +103,8 @@ void StateManger::inter_AxisMove(int x, int y)
 {
 	_state->axisMove(x, y);
 }
+
+void StateManger::inter_TrkSearch(int type, int x, int y)
+{
+	_state->trkSearch(type, x, y);
+}

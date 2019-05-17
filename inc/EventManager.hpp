@@ -15,6 +15,7 @@ class CEventManager
 public:
 	CEventManager();
 	~CEventManager();
+	static void thread_ipcEvent();
 private:
 	MSGDRIV_Handle _Handle;
 	CMessage* _Msg;
@@ -24,6 +25,7 @@ private:
 	static CEventManager* pThis;
 	float *cfg_value;
 	void *usr_value;
+	bool exit_ipcthread;
 	void IPC_Creat();
 	void MSG_register();
 

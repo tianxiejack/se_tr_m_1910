@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <osa_sem.h>
 #include "PTZ_control.h"
 #include "StateManger.h"
 #include "platformControl.h"
@@ -47,7 +48,7 @@ public:
 public:
 	const int jos_value = 0xFF;
 	int curState;
-	float* cfg_value;
+	OSA_SemHndl m_sem;
 	View* viewParam;
 	IPC_PRM_INT ipcParam;
 	HPLTCTRL  m_plt;
@@ -60,6 +61,11 @@ public:
 	virtual void switchSensor(char chid);
 	virtual void ZoomCtrl(char type);
 	virtual void axisMove(int x, int y);
+	virtual void trkSearch(int type, int x, int y);
+
+public:
+	void switchSensor_interface(int chid);
+	void axisMove_interface(int x, int y);
 
 public:
 	static 	CIPCProc* m_ipc;
@@ -67,6 +73,7 @@ public:
 	static AgreeMentBaseFormat* _agreement;
 	static CPlatformInterface* m_Platform;
 	static CPTZSpeedTransfer*  m_ptzSpeed;
+	static float* cfg_value;
 	char curValidChid;
 	selectCh_t selectch;
 
@@ -86,6 +93,8 @@ private:
 	virtual void TrkCtrl(char Enable){};
 	virtual void axisMove(int x, int y){};
 	virtual void ZoomCtrl(char type){};
+	virtual void trkSearch(int type, int x, int y){};
+	virtual void switchSensor(char chid);
 };
 
 class StateSceneSelect:public State
@@ -96,6 +105,7 @@ public:
 	virtual  void OperationInterface(StateManger* con );
 	virtual  void OperationChangeState(StateManger* con);
 	virtual int curStateInterface();
+	virtual void trkSearch(int type, int x, int y){};
 	virtual void axisMove(int x, int y);
 };
 
@@ -134,6 +144,9 @@ private:
 	virtual int curStateInterface();
 	virtual void TrkCtrl(char Enable);
 	virtual void axisMove(int x, int y);
+	virtual void switchSensor(char chid);
+	virtual void ZoomCtrl(char type);
+	virtual void trkSearch(int type, int x, int y){};
 };
 
 
