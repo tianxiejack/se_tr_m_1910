@@ -24,6 +24,8 @@ using namespace std;
 
 #define    RECV_BUF_SIZE   1024
 #define  TIME_FOR_THREAD_END 3
+#define MAXSENDSIZE 136
+
 
 typedef enum
 {
@@ -96,6 +98,31 @@ typedef enum _sys_msg_id_ {
     	MAX_MSG_NUM
 }MSG_PROC_ID;
 
+
+
+typedef enum{
+	ACK_SelfTest = 0x01,
+	ACK_Sensor = 0x02,
+	ACK_Workmode = 0x03,
+	ACK_CaptureMode = 0x04,
+	ACK_TrkStat = 0x05,
+	ACK_SectrkStat = 0x07,
+	ACK_QueryPT = 0x10,
+	ACK_PresetPos = 0x11,
+	ACK_ZoomCtrl = 0x12,
+	ACK_QueryPos = 0x41,
+	ACK_QueryZoom = 0x42,
+	ACK_output = 0x43,
+	ACK_SetConfig = 0x51,
+	ACK_GetConfig = 0x52,
+	ACK_SetOsd = 0x53,
+	ACK_impconfig = 0x55,
+	ACK_expconfig = 0x56,
+	ACK_saveconfig = 0x57,
+	ACK_upgradefw = 0x58,
+	ACK_MAXID
+}ACK_Cmdid;
+
 typedef struct{
 	int connfd;
 	bool bConnecting;
@@ -114,8 +141,7 @@ typedef struct{
 	int field;
 }Get_config_t;
 
-typedef struct
-{
+typedef struct{
 	volatile unsigned char osdID;
 	volatile unsigned char type;
 	volatile unsigned char buf[128];
@@ -123,6 +149,10 @@ typedef struct
 
 typedef struct{
 	int fd;
+	int type;// 1. /dev/ttyTHS1   2.network
+}comtype_t;
+typedef struct{
+	comtype_t comtype;
 	int displaychid;
 	int capturechid;
 	int workmode;
@@ -153,9 +183,16 @@ typedef struct{
 }ComParams_t;
 
 typedef struct{
-	int fd;
+	comtype_t comtype;
+	int cmdid;
 	vector<Set_config_t>  getConfigQueue;
 }ACK_ComParams_t;
+
+typedef struct {
+	comtype_t comtype;
+    	int byteSizeSend;
+   	unsigned char sendBuff[MAXSENDSIZE];
+}sendInfo;
 
 class CEventParsing
 {
@@ -170,19 +207,21 @@ private:
 	bool exit_jsParsing,exit_comParsing,exit_netParsing;
 	void parsingJostickEvent(unsigned char* jos_data);
 
+
 public:
 	static void thread_comrecvEvent();
 	static void thread_comsendEvent();
 	static void thread_Getaccept();
 	static int thread_ReclaimConnect();
-private:
-	void parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, int fd);
-	int parsingComEvent(int fd);
-	unsigned char check_sum(int len_t);
-	static void *thread_netrecvEvent(void *p);
-public:
 	ComParams_t ComParams;
 private:
+	static void *thread_netrecvEvent(void *p);
+	void parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, comtype_t comtype);
+	int parsingComEvent(comtype_t comtype);
+	unsigned char check_sum(int len_t);
+	int getSendInfo(sendInfo * psendBuf);
+	int package_ACK_GetConfig(sendInfo *psendBuf);
+	unsigned char sendcheck_sum(int len, unsigned char *tmpbuf);
 	int comfd;
 	CPortInterface *pCom1, *pCom2;
 	vector<unsigned char>  rcvBufQue;

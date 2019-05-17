@@ -19,13 +19,6 @@
 
 using namespace std;
 
-const char MAXSENDSIZE = 136;
-
-typedef struct {
-    int byteSizeSend;
-    unsigned char sendBuff[MAXSENDSIZE];
-}sendInfo;
-
 typedef  struct  {
 	u_int8_t   cmdBlock;
 	u_int8_t   cmdFiled;
@@ -203,7 +196,6 @@ static vector<int>  defConfigBuffer;
 //static selectCh_t selectch;
 
 //static osdbuffer_t recvOsdbuf;
-sendInfo repSendBuffer;
 CurrParaStat pParam;
 selectTrack m_selectPara;
 AcqBoxPos_ipc m_acqBox_Pos;
@@ -217,7 +209,6 @@ LinkageParam linkagePos;
 G_uart_open_params m_uart_params;
 camera_PosParams m_camera_pos[5];
 
-OSA_SemHndl  m_semHndl;
 OSA_SemHndl  m_semHndl_s;
 OSA_SemHndl m_semHndl_socket;
 OSA_SemHndl m_semHndl_socket_s;
@@ -227,7 +218,6 @@ OSA_SemHndl m_semHndl_sceneTrk;
 int joystick_flag;
 int commode;
 int feedback;
-//int mainProStat[ACK_value_max];
 int choose;
 int IrisAndFocus_Ret;
 int respupgradefw_stat;

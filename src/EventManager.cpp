@@ -10,14 +10,15 @@
 
 CEventManager* CEventManager::pThis = NULL;
 extern ACK_ComParams_t ACK_ComParams;
-int profileNum = (CFGID_BKID_MAX-1)*16;
+extern OSA_SemHndl  m_semHndl;
+extern OSA_SemHndl m_semHndl_s;
+int profileNum = CFGID_BKID_MAX*16;
 
 using namespace cv;
 
 CEventManager::CEventManager()
 {
 	pThis = this;
-
 	_Msg = CMessage::getInstance();
 	_state = new PlatFormCapture();
 	_StateManager = new StateManger(_state);
@@ -25,7 +26,7 @@ CEventManager::CEventManager()
 	MSG_register();
 	m_ipc = (CIPCProc*)_StateManager->returnIpc();
 	IPC_Creat();
-	configAvtFromFile();
+	ReadConfigFile();
 	_StateManager->GetParams(cfg_value);
 	_state->StateInit();
 }
@@ -38,13 +39,16 @@ CEventManager::~CEventManager()
 
 void CEventManager::IPC_Creat()
 {
-    Ipc_init();
-    int ret = Ipc_create();
-    if(ret == -1)
-    {
-    	printf("[%s] %d ipc create error \n", __func__, __LINE__);
-    	return;
-    }
+    	Ipc_init();
+   	int ret = Ipc_create();
+    	if(ret == -1)
+    	{
+    		printf("[%s] %d ipc create error \n", __func__, __LINE__);
+    		return;
+    	}
+	
+	cfg_value = (float *)ipc_getSharedMem(IPC_IMG_SHA);
+	usr_value = ipc_getSharedMem(IPC_USER_SHA);
 }
 
 void CEventManager::MSG_register()
@@ -87,6 +91,10 @@ void CEventManager::MSG_register()
 void CEventManager::MSG_Trk(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
+	if(tmp->trkctrl == 0)
+		tmp->trkctrl = !pThis->cfg_value[CFGID_RTS_trkstat];
+	if(tmp->trkctrl == 2)
+		tmp->trkctrl = 0;
 	pThis->_StateManager->inter_TrkCtrl(tmp->trkctrl);
 }
 void CEventManager::MSG_SwitchSensor(void* p)
@@ -158,6 +166,7 @@ void CEventManager::MSG_WorkMode(void* p)
 }
 void CEventManager::MSG_JosPos(void* p)
 {
+#if 0
 	ComParams_t *tmp = (ComParams_t *)p;
 	int curState = pThis->_StateManager->CurStateInterface();
 	switch(curState)
@@ -203,6 +212,7 @@ void CEventManager::MSG_JosPos(void* p)
 	//MSG_Com_ApertureCtrl(p);
 	//MSG_Com_FocusCtrl(p);
 	//MSG_Com_Gatemove(p);
+#endif
 #if 0
 	if(tmp->platspeedx > 0 &&tmp->platspeedx < 0x7a)
 		pThis->_StateManager->inter_AxisMove(PTZ_MOVE_Left, tmp->platspeedx);
@@ -318,7 +328,7 @@ void CEventManager::MSG_Com_SetCfg(void* p)
 	while(tmp->setConfigQueue.size()){
 		tmpcfg = tmp->setConfigQueue[0];
 		printf("setcfg block,field,value(%d,%d,%f)\n", tmpcfg.block,tmpcfg.field,tmpcfg.value);
-		pThis->modifierAVTProfile( tmpcfg.block, tmpcfg.field, tmpcfg.value, NULL);
+		pThis->SetConfig( tmpcfg.block, tmpcfg.field, tmpcfg.value, NULL);
 		tmp->setConfigQueue.erase(tmp->setConfigQueue.begin());
 	}
 }
@@ -329,7 +339,8 @@ void CEventManager::MSG_Com_GetCfg(void* p)
 	while(tmp->getConfigQueue.size()){
 		tmpcfg = tmp->getConfigQueue[0];
 		printf("getcfg block,field(%d,%d)\n", tmpcfg.block,tmpcfg.field);
-		pThis->answerRead(tmpcfg.block, tmpcfg.field);
+		OSA_semWait(&m_semHndl_s, OSA_TIMEOUT_FOREVER);
+		pThis->GetConfig(tmp->comtype, tmpcfg.block, tmpcfg.field);
 		tmp->getConfigQueue.erase(tmp->getConfigQueue.begin());
 	}
 }
@@ -347,36 +358,172 @@ void CEventManager::MSG_Com_DefaultCfg(void* p)
 	while(tmp->defConfigQueue.size()){
 		block = tmp->defConfigQueue.at(0);
 		printf("default block=%d\n", block);
+		pThis->DefaultConfig(tmp->comtype, block);
 		tmp->defConfigQueue.erase(tmp->defConfigQueue.begin());
 	}
 }
 void CEventManager::MSG_Com_SaveCfg(void* p)
 {
 	printf("MSG_Com_SaveCfg start\n");
+	pThis->SaveConfig();
 }
 
-int  CEventManager::configAvtFromFile()
-{
-	cfg_value = (float *)ipc_getSharedMem(IPC_IMG_SHA);
-	usr_value = ipc_getSharedMem(IPC_USER_SHA);
-
-	//m_ipc->IPCSendMsg(read_shm_config, NULL, 0);
+int  CEventManager::ReadConfigFile()
+{	
+	string cfgAvtFile;
+	int configId_Max = profileNum;
+	char  cfg_avt[30] = "cfg_avt_";
+	cfgAvtFile = "Profile.yml";
+	FILE *fp = fopen(cfgAvtFile.c_str(), "rt");
+	if(fp != NULL){
+		fseek(fp, 0, SEEK_END);
+		int len = ftell(fp);
+		fclose(fp);
+		if(len < 10)
+			return  -1;
+		else
+		{
+			FileStorage fr(cfgAvtFile, FileStorage::READ);
+			if(fr.isOpened())
+			{
+				for(int i=0; i<configId_Max; i++)
+				{
+					sprintf(cfg_avt, "cfg_avt_%d", i);
+					float value = fr[cfg_avt];
+					//printf("read value[%d]=%f\n", i, value);
+					cfg_value[i] = value;
+				}
+			}
+			else
+			{
+				printf("[get params]open YML failed\n");
+				exit(-1);
+			}
+		}
+	}
+	else
+	{
+		printf("[get params] Can not find YML. Please put this file into the folder of execute file\n");
+		exit (-1);
+	}
+	m_ipc->IPCSendMsg(read_shm_config, NULL, 0);
 	return 0;
 }
 
-void CEventManager::modifierAVTProfile(int block, int field, float value,char *inBuf)
+int CEventManager::SetConfig(int block, int field, float value,char *inBuf)
 {
-	int check = CFGID_BUILD(block-1, field);
-	//cfg_value[check] = value;
-
-}
-int CEventManager::answerRead(int block, int field)
-{
-	string rStr;
-
-	int check = CFGID_BUILD(block-1, field);
-	float value;
-	//value = cfg_value[check];
+	int cfgid = CFGID_BUILD(block-1, field);
+	cfg_value[cfgid] = value;
+	m_ipc->IPCSendMsg(read_shm_single, &cfgid, 4);
 
 	return 0;
+}
+int CEventManager::GetConfig(comtype_t comtype, int block, int field)
+{
+	int cfgid = CFGID_BUILD(block-1, field);
+	float value = cfg_value[cfgid];
+	
+	Set_config_t tmp = {block, field, value};
+	ACK_ComParams.comtype = comtype;
+	ACK_ComParams.cmdid  = ACK_GetConfig;
+	ACK_ComParams.getConfigQueue.push_back(tmp);
+	OSA_semSignal(&m_semHndl);
+
+	return 0;
+}
+int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
+{
+	string cfgAvtFile;
+	int configId_Max =profileNum;
+	char  cfg_avt[20] = "cfg_avt_";
+	cfgAvtFile = "Profile.yml";
+	FILE *fp = fopen(cfgAvtFile.c_str(), "rt");
+
+	if(fp != NULL)
+	{
+		fseek(fp, 0, SEEK_END);
+		int len = ftell(fp);
+		fclose(fp);
+		if(len < 10)
+			return  -1;
+		else
+		{
+			FileStorage fr(cfgAvtFile, FileStorage::READ);
+			if(fr.isOpened())
+			{
+				for(int i=0; i<configId_Max; i++)
+				{
+					sprintf(cfg_avt, "cfg_avt_%d", i);
+					
+					int block = CFGID_blkId(i) + 1;
+					if(block != 3)
+					{
+						if(0 == blockId)
+						{
+							cfg_value[i] = (float)fr[cfg_avt];
+						}
+						else if(block == blockId)
+						{
+							cfg_value[i] = (float)fr[cfg_avt];
+						}
+					}
+				}
+
+				if(0 == blockId)
+				{
+					m_ipc->IPCSendMsg(read_shm_config, NULL, 0);
+				}
+				else
+				{
+					m_ipc->IPCSendMsg(read_shm_block, &blockId, 0);
+				}
+			}
+			else
+			{
+				printf("[back to default] YML open failed\n");
+			}
+		}
+	}
+	else
+	{
+		printf("[back to default] Can not find YML. Please put this file into the folder of execute file\n");
+	}
+	return 0;
+}
+int CEventManager::SaveConfig()
+{
+	printf("-----------save config------\n");
+	string cfgAvtFile;
+	int configId_Max = profileNum;
+	char  cfg_avt[30] = "cfg_avt_";
+	cfgAvtFile = "Profile.yml";
+
+	FILE *fp = fopen(cfgAvtFile.c_str(), "rt+");
+
+	if(fp != NULL)
+	{
+		fseek(fp, 0, SEEK_END);
+		int len = ftell(fp);
+		fclose(fp);
+		
+		if(len < 10)
+			return  -1;
+		else
+		{
+			FileStorage fr(cfgAvtFile, FileStorage::WRITE);
+			if(fr.isOpened())
+			{
+				for(int i=0; i<configId_Max; i++)
+				{
+					sprintf(cfg_avt, "cfg_avt_%d", i);
+					float value = cfg_value[i];
+					fr<< cfg_avt << value;
+				}
+			}
+			else
+				return -1;
+		}
+	}
+	else
+		fclose(fp);
 }

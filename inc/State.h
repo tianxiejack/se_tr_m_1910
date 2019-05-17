@@ -49,6 +49,7 @@ public:
 	int curState;
 	float* cfg_value;
 	View* viewParam;
+	IPC_PRM_INT ipcParam;
 	HPLTCTRL  m_plt;
 	PLATFORMCTRL_TrackerInput m_pltInput;
 	PLATFORMCTRL_Output m_pltOutput;
@@ -59,6 +60,7 @@ public:
 	virtual void switchSensor(char chid);
 	virtual void ZoomCtrl(char type);
 	virtual void axisMove(int x, int y);
+
 public:
 	static 	CIPCProc* m_ipc;
 	static CPTZControl* _ptz;
@@ -81,6 +83,7 @@ private:
 	virtual  void OperationInterface(StateManger* con);
 	virtual  void OperationChangeState(StateManger* con);
 	virtual int curStateInterface();
+	virtual void TrkCtrl(char Enable){};
 	virtual void axisMove(int x, int y){};
 	virtual void ZoomCtrl(char type){};
 };
@@ -129,6 +132,7 @@ private:
 	virtual  void OperationInterface(StateManger* con);
 	virtual  void OperationChangeState(StateManger* con);
 	virtual int curStateInterface();
+	virtual void TrkCtrl(char Enable);
 	virtual void axisMove(int x, int y);
 };
 

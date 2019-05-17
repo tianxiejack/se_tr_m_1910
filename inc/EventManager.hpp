@@ -60,9 +60,11 @@ private:
 	static void MSG_Com_SetOsd(void* p);
 	static void MSG_Com_DefaultCfg(void* p);
 	static void MSG_Com_SaveCfg(void* p);
-	int  configAvtFromFile();
-	void modifierAVTProfile(int block, int field, float value,char *inBuf);
-	int answerRead(int block, int field);
+	int  ReadConfigFile();
+	int SetConfig(int block, int field, float value,char *inBuf);
+	int GetConfig(comtype_t comtype, int block, int field);
+	int DefaultConfig(comtype_t comtype, int blockId);
+	int SaveConfig();
 	
 };
 

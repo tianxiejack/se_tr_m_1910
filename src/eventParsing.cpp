@@ -7,9 +7,12 @@
 #include "eventParsing.hpp"
 #include <unistd.h>
 #include <arpa/inet.h>
+#include "osa_sem.h"
 
 CEventParsing* CEventParsing::pThis = NULL;
 ACK_ComParams_t ACK_ComParams;
+OSA_SemHndl  m_semHndl;
+OSA_SemHndl m_semHndl_s;
 
 CEventParsing::CEventParsing()
 {
@@ -18,6 +21,9 @@ CEventParsing::CEventParsing()
 	_Msg = CMessage::getInstance();
 	_Js = new CjoyStick();
 
+	OSA_semCreate(&m_semHndl, 1, 0);
+	OSA_semCreate(&m_semHndl_s, 1, 0);
+	OSA_semSignal(&m_semHndl_s);
 	memset(&ComParams, 0, sizeof(ComParams));
 	exit_comParsing = false;
 	pCom1 = PortFactory::createProduct(1);
@@ -35,6 +41,8 @@ CEventParsing::~CEventParsing()
 	delete _Msg;
 	delete pThis;
 
+	OSA_semDelete(&m_semHndl);
+	OSA_semDelete(&m_semHndl_s);
 	exit_comParsing = true;
 	exit_netParsing = true;
 	pCom1->cclose();
@@ -63,23 +71,39 @@ void CEventParsing::thread_comrecvEvent()
 	while(!pThis->exit_comParsing)
 	{
 		sizeRcv= pThis->pCom1->crecv(pThis->comfd, (void *)tmpRcvBuff,RECV_BUF_SIZE);
-		pThis->parsingframe(tmpRcvBuff, sizeRcv, pThis->comfd);
+		comtype_t comtype = {pThis->comfd, 1};
+		pThis->parsingframe(tmpRcvBuff, sizeRcv, comtype);
 	}
-
 }
 
 void CEventParsing::thread_comsendEvent()
 {
-	char buf[128] = {0xEB,0x53,0x02,0x00,0x07,0x09, 0x0E};
+	sendInfo repSendBuffer;
+	repSendBuffer.sendBuff[0] = 0xEB;
+	repSendBuffer.sendBuff[1] = 0x53;
+	
 	while(!pThis->exit_comParsing)
 	{
-		OSA_mutexLock(&pThis->mutexConn);
-		if((pThis->connetVector.size()>0) && (pThis->connetVector[0]->bConnecting))
+		OSA_semWait(&m_semHndl,OSA_TIMEOUT_FOREVER);
+		pThis->getSendInfo(&repSendBuffer);
+
+		if(1 == repSendBuffer.comtype.type)
 		{
-			pThis->pCom1->csend(pThis->pThis->connetVector[0]->connfd, buf, 7);
+			pThis->pCom1->csend(repSendBuffer.comtype.fd, &repSendBuffer.sendBuff, repSendBuffer.byteSizeSend);
 		}
-		OSA_mutexUnlock(&pThis->mutexConn);
-		sleep(1);
+
+		else if(2 == repSendBuffer.comtype.type)
+		{
+			OSA_mutexLock(&pThis->mutexConn);
+			if((pThis->connetVector.size()>0) && (pThis->connetVector[0]->bConnecting))
+			{
+				pThis->pCom2->csend(repSendBuffer.comtype.fd, &repSendBuffer.sendBuff, repSendBuffer.byteSizeSend);
+			}
+			OSA_mutexUnlock(&pThis->mutexConn);
+		}
+		
+		if(ACK_ComParams.cmdid == ACK_GetConfig)
+			OSA_semSignal(&m_semHndl_s);
 	}
 }
 
@@ -138,7 +162,8 @@ void *CEventParsing::thread_netrecvEvent(void *p)
 			pConnect->bConnecting = false;
 			break;
 		}
-		pThis->parsingframe(tmpRcvBuff, sizeRcv, pConnect->connfd);
+		comtype_t comtype = {pConnect->connfd, 2};
+		pThis->parsingframe(tmpRcvBuff, sizeRcv, comtype);
 	}
 }
 
@@ -322,7 +347,7 @@ void CEventParsing::parsingJostickEvent(unsigned char* jos_data)
 	}
 }
 
-void CEventParsing::parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, int fd)
+void CEventParsing::parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, comtype_t comtype)
 {
 	unsigned int uartdata_pos = 0;
 	unsigned char frame_head[]={0xEB, 0x53};
@@ -339,12 +364,13 @@ void CEventParsing::parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, int fd)
 	uartdata_pos = 0;
 	if(sizeRcv>0)
 	{
-		printf("------------------(fd:%d)Uart start recv date---------------------\n",fd);
+		printf("------------------(fd:%d)start recv date---------------------\n", comtype.fd);
 		for(int j=0;j<sizeRcv;j++)
 		{
 			printf("%02x ",tmpRcvBuff[j]);
 		}
 		printf("\n");
+
 		while (uartdata_pos< sizeRcv)
 		{
 	        		if((0 == swap_data.reading) || (2 == swap_data.reading))
@@ -377,7 +403,7 @@ void CEventParsing::parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, int fd)
 						{
 							rcvBufQue.push_back(swap_data.buf[i]);
 						}
-						parsingComEvent(fd);
+						parsingComEvent(comtype);
 						memset(&swap_data, 0, sizeof(struct data_buf));
 					}
 				}
@@ -386,7 +412,7 @@ void CEventParsing::parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, int fd)
 	}
 }
 
-int CEventParsing::parsingComEvent(int fd)
+int CEventParsing::parsingComEvent(comtype_t comtype)
 {
 	int ret =  -1;
 	int cmdLength= (rcvBufQue.at(2)|rcvBufQue.at(3)<<8)+5;
@@ -408,7 +434,7 @@ int CEventParsing::parsingComEvent(int fd)
 
     	if(checkSum== rcvBufQue.at(cmdLength-1))
     	{	
-    		ComParams.fd = fd;
+    		ComParams.comtype = comtype;
         		switch(rcvBufQue.at(4))
         		{
             		case 0x01:
@@ -548,4 +574,42 @@ unsigned char CEventParsing::check_sum(int len_t)
         cksum ^= rcvBufQue.at(n);
     }
     return  cksum;
+}
+
+int  CEventParsing::getSendInfo(sendInfo * psendBuf)
+{
+	int respondId = ACK_ComParams.cmdid;
+	switch(respondId){
+		case ACK_GetConfig:
+			package_ACK_GetConfig(psendBuf);
+			break;
+		default:
+			break;
+	}
+	return 0;
+}
+
+int  CEventParsing::package_ACK_GetConfig(sendInfo *psendBuf)
+{
+	int length;
+	unsigned char sumcheck;
+	length = 7;
+	psendBuf->sendBuff[2] = length&0xff;
+	psendBuf->sendBuff[3] = (length>>8)&0xff;
+	psendBuf->sendBuff[4] = 0x52;
+	psendBuf->sendBuff[5] = ACK_ComParams.getConfigQueue[0].block;
+	psendBuf->sendBuff[6] = ACK_ComParams.getConfigQueue[0].field;
+	memcpy(psendBuf->sendBuff+7, &ACK_ComParams.getConfigQueue[0].value, 4);
+	sumcheck=sendcheck_sum(length, psendBuf->sendBuff+4);
+	psendBuf->sendBuff[length+4]=(sumcheck&0xff);
+	psendBuf->byteSizeSend = length + 5;
+	psendBuf->comtype = ACK_ComParams.comtype;
+	ACK_ComParams.getConfigQueue.erase(ACK_ComParams.getConfigQueue.begin());
+}
+unsigned char CEventParsing::sendcheck_sum(int len, unsigned char *tmpbuf)
+{
+	unsigned char ckeSum=0;
+	for(int n=0; n < len; n++)
+		ckeSum ^= tmpbuf[n];
+	return ckeSum;
 }
