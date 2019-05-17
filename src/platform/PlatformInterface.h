@@ -20,7 +20,6 @@ public:
 	virtual int PlatformCtrl_VirtualInput(HPLTCTRL handle, int iIndex, float fValue) = 0;
 	virtual int PlatformCtrl_sensorCompensation(HPLTCTRL handle, int chid,unsigned int zoom) = 0;
 	
-	virtual BoresightPos_s PlatformCtrl_SensorUpdateParams(float* data, int block, int field, int curChid, PlatformCtrl_Obj *pObj) = 0;
 	virtual void PlatformCtrl_UpdateParams(HPLTCTRL handle, float* data, int block) = 0;
 
 	virtual int PlatformCtrl_TrackerInput(HPLTCTRL handle, PLATFORMCTRL_TrackerInput *pInput) = 0;

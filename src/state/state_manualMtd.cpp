@@ -19,6 +19,8 @@ ManualMtdCapture::~ManualMtdCapture()
 void ManualMtdCapture::OperationInterface(StateManger* con)
 {
 	cout<<"5  ManualMtdCapture"<<endl;
+	ipcParam.intPrm[0] = 1;
+	m_ipc->IPCSendMsg(mtd, ipcParam.intPrm, 4);
 }
 
 void ManualMtdCapture::OperationChangeState(StateManger* con)

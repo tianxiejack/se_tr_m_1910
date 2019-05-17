@@ -34,6 +34,7 @@ public:
 	void inter_AxisPos(int x, int y);
 	void inter_AxisMove(int x, int y);
 	void inter_TrkSearch(int type, int x, int y);
+	void inter_IrisCtrl(char type);
 
 protected:
 

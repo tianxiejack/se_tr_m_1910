@@ -30,7 +30,7 @@ typedef enum{
 	STATE_BOX,
 	STATE_MANUALMTD,
 }state_st;
-
+const int JOS_VALUE_MAX = 0xFF;
 class StateManger;
 
 class State
@@ -46,7 +46,6 @@ public:
 	virtual int ChangeState(StateManger* con, char nextState);
 
 public:
-	const int jos_value = 0xFF;
 	int curState;
 	OSA_SemHndl m_sem;
 	View* viewParam;
@@ -62,6 +61,7 @@ public:
 	virtual void ZoomCtrl(char type);
 	virtual void axisMove(int x, int y);
 	virtual void trkSearch(int type, int x, int y);
+	virtual void IrisCtrl(char type);
 
 public:
 	void switchSensor_interface(int chid);

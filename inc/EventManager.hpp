@@ -26,6 +26,7 @@ private:
 	float *cfg_value;
 	void *usr_value;
 	bool exit_ipcthread;
+	float winPos[2];
 	void IPC_Creat();
 	void MSG_register();
 

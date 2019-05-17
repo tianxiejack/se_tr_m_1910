@@ -108,3 +108,11 @@ void StateManger::inter_TrkSearch(int type, int x, int y)
 {
 	_state->trkSearch(type, x, y);
 }
+
+void StateManger::inter_IrisCtrl(char type)
+{
+	_state->IrisCtrl(type);
+}
+
+
+

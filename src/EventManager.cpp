@@ -12,7 +12,7 @@ CEventManager* CEventManager::pThis = NULL;
 extern ACK_ComParams_t ACK_ComParams;
 extern OSA_SemHndl  m_semHndl;
 extern OSA_SemHndl m_semHndl_s;
-int profileNum = CFGID_BKID_MAX*16;
+const int profileNum = CFGID_BKID_MAX*16;
 
 using namespace cv;
 
@@ -20,6 +20,7 @@ CEventManager::CEventManager()
 {
 	pThis = this;
 	exit_ipcthread = false;
+	memset(winPos, 0, sizeof(winPos));
 	_Msg = CMessage::getInstance();
 	_state = new PlatFormCapture();
 	_StateManager = new StateManger(_state);
@@ -130,7 +131,8 @@ void CEventManager::MSG_ZoomShort(void* p)
 void CEventManager::MSG_TrkSearch(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
-	//pThis->_StateManager->inter_TrkSearch(tmp->sectrkctrl, tmp->platspeedx, tmp->platspeedy);
+	if(tmp->sectrkctrl == 2)
+		pThis->_StateManager->inter_TrkSearch(tmp->sectrkctrl, pThis->winPos[0], pThis->winPos[1]);
 	printf("tmp->sectrkctrl = %d \n", tmp->sectrkctrl);
 }
 void CEventManager::MSG_CaptureMode(void* p)
@@ -179,16 +181,15 @@ void CEventManager::MSG_JosPos(void* p)
 	ComParams_t *tmp = (ComParams_t *)p;
 	if(tmp->sectrkctrl == 0x01)
 	{
-		float x = tmp->platspeedx;
-		float y = tmp->platspeedy;
-		x = 1920 * (x / 0xff);
-		y = 1080 * (y / 0xff);
-		pThis->_StateManager->inter_TrkSearch(tmp->sectrkctrl, (int)x, (int)y);
-		printf(" x = %d , y =%d \n", (int)x, (int)y);
+		pThis->winPos[0] = 1920 * ((float)tmp->platspeedx / JOS_VALUE_MAX);
+		pThis->winPos[1] = 1080 * ((float)tmp->platspeedy / JOS_VALUE_MAX);
+		pThis->_StateManager->inter_TrkSearch(tmp->sectrkctrl, (int)pThis->winPos[0], (int)pThis->winPos[1]);
+	}
+	else if(tmp->irisctrl == 0x03)
+	{
+		printf("ptz iris \n");
 	}
 #if 0
-	else if(tmp->irisctrl == 0x03)
-		printf("ptz iris \n");
 	else if(tmp->focusctrl == 0x03)
 		printf("ptz  focus \n");
 	else

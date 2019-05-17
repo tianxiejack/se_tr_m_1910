@@ -21,7 +21,7 @@ State::State()
 	if(_ptz == NULL)
 		_ptz = new CPTZControl(_agreement);
 	if(m_Platform == NULL)
-		;//m_Platform = new CplatFormControl();
+		m_Platform = new CplatFormControl();
 	if(m_ptzSpeed == NULL)
 		m_ptzSpeed = new CPTZSpeedTransfer();
 	if(m_ipc == NULL)
@@ -132,13 +132,22 @@ void State::trkSearch(int type, int x, int y)
 	if(cfg_value[CFGID_RTS_mainch] == video_pal)
 	{
 		x = (int)((float)x*720.0/1920.0);
-		x = (int)((float)x*576.0/1080.0);
+		y = (int)((float)y*576.0/1080.0);
 	}
 	ipcParam.intPrm[0] = type;
 	ipcParam.intPrm[1] = x;
 	ipcParam.intPrm[2] = y;
 	m_ipc->IPCSendMsg(sectrk, ipcParam.intPrm, 3*4);
 }
+
+void State::IrisCtrl(char type)
+{
+
+}
+
+
+
+
 void State::switchSensor_interface(int chid)
 {
 	int SensorStat = cfg_value[CFGID_RTS_mainch];
@@ -167,8 +176,8 @@ void State::switchSensor_interface(int chid)
 
 void State::axisMove_interface(int x, int y)
 {
-	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickXInput, x/jos_value);
-	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickYInput, y/jos_value);
+	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickXInput, x/JOS_VALUE_MAX);
+	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickYInput, y/JOS_VALUE_MAX);
 
 	m_pltInput.iTrkAlgState= 0;
 	m_Platform->PlatformCtrl_TrackerInput(m_plt, &m_pltInput);
