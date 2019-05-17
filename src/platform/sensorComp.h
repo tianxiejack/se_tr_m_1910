@@ -131,27 +131,28 @@ public:
 
 
 	View* backParams();
-	BoresightPos_s UpdateParams(float* data, int block, int field, int curChid, PlatformCtrl_Obj* pObj);
+	BoresightPos_s updateParam( float* data , PlatformCtrl_Obj* pObj ,int curChid);
+	void updateParam( float* data , PlatformCtrl_Obj* pObj = NULL);
 
 	void SensorComp_CreateParams_Init(SensorComp_CreateParams *pPrm, int i, View* Pserson,int width ,int height);
 	
 	float ZoomLevelFovCompensation(unsigned short zoom, int chid);
 	float ZoomVerticalFovCompensation(unsigned short zoom, int chid);
+	float dynamicSendBoresightPosX(unsigned short zoom , int chid);
+	float dynamicSendBoresightPosY(unsigned short zoom , int chid);
+
+	
+private:
+	BoresightPos_s getTheNewestBoresight(int curChid );
+	void updateContinueFovParam( float* data , PlatformCtrl_Obj* pObj );
+	void updateSwitchFovParam( float* data , PlatformCtrl_Obj* pObj );
+	void updateFixFovParam( float* data , PlatformCtrl_Obj* pObj );
+	
+	float linear_interpolation(float x0, float x1, float y0, float y1, float x);
+
 
 private:
-	void UpdateSwitchFovParams_one(int chid, int field, int curChid, PlatformCtrl_Obj* pObj);
-	void UpdateSwitchFovParams_two(int chid, int field, int curChid, PlatformCtrl_Obj* pObj);
-	void UpdateContinueFovParams_one(int chid, int field, int curChid, PlatformCtrl_Obj* pObj);
-	void UpdateContinueFovParams_two(int chid, int field, int curChid, PlatformCtrl_Obj* pObj);
-	void UpdateContinueFovParams_three(int chid, int field, int curChid, PlatformCtrl_Obj* pObj);
-	void UpdateContinueFovParams_four(int chid, int field, int curChid, PlatformCtrl_Obj* pObj);
-	void UpdateContinueFovParams_five(int chid, int field, int curChid, PlatformCtrl_Obj* pObj);
-
-	float linear_interpolation_Fov(float x0, float x1, float y0, float y1, float x);
-
-
-private:
-	View m_viewParam;
+	View m_viewParam , m_viewParamBK;
 	BoresightPos_s Bpos;
 	
 };

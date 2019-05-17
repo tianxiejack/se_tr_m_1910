@@ -64,8 +64,8 @@ private:
 	static void MSG_Com_SaveCfg(void* p);
 	int  ReadConfigFile();
 	int SetConfig(int block, int field, float value,char *inBuf);
-	int GetConfig(int fd, int block, int field);
-	int DefaultConfig(int fd, int blockId);
+	int GetConfig(comtype_t comtype, int block, int field);
+	int DefaultConfig(comtype_t comtype, int blockId);
 	int SaveConfig();
 	
 };

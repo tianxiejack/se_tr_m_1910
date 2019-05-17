@@ -149,6 +149,10 @@ typedef struct{
 
 typedef struct{
 	int fd;
+	int type;// 1. /dev/ttyTHS1   2.network
+}comtype_t;
+typedef struct{
+	comtype_t comtype;
 	int displaychid;
 	int capturechid;
 	int workmode;
@@ -179,13 +183,13 @@ typedef struct{
 }ComParams_t;
 
 typedef struct{
-	int fd;
+	comtype_t comtype;
 	int cmdid;
 	vector<Set_config_t>  getConfigQueue;
 }ACK_ComParams_t;
 
 typedef struct {
-	int fd;
+	comtype_t comtype;
     	int byteSizeSend;
    	unsigned char sendBuff[MAXSENDSIZE];
 }sendInfo;
@@ -212,8 +216,8 @@ public:
 	ComParams_t ComParams;
 private:
 	static void *thread_netrecvEvent(void *p);
-	void parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, int fd);
-	int parsingComEvent(int fd);
+	void parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, comtype_t comtype);
+	int parsingComEvent(comtype_t comtype);
 	unsigned char check_sum(int len_t);
 	int getSendInfo(sendInfo * psendBuf);
 	int package_ACK_GetConfig(sendInfo *psendBuf);

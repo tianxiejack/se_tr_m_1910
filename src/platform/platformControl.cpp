@@ -43,21 +43,8 @@ View* CplatFormControl::sensorParams()
 
 void CplatFormControl::PlatformCtrl_sensor_Init(float* data)
 {
-	for(int i=24; i<28; i++)
-		_Sensor->UpdateParams(data, i, 0, 0, NULL);
-	for(int i=56; i<86; i++)
-		_Sensor->UpdateParams(data, i, 0, 0, NULL);
-	for(int i=111; i<121; i++)
-		_Sensor->UpdateParams(data, i, 0, 0, NULL);
+	_Sensor->updateParam(data);
 	return ;
-}
-
-
-
-BoresightPos_s CplatFormControl::PlatformCtrl_SensorUpdateParams(float* data, int block, int field, int curChid, PlatformCtrl_Obj *pObj)
-{
-	BoresightPos_s pos = _Sensor->UpdateParams(data, block, field, curChid, pObj);
-	return pos;
 }
 
 

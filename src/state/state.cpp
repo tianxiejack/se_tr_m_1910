@@ -21,7 +21,7 @@ State::State()
 	if(_ptz == NULL)
 		_ptz = new CPTZControl(_agreement);
 	if(m_Platform == NULL)
-		m_Platform = new CplatFormControl();
+		;//m_Platform = new CplatFormControl();
 	if(m_ptzSpeed == NULL)
 		m_ptzSpeed = new CPTZSpeedTransfer();
 	if(m_ipc == NULL)
