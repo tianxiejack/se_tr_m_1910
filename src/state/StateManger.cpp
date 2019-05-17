@@ -109,9 +109,9 @@ void StateManger::inter_TrkSearch(int type, int x, int y)
 	_state->trkSearch(type, x, y);
 }
 
-void StateManger::inter_IrisCtrl(char type)
+void StateManger::inter_Iris_FocusCtrl(int type, int dir)
 {
-	_state->IrisCtrl(type);
+	_state->Iris_FocusCtrl(type, dir);
 }
 
 

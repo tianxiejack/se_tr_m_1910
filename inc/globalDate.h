@@ -88,12 +88,6 @@ typedef struct{
 	int filed;
 }Read_config_buffer;
 
-typedef enum {
-	Exit = 0,
-	iris,
-	Focus
-}IrisAndFocusAndExit;
-
 typedef struct{
 	uint channel0:1;
 	uint channel1:1;

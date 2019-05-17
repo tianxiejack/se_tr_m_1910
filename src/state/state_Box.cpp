@@ -16,13 +16,10 @@ BoxCapture::~BoxCapture()
 
 }
 
-void BoxCapture::OperationInterface(StateManger* con)
-{
-	cout<<"4  BoxCapture"<<endl;
-}
-
 void BoxCapture::OperationChangeState(StateManger* con)
 {
+	ipcParam.intPrm[0] = 5;
+	m_ipc->IPCSendMsg(workmode, ipcParam.intPrm, 4);
 	OperationInterface(con);
 }
 

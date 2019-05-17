@@ -16,13 +16,10 @@ PlatFormCapture::~PlatFormCapture()
 
 }
 
-void PlatFormCapture::OperationInterface(StateManger* con)
-{
-	cout<<"3  PlatFormCapture"<<endl;
-}
-
 void PlatFormCapture::OperationChangeState(StateManger* con)
 {
+	ipcParam.intPrm[0] = 4;
+	m_ipc->IPCSendMsg(workmode, ipcParam.intPrm, 4);
 	OperationInterface(con);
 }
 
