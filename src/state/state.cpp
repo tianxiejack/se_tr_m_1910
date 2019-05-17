@@ -10,6 +10,7 @@ AgreeMentBaseFormat* State::_agreement = NULL;
 CPlatformInterface* State::m_Platform = NULL;
 CPTZSpeedTransfer*  State::m_ptzSpeed = NULL;
 CIPCProc* State::m_ipc = NULL;
+float* State::cfg_value = NULL;
 
 State::State()
 {
@@ -20,7 +21,7 @@ State::State()
 	if(_ptz == NULL)
 		_ptz = new CPTZControl(_agreement);
 	if(m_Platform == NULL)
-		m_Platform = new CplatFormControl();
+		;//m_Platform = new CplatFormControl();
 	if(m_ptzSpeed == NULL)
 		m_ptzSpeed = new CPTZSpeedTransfer();
 	if(m_ipc == NULL)
@@ -29,11 +30,13 @@ State::State()
 	curState = STATE_PTZ;
 	selectch = {1, 1, 1, 1, 1, 0};
 	curValidChid = selectch.idx;
+	OSA_semCreate(&m_sem, 1, 0);
 }
 
 State::~State()
 {
-
+	OSA_semSignal(&m_sem);
+	OSA_semDelete(&m_sem);
 }
 
 void State::platformCreate()
@@ -97,7 +100,47 @@ void State::TrkCtrl(char Enable)
 
 void State::switchSensor(char chid)
 {
+	switchSensor_interface(chid);
+}
 
+void State::ZoomCtrl(char type)
+{
+	if(type == 0x01)
+		_ptz->m_iSetZoomSpeed = -1;
+	else if(type == 0x02)
+		_ptz->m_iSetZoomSpeed = 1;
+	else
+		_ptz->m_iSetZoomSpeed = 0;
+}
+
+void State::axisMove(int x, int y)
+{
+	axisMove_interface(x, y);
+}
+
+void State::trkSearch(int type, int x, int y)
+{
+	if( x<0)
+		x =0;
+	else  if(x > 1920)
+		x =1920;
+	if( y<0)
+		y =0;
+	else  if(y > 1080)
+		y =1080;
+
+	if(cfg_value[CFGID_RTS_mainch] == video_pal)
+	{
+		x = (int)((float)x*720.0/1920.0);
+		x = (int)((float)x*576.0/1080.0);
+	}
+	ipcParam.intPrm[0] = type;
+	ipcParam.intPrm[1] = x;
+	ipcParam.intPrm[2] = y;
+	m_ipc->IPCSendMsg(sectrk, ipcParam.intPrm, 3*4);
+}
+void State::switchSensor_interface(int chid)
+{
 	int SensorStat = cfg_value[CFGID_RTS_mainch];
 	if(chid == 0xff)
 	{
@@ -122,17 +165,7 @@ void State::switchSensor(char chid)
 	curValidChid = selectch.idx;
 }
 
-void State::ZoomCtrl(char type)
-{
-	if(type == 0x01)
-		_ptz->m_iSetZoomSpeed = -1;
-	else if(type == 0x02)
-		_ptz->m_iSetZoomSpeed = 1;
-	else
-		_ptz->m_iSetZoomSpeed = 0;
-}
-
-void State::axisMove(int x, int y)
+void State::axisMove_interface(int x, int y)
 {
 	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickXInput, x/jos_value);
 	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickYInput, y/jos_value);
@@ -141,7 +174,4 @@ void State::axisMove(int x, int y)
 	m_Platform->PlatformCtrl_TrackerInput(m_plt, &m_pltInput);
 	m_Platform->PlatformCtrl_TrackerOutput(m_plt, &m_pltOutput);
 }
-
-
-
 

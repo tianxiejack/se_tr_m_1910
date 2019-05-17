@@ -52,6 +52,13 @@ void ManualMtdCapture::axisMove(int x, int y)
 
 }
 
+void ManualMtdCapture::switchSensor(char chid)
+{
 
+}
 
+void ManualMtdCapture::ZoomCtrl(char type)
+{
+
+}
 

@@ -32,3 +32,10 @@ int StateAuto_Mtd::curStateInterface()
 		curState = STATE_AUTOMTD;
 	return curState;
 }
+
+void StateAuto_Mtd::switchSensor(char chid)
+{
+
+}
+
+

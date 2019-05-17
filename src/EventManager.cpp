@@ -19,6 +19,7 @@ using namespace cv;
 CEventManager::CEventManager()
 {
 	pThis = this;
+	exit_ipcthread = false;
 	_Msg = CMessage::getInstance();
 	_state = new PlatFormCapture();
 	_StateManager = new StateManger(_state);
@@ -33,22 +34,34 @@ CEventManager::CEventManager()
 
 CEventManager::~CEventManager()
 {
+	exit_ipcthread = true;
+	delete pThis;
+	delete _state;
+	delete _StateManager;
+	delete m_ipc;
 	_Msg->MSGDRIV_destroy(_Handle);
 	delete _Msg;
 }
 
 void CEventManager::IPC_Creat()
 {
-    	Ipc_init();
+    Ipc_init();
    	int ret = Ipc_create();
-    	if(ret == -1)
-    	{
-    		printf("[%s] %d ipc create error \n", __func__, __LINE__);
-    		return;
-    	}
-	
+	if(ret == -1)
+	{
+		printf("[%s] %d ipc create error \n", __func__, __LINE__);
+		return;
+	}
 	cfg_value = (float *)ipc_getSharedMem(IPC_IMG_SHA);
 	usr_value = ipc_getSharedMem(IPC_USER_SHA);
+}
+
+void CEventManager::thread_ipcEvent()
+{
+	while(!pThis->exit_ipcthread)
+	{
+		pThis->m_ipc->IPCRecvMsg(NULL);
+	}
 }
 
 void CEventManager::MSG_register()
@@ -102,25 +115,23 @@ void CEventManager::MSG_SwitchSensor(void* p)
 	ComParams_t *tmp = (ComParams_t *)p;
 	int displaychid = tmp->displaychid;
 	int capturechid = tmp->capturechid;
-	printf("displaychid=%d,capturechid=%d\n",displaychid,capturechid);
 	pThis->_StateManager->inter_SwitchSensor(capturechid);
 }
 void CEventManager::MSG_ZoomLong(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
-	printf(" 3 => long = %d \n", tmp->zoomctrl);
 	pThis->_StateManager->inter_ZoomCtrl(tmp->zoomctrl);
 }
 void CEventManager::MSG_ZoomShort(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
-	printf(" 4 => short = %d \n", tmp->zoomctrl);
 	pThis->_StateManager->inter_ZoomCtrl(tmp->zoomctrl);
 }
 void CEventManager::MSG_TrkSearch(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
-	printf(" 1111  tmp->sectrkctrl = %d \n", tmp->sectrkctrl);
+	//pThis->_StateManager->inter_TrkSearch(tmp->sectrkctrl, tmp->platspeedx, tmp->platspeedy);
+	printf("tmp->sectrkctrl = %d \n", tmp->sectrkctrl);
 }
 void CEventManager::MSG_CaptureMode(void* p)
 {
@@ -140,12 +151,11 @@ void CEventManager::MSG_CaptureMode(void* p)
 	{
 		tmp->capturemode = captureModeBack;
 	}
-
 }
 void CEventManager::MSG_IrisAndFocus(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
-	printf("tmp->irisctrl = %d , tmp->focusctrl = %d \n", tmp->irisctrl, tmp->focusctrl);
+	//printf("tmp->irisctrl = %d , tmp->focusctrl = %d \n", tmp->irisctrl, tmp->focusctrl);
 }
 void CEventManager::MSG_WorkMode(void* p)
 {
@@ -166,9 +176,25 @@ void CEventManager::MSG_WorkMode(void* p)
 }
 void CEventManager::MSG_JosPos(void* p)
 {
-#if 0
 	ComParams_t *tmp = (ComParams_t *)p;
-	int curState = pThis->_StateManager->CurStateInterface();
+	if(tmp->sectrkctrl == 0x01)
+	{
+		float x = tmp->platspeedx;
+		float y = tmp->platspeedy;
+		x = 1920 * (x / 0xff);
+		y = 1080 * (y / 0xff);
+		pThis->_StateManager->inter_TrkSearch(tmp->sectrkctrl, (int)x, (int)y);
+		printf(" x = %d , y =%d \n", (int)x, (int)y);
+	}
+#if 0
+	else if(tmp->irisctrl == 0x03)
+		printf("ptz iris \n");
+	else if(tmp->focusctrl == 0x03)
+		printf("ptz  focus \n");
+	else
+		printf("ptz jos move \n");
+
+
 	switch(curState)
 	{
 	case STATE_PTZ:
@@ -213,14 +239,6 @@ void CEventManager::MSG_JosPos(void* p)
 	//MSG_Com_FocusCtrl(p);
 	//MSG_Com_Gatemove(p);
 #endif
-#if 0
-	if(tmp->platspeedx > 0 &&tmp->platspeedx < 0x7a)
-		pThis->_StateManager->inter_AxisMove(PTZ_MOVE_Left, tmp->platspeedx);
-	else if(tmp->platspeedx > 0x90 &&tmp->platspeedx < 0xff)
-		pThis->_StateManager->inter_AxisMove(PTZ_MOVE_Right,tmp->platspeedx);
-	else
-		pThis->_StateManager->inter_AxisMove(PTZ_MOVE_Stop, 0);
-#endif
 }
 void CEventManager::MSG_PovPosX(void* p)
 {
@@ -247,9 +265,7 @@ void CEventManager::MSG_Com_TrkMove(void* p)
 void CEventManager::MSG_Com_SecTrkPos(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
-	short sectrkx = tmp->sectrkx;
-	short sectrky = tmp->sectrky;
-	printf("sectrk x,y(%d,%d)\n",sectrkx, sectrky);
+	pThis->_StateManager->inter_TrkSearch(tmp->sectrkctrl, tmp->sectrkx, tmp->sectrky);
 }
 void CEventManager::MSG_Com_MtdSelect(void* p)
 {
