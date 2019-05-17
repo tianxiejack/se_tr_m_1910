@@ -209,7 +209,6 @@ LinkageParam linkagePos;
 G_uart_open_params m_uart_params;
 camera_PosParams m_camera_pos[5];
 
-OSA_SemHndl  m_semHndl_s;
 OSA_SemHndl m_semHndl_socket;
 OSA_SemHndl m_semHndl_socket_s;
 OSA_SemHndl m_semHndl_automtd;
