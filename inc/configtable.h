@@ -32,6 +32,7 @@ static int ShowDPI[MAX_CHAN][2] = {{1920, 1080},{1920, 1080},{1920, 1080},{1920,
 #define CFGID_blkId( cfgId )            ( ( (cfgId) >> 4 ) & 0xFF )
 #define CFGID_feildId( cfgId )          ( cfgId & 0xF )
 
+
 typedef enum 
 {
 	CFGID_JOS_BKID = 0,
@@ -68,7 +69,7 @@ typedef enum
 
 typedef enum 
 {
-	CFGID_RTS_BASE = CFGID_BUILD( CFGID_RTS_BKID, 1 ),
+	CFGID_RTS_BASE = CFGID_BUILD( CFGID_RTS_BKID, 0 ),
 	CFGID_RTS_trken = CFGID_BUILD( CFGID_RTS_BKID, 1 ),
 	CFGID_RTS_trkalg = CFGID_BUILD( CFGID_RTS_BKID, 2 ),
 	CFGID_RTS_trkstat = CFGID_BUILD( CFGID_RTS_BKID, 3 ),
@@ -114,9 +115,6 @@ typedef enum
 typedef enum 
 {
 	CFGID_PID_BASE = CFGID_BUILD( CFGID_PID_BKID, 0 ),
-
-
-
 
 
 	
@@ -169,6 +167,54 @@ typedef enum
 #define CFGID_INPUT_FIXAIMH(BKID)	CFGID_BUILD( BKID+6, 3 )
 #define CFGID_INPUT_SWAIMW(BKID, SWLV)	CFGID_BUILD( BKID+6, 2+(SWLV*2) )	// SWLV 1-3
 #define CFGID_INPUT_SWAIMH(BKID, SWLV)	CFGID_BUILD( BKID+6, 3+(SWLV*2) )	// SWLV 1-3
+
+#define CFGID_INPUT_CURFOVLV(BKID, SWLV)	CFGID_BUILD( BKID+1, 0 )
+#define CFGID_INPUT_ZOOMFBS(BKID , NUM)	CFGID_BUILD( BKID+3, NUM+3)
+
+
+
+//input_fov1x     
+static inline int CFGID_INPUT_FOVX(int BKID , int NUM)
+{
+	int a;
+	if(NUM <= 7)
+		a = CFGID_BUILD( BKID+1, NUM*2 );
+	else
+		a = CFGID_BUILD( BKID+2, (NUM-8)*2 );
+	return a;
+}
+//input_fov1y
+static inline int CFGID_INPUT_FOVY(int BKID , int NUM)
+{
+	int ret;
+	if(NUM <= 7)
+		ret = CFGID_BUILD( BKID+1, NUM*2+1 );
+	else
+		ret = CFGID_BUILD( BKID+2, (NUM-8)*2 +1);
+	return ret;
+}
+//input_boresight1X
+static inline int CFGID_INPUT_boresightX(int BKID , int NUM)
+{
+	int ret;
+	if(NUM <= 8)
+		ret = CFGID_BUILD( BKID+4, NUM*2 );
+	else
+		ret = CFGID_BUILD( BKID+5, (NUM-9)*2);
+	return ret;
+}
+//input_boresight1Y
+static inline int CFGID_INPUT_boresightY(int BKID , int NUM)
+{
+	int ret;
+	if(NUM <= 8)
+		ret = CFGID_BUILD( BKID+4, NUM*2+1 );
+	else
+		ret = CFGID_BUILD( BKID+5, (NUM-9)*2 +1);
+	return ret;
+}
+
+
 
 // sys config table part end
 ////////////////////////////////////////////////////

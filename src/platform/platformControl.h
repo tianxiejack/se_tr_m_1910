@@ -23,7 +23,6 @@ public:
 	int PlatformCtrl_VirtualInput(HPLTCTRL handle, int iIndex, float fValue);
 	int PlatformCtrl_sensorCompensation(HPLTCTRL handle, int chid,unsigned int zoom);
 	void PlatformCtrl_UpdateParams(HPLTCTRL handle, float* data, int block);
-	BoresightPos_s PlatformCtrl_SensorUpdateParams(float* data, int block, int field, int curChid, PlatformCtrl_Obj *pObj);
 
 private:
 	void PlatformCtrl_ClassInit();
