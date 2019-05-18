@@ -16,14 +16,14 @@ StateAuto_Mtd::~StateAuto_Mtd()
 
 }
 
-void StateAuto_Mtd::OperationInterface(StateManger*con)
-{
-	cout<<"1  StateAuto_Mtd......"<<endl;
-}
-
 void StateAuto_Mtd::OperationChangeState(StateManger* con)
 {
+	ipcParam.intPrm[0] = 2;
+	m_ipc->IPCSendMsg(workmode, ipcParam.intPrm, 4);
 	OperationInterface(con);
+	ipcParam.intPrm[0] = 1;
+	m_ipc->IPCSendMsg(mtd, ipcParam.intPrm, 4);
+	printf("mtd is open \n");
 }
 
 int StateAuto_Mtd::curStateInterface()

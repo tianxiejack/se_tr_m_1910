@@ -16,6 +16,12 @@
 #include "platformControl.h"
 #include "ipcProc.h"
 
+typedef enum {
+	Exit = 0,
+	iris,
+	Focus
+}IrisAndFocusAndExit;
+
 typedef struct
 {
 	bool validCh[5];
@@ -40,7 +46,7 @@ public:
 	virtual void StateInit();
 	void create();
 	virtual ~State();
-	virtual void OperationInterface(StateManger* con) = 0;
+	virtual void OperationInterface(StateManger* con);
 	virtual void OperationChangeState(StateManger* con) = 0;
 	virtual int curStateInterface() = 0;
 	virtual int ChangeState(StateManger* con, char nextState);
@@ -61,11 +67,18 @@ public:
 	virtual void ZoomCtrl(char type);
 	virtual void axisMove(int x, int y);
 	virtual void trkSearch(int type, int x, int y);
-	virtual void IrisCtrl(char type);
+	virtual void Iris_FocusCtrl(int type, int dir);
 
 public:
 	void switchSensor_interface(int chid);
 	void axisMove_interface(int x, int y);
+	void Ctrl_Iris(int dir);
+	void Ctrl_Focus(int dir);
+	void init_sigaction();
+	void init_time();
+	void uninit_time();
+	static void detectionFunc (int sign);
+
 
 public:
 	static 	CIPCProc* m_ipc;
@@ -81,13 +94,14 @@ private:
 	void platformCreate();
 };
 
+
+
 class StateAuto_Mtd:public State
 {
 public:
 	StateAuto_Mtd();
 	virtual ~StateAuto_Mtd();
 private:
-	virtual  void OperationInterface(StateManger* con);
 	virtual  void OperationChangeState(StateManger* con);
 	virtual int curStateInterface();
 	virtual void TrkCtrl(char Enable){};
@@ -97,17 +111,21 @@ private:
 	virtual void switchSensor(char chid);
 };
 
+
+
 class StateSceneSelect:public State
 {
 public:
 	StateSceneSelect();
 	virtual ~StateSceneSelect();
-	virtual  void OperationInterface(StateManger* con );
 	virtual  void OperationChangeState(StateManger* con);
 	virtual int curStateInterface();
+	virtual void TrkCtrl(char Enable);
 	virtual void trkSearch(int type, int x, int y){};
 	virtual void axisMove(int x, int y);
 };
+
+
 
 class PlatFormCapture:public State
 {
@@ -115,11 +133,12 @@ public:
 	PlatFormCapture();
 	virtual ~PlatFormCapture();
 private:
-	virtual  void OperationInterface(StateManger* con);
 	virtual  void OperationChangeState(StateManger* con);
 	virtual int curStateInterface();
 	virtual void axisMove(int x, int y);
 };
+
+
 
 class BoxCapture:public State
 {
@@ -127,11 +146,12 @@ public:
 	BoxCapture();
 	virtual ~BoxCapture();
 private:
-	virtual  void OperationInterface(StateManger* con);
 	virtual  void OperationChangeState(StateManger* con);
 	virtual int curStateInterface();
 	virtual void axisMove(int x, int y);
 };
+
+
 
 class ManualMtdCapture:public State
 {
@@ -139,7 +159,6 @@ public:
 	ManualMtdCapture();
 	virtual ~ManualMtdCapture();
 private:
-	virtual  void OperationInterface(StateManger* con);
 	virtual  void OperationChangeState(StateManger* con);
 	virtual int curStateInterface();
 	virtual void TrkCtrl(char Enable);

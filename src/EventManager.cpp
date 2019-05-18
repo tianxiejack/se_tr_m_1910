@@ -132,7 +132,8 @@ void CEventManager::MSG_TrkSearch(void* p)
 	ComParams_t *tmp = (ComParams_t *)p;
 	if(tmp->sectrkctrl == 2)
 		pThis->_StateManager->inter_TrkSearch(tmp->sectrkctrl, pThis->winPos[0], pThis->winPos[1]);
-	printf("tmp->sectrkctrl = %d \n", tmp->sectrkctrl);
+	if(!pThis->cfg_value[CFGID_RTS_trken])
+		tmp->sectrkctrl = 0;
 }
 void CEventManager::MSG_CaptureMode(void* p)
 {
@@ -156,7 +157,9 @@ void CEventManager::MSG_CaptureMode(void* p)
 void CEventManager::MSG_IrisAndFocus(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
-	//printf("tmp->irisctrl = %d , tmp->focusctrl = %d \n", tmp->irisctrl, tmp->focusctrl);
+	if(tmp->irisctrl == 0 && tmp->focusctrl == 0)
+		pThis->_StateManager->inter_Iris_FocusCtrl(Exit, 0);
+	printf("tmp->irisctrl = %d , tmp->focusctrl = %d \n", tmp->irisctrl, tmp->focusctrl);
 }
 void CEventManager::MSG_WorkMode(void* p)
 {
@@ -177,68 +180,38 @@ void CEventManager::MSG_WorkMode(void* p)
 }
 void CEventManager::MSG_JosPos(void* p)
 {
+	int dir;
 	ComParams_t *tmp = (ComParams_t *)p;
 	if(tmp->sectrkctrl == 0x01)
 	{
+		if(!pThis->cfg_value[CFGID_RTS_trken])
+			tmp->sectrkctrl = 0;
 		pThis->winPos[0] = 1920 * ((float)tmp->platspeedx / JOS_VALUE_MAX);
 		pThis->winPos[1] = 1080 * ((float)tmp->platspeedy / JOS_VALUE_MAX);
 		pThis->_StateManager->inter_TrkSearch(tmp->sectrkctrl, (int)pThis->winPos[0], (int)pThis->winPos[1]);
 	}
 	else if(tmp->irisctrl == 0x03)
 	{
-		printf("ptz iris \n");
+		if(tmp->platspeedy > 0xb0)
+			dir = -1;
+		else if(tmp->platspeedy < 0x40)
+			dir = 1;
+		else
+			dir = 0;
+		pThis->_StateManager->inter_Iris_FocusCtrl(iris, dir);
 	}
-#if 0
 	else if(tmp->focusctrl == 0x03)
-		printf("ptz  focus \n");
-	else
-		printf("ptz jos move \n");
-
-
-	switch(curState)
 	{
-	case STATE_PTZ:
-		if(tmp->sectrkctrl == 0x01)
-			printf("ptz search\n");
-		else if(tmp->irisctrl == 0x03)
-			printf("ptz iris \n");
-		else if(tmp->focusctrl == 0x03)
-			printf("ptz  focus \n");
+		if(tmp->platspeedy > 0xb0)
+			dir = -1;
+		else if(tmp->platspeedy < 0x40)
+			dir = 1;
 		else
-			printf("ptz jos move \n");
-		break;
-	case STATE_BOX:
-		if(tmp->sectrkctrl == 0x01)
-			printf("Box search\n");
-		else if(tmp->irisctrl == 0x03)
-			printf("Box iris \n");
-		else if(tmp->focusctrl == 0x03)
-			printf("Box  focus \n");
-		else
-			printf("Box jos move \n");
-		break;
-	case STATE_MANUALMTD:
-		if(tmp->irisctrl == 0x03)
-			printf("manual iris \n");
-		else if(tmp->focusctrl == 0x03)
-			printf("manual  focus \n");
-		else
-			printf("manual Mtd jos move \n");
-		break;
-	case STATE_SCENETRK:
-		if(tmp->irisctrl == 0x03)
-			printf("scene iris \n");
-		else if(tmp->focusctrl == 0x03)
-			printf("scene  focus \n");
-		else
-			printf("scene jos move\n");
-		break;
+			dir = 0;
+		pThis->_StateManager->inter_Iris_FocusCtrl(Focus, dir);
 	}
-	//if(tmp->sectrkctrl);
-	//MSG_Com_ApertureCtrl(p);
-	//MSG_Com_FocusCtrl(p);
-	//MSG_Com_Gatemove(p);
-#endif
+	//else  jos move
+
 }
 void CEventManager::MSG_PovPosX(void* p)
 {
@@ -290,11 +263,13 @@ void CEventManager::MSG_Com_ZoomCtrl(void* p)
 void CEventManager::MSG_Com_IrisCtrl(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
+	pThis->_StateManager->inter_Iris_FocusCtrl(iris, tmp->irisctrl);
 	printf("aperturectrl=%d\n",tmp->irisctrl);
 }
 void CEventManager::MSG_Com_FocusCtrl(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
+	pThis->_StateManager->inter_Iris_FocusCtrl(Focus, tmp->focusctrl);
 	printf("focusctrl=%d\n",tmp->focusctrl);
 }
 void CEventManager::MSG_Com_SetPlatSpeed(void* p)

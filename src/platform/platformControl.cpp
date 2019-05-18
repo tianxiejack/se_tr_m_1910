@@ -583,7 +583,7 @@ int CplatFormControl::PlatformCtrl_VirtualInput(HPLTCTRL handle, int iIndex, flo
 
 	if(pObj == NULL)
 		return -1;
-
+	pObj->inter.virtalInput[iIndex] = fTmp;
 	fTmp = fValue;
 	return 0;
 }

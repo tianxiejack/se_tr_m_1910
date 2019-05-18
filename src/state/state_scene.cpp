@@ -16,13 +16,10 @@ StateSceneSelect::~StateSceneSelect()
 
 }
 
-void StateSceneSelect::OperationInterface(StateManger* con)
-{
-	cout<<"2  StateSceneSelect"<<endl;
-}
-
 void StateSceneSelect::OperationChangeState(StateManger* con)
 {
+	ipcParam.intPrm[0] = 3;
+	m_ipc->IPCSendMsg(workmode, ipcParam.intPrm, 4);
 	OperationInterface(con);
 }
 
@@ -38,4 +35,10 @@ void StateSceneSelect::axisMove(int x, int y)
 
 }
 
+void StateSceneSelect::TrkCtrl(char Enable)
+{
+	ipcParam.intPrm[0] = 1;
+	m_ipc->IPCSendMsg(sceneTrk, ipcParam.intPrm, 4);
+	printf("scene is open \n");
+}
 

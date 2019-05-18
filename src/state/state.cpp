@@ -39,6 +39,20 @@ State::~State()
 	OSA_semDelete(&m_sem);
 }
 
+void State::OperationInterface(StateManger* con)
+{
+	if(cfg_value[CFGID_RTS_mtden])
+	{
+		ipcParam.intPrm[0] = 0;
+		m_ipc->IPCSendMsg(mtd, ipcParam.intPrm, 4);
+	}
+	if(cfg_value[CFGID_RTS_trkalg])
+	{
+		ipcParam.intPrm[0] = 0;
+		m_ipc->IPCSendMsg(sceneTrk, ipcParam.intPrm, 4);
+	}
+}
+
 void State::platformCreate()
 {
 	m_plt = NULL;
@@ -120,6 +134,8 @@ void State::axisMove(int x, int y)
 
 void State::trkSearch(int type, int x, int y)
 {
+	if(!cfg_value[CFGID_RTS_trken])
+		return;
 	if( x<0)
 		x =0;
 	else  if(x > 1920)
@@ -140,9 +156,50 @@ void State::trkSearch(int type, int x, int y)
 	m_ipc->IPCSendMsg(sectrk, ipcParam.intPrm, 3*4);
 }
 
-void State::IrisCtrl(char type)
+void State::Iris_FocusCtrl(int type, int dir)
 {
+	int alpha = 255;
 
+	if(dir == -1)
+	{
+		uninit_time ();
+	}
+	else if(dir == 1)
+	{
+		uninit_time ();
+	}
+	else
+	{
+		alpha = 0;
+		init_sigaction();
+		init_time();
+	}
+
+	if(type == Exit)
+	{
+		alpha = 0;
+		dir = 0;
+		Ctrl_Iris(dir);
+		Ctrl_Focus(dir);
+	}
+	ipcParam.intPrm[0] = dir;
+	ipcParam.intPrm[1] = alpha;
+	switch(type)
+	{
+		case iris:
+			m_ipc->IPCSendMsg(Iris, ipcParam.intPrm, 2*4);
+			Ctrl_Iris(dir);
+			break;
+		case Focus:
+			m_ipc->IPCSendMsg(focus, ipcParam.intPrm, 2*4);
+			Ctrl_Focus(dir);
+			break;
+		case Exit:
+			m_ipc->IPCSendMsg(exit_IrisAndFocus, ipcParam.intPrm, 2*4);
+			break;
+		default:
+			break;
+	}
 }
 
 
@@ -183,4 +240,72 @@ void State::axisMove_interface(int x, int y)
 	m_Platform->PlatformCtrl_TrackerInput(m_plt, &m_pltInput);
 	m_Platform->PlatformCtrl_TrackerOutput(m_plt, &m_pltOutput);
 }
+
+void State::Ctrl_Iris(int dir)
+{
+	if(dir < 0)
+		_ptz->m_iSetIrisSpeed = -1;
+	else if(dir  > 0)
+		_ptz->m_iSetIrisSpeed = 1;
+	else
+		_ptz->m_iSetIrisSpeed = 0;
+}
+
+void State::Ctrl_Focus(int dir)
+{
+	if(dir < 0)
+		_ptz->m_iSetFocusFarSpeed = -1;
+	else if(dir > 0)
+		_ptz->m_iSetFocusNearSpeed = 1;
+	else{
+		_ptz->m_iSetFocusFarSpeed = 0;
+		_ptz->m_iSetFocusNearSpeed = 0;
+	}
+}
+
+void State::init_sigaction()
+{
+	struct sigaction tact;
+
+	tact.sa_handler = detectionFunc;
+	tact.sa_flags = 0;
+	sigemptyset (&tact.sa_mask);
+	sigaction (SIGALRM, &tact, NULL);
+}
+
+void State::init_time()
+{
+	struct itimerval value;
+
+	value.it_value.tv_sec = 6;
+	value.it_value.tv_usec = 0;
+	value.it_interval = value.it_value;
+	/* set ITIMER_REAL */
+	setitimer (ITIMER_REAL, &value, NULL);
+}
+
+void State::uninit_time()
+{
+	struct itimerval value;
+
+	value.it_value.tv_sec = 0;
+	value.it_value.tv_usec = 0;
+	value.it_interval = value.it_value;
+	/* set ITIMER_REAL */
+	setitimer (ITIMER_REAL, &value, NULL);
+}
+
+void State::detectionFunc (int sign)
+{
+	pThis->uninit_time();
+	pThis->ipcParam.intPrm[0] = 0;
+	pThis->ipcParam.intPrm[1] = 0;
+	m_ipc->IPCSendMsg(exit_IrisAndFocus, pThis->ipcParam.intPrm, 2*4);
+}
+
+
+
+
+
+
 
