@@ -211,7 +211,10 @@ void CEventManager::MSG_JosPos(void* p)
 			dir = 0;
 		pThis->_StateManager->inter_Iris_FocusCtrl(Focus, dir);
 	}
-	//else  jos move
+	else
+	{
+		pThis->_StateManager->inter_AxisMove(tmp->platspeedx, tmp->platspeedy);
+	}
 
 }
 void CEventManager::MSG_PovPosX(void* p)

@@ -112,14 +112,14 @@ void CplatFormControl::PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams 
 
 	_Fiter->PlatformFilter_updatePidParams(&pPrm->platformFilterParam[0],&pPrm->platformFilterParam[1],m_Prm);
 
-	pPrm->demandMaxX = m_Prm[1588];
-	pPrm->demandMaxY = m_Prm[1589];
+	pPrm->demandMaxX = 8000;
+	pPrm->demandMaxY = 8000;
 
 	pPrm->bleedUsed = Bleed_BrosightError;
-	pPrm->deadbandX = m_Prm[1590];
-	pPrm->deadbandY = m_Prm[1591];
+	pPrm->deadbandX = 30;
+	pPrm->deadbandY = 30;
 
-	pPrm->acqOutputType = m_Prm[40];
+	pPrm->acqOutputType = 2;
 	pPrm->Kx = m_Prm[1456];
 	pPrm->Ky = m_Prm[1457];
 	pPrm->Error_X = m_Prm[1458];
@@ -579,12 +579,17 @@ int CplatFormControl::PlatformCtrl_TrackerOutput(HPLTCTRL handle, PLATFORMCTRL_O
 int CplatFormControl::PlatformCtrl_VirtualInput(HPLTCTRL handle, int iIndex, float fValue)
 {
 	float fTmp;
+	printf("handle = %p \n", handle);
 	PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)handle->object;
 
 	if(pObj == NULL)
+	{
+		printf("pObj = %p \n", pObj);
 		return -1;
-	pObj->inter.virtalInput[iIndex] = fTmp;
+	}
 	fTmp = fValue;
+	pObj->inter.virtalInput[iIndex] = fTmp;
+
 	return 0;
 }
 

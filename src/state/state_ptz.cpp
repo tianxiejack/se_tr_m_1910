@@ -29,10 +29,3 @@ int PlatFormCapture::curStateInterface()
 		curState = STATE_PTZ;
 	return curState;
 }
-
-void PlatFormCapture::axisMove(int x, int y)
-{
-
-}
-
-
