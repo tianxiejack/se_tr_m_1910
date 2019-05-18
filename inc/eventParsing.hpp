@@ -14,6 +14,7 @@
 #include <vector>
 #include  "osa_thr.h"
 #include "osa_mutex.h"
+#include "configtable.h"
 
 using namespace std;
 
@@ -120,6 +121,9 @@ typedef enum{
 	ACK_expconfig = 0x56,
 	ACK_saveconfig = 0x57,
 	ACK_upgradefw = 0x58,
+
+
+	ACK_GetOsd = 0x90,
 	ACK_MAXID
 }ACK_Cmdid;
 
@@ -139,12 +143,18 @@ typedef struct{
 typedef struct{
 	int block;
 	int field;
+	unsigned char buf[USEROSD_LENGTH + 1];
+}Get_osd_t;
+
+typedef struct{
+	int block;
+	int field;
 }Get_config_t;
 
 typedef struct{
-	volatile unsigned char osdID;
-	volatile unsigned char type;
-	volatile unsigned char buf[128];
+	unsigned char osdID;
+	unsigned char type;
+	unsigned char buf[USEROSD_LENGTH + 1];
 }osdbuffer_t;
 
 typedef struct{
@@ -186,6 +196,7 @@ typedef struct{
 	comtype_t comtype;
 	int cmdid;
 	vector<Set_config_t>  getConfigQueue;
+	vector<Get_osd_t> getOsdQueue;
 }ACK_ComParams_t;
 
 typedef struct {
@@ -221,6 +232,7 @@ private:
 	unsigned char check_sum(int len_t);
 	int getSendInfo(sendInfo * psendBuf);
 	int package_ACK_GetConfig(sendInfo *psendBuf);
+	int  package_ACK_GetOsd(sendInfo *psendBuf);
 	unsigned char sendcheck_sum(int len, unsigned char *tmpbuf);
 	int comfd;
 	CPortInterface *pCom1, *pCom2;

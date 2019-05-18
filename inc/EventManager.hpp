@@ -24,7 +24,7 @@ private:
 	CIPCProc* m_ipc;
 	static CEventManager* pThis;
 	float *cfg_value;
-	void *usr_value;
+	char *usr_value;
 	bool exit_ipcthread;
 	float winPos[2];
 	void IPC_Creat();
