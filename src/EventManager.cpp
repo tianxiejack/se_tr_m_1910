@@ -5,7 +5,6 @@
  *      Author: d
  */
 #include "EventManager.hpp"
-#include "configtable.h"
 #include <opencv2/core/core.hpp>
 
 CEventManager* CEventManager::pThis = NULL;
@@ -54,7 +53,7 @@ void CEventManager::IPC_Creat()
 		return;
 	}
 	cfg_value = (float *)ipc_getSharedMem(IPC_IMG_SHA);
-	usr_value = ipc_getSharedMem(IPC_USER_SHA);
+	usr_value = (char *)ipc_getSharedMem(IPC_USER_SHA);
 }
 
 void CEventManager::thread_ipcEvent()
@@ -366,7 +365,13 @@ void CEventManager::MSG_Com_SetOsd(void* p)
 	osdbuffer_t tmpcfg;
 	ComParams_t *tmp = (ComParams_t *)p;
 	tmpcfg = tmp->setosd;
+
+	int index = tmpcfg.osdID - 1;
+	int length = strlen((char *)tmpcfg.buf);
+	memset(pThis->usr_value + index * USEROSD_LENGTH, 0, USEROSD_LENGTH );
+	memcpy(pThis->usr_value + index * USEROSD_LENGTH, tmpcfg.buf, length<USEROSD_LENGTH?length:USEROSD_LENGTH);
 	printf("osdid:%d, type:%d, buf=%s\n",tmpcfg.osdID, tmpcfg.type, tmpcfg.buf);
+	pThis->m_ipc->IPCSendMsg(read_shm_usrosd, &index, 4);
 }
 void CEventManager::MSG_Com_DefaultCfg(void* p)
 {
@@ -387,6 +392,7 @@ void CEventManager::MSG_Com_SaveCfg(void* p)
 
 int  CEventManager::ReadConfigFile()
 {	
+	string str;
 	string cfgAvtFile;
 	int configId_Max = profileNum;
 	char  cfg_avt[30] = "cfg_avt_";
@@ -405,10 +411,26 @@ int  CEventManager::ReadConfigFile()
 			{
 				for(int i=0; i<configId_Max; i++)
 				{
-					sprintf(cfg_avt, "cfg_avt_%03d_%02d", i/CFGID_BKFEILD_MAX, i%CFGID_BKFEILD_MAX);
-					float value = fr[cfg_avt];
-					//printf("read value[%d]=%f\n", i, value);
-					cfg_value[i] = value;
+					int blkId = (i/CFGID_FEILD_MAX);
+					int feildId = (i%CFGID_FEILD_MAX);
+					int usrosdId = -1;
+					sprintf(cfg_avt, "cfg_avt_%03d_%02d", blkId, feildId);
+					if((blkId >= CFGID_OSD_BKID) && (blkId <= CFGID_OSD_BKID + 15))
+						usrosdId = blkId - CFGID_OSD_BKID;
+					else if((blkId >= CFGID_OSD2_BKID) && (blkId <= CFGID_OSD2_BKID + 15))
+						usrosdId = blkId - CFGID_OSD2_BKID + 16;
+					if((usrosdId >= 0) && (i == CFGID_OSD_CONTENT(usrosdId) || i == CFGID_OSD2_CONTENT(usrosdId)))
+					{
+						str = (string)fr[cfg_avt];
+						memset(usr_value + usrosdId * USEROSD_LENGTH, 0, USEROSD_LENGTH);
+						cout<<"read i="<<i<<"!!str="<<str<<endl;
+						str.copy(usr_value+usrosdId*USEROSD_LENGTH, str.length()<USEROSD_LENGTH?str.length():USEROSD_LENGTH, 0);
+					}
+					else
+					{
+						float value = fr[cfg_avt];
+						cfg_value[i] = value;
+					}
 				}
 			}
 			else
@@ -430,21 +452,51 @@ int  CEventManager::ReadConfigFile()
 int CEventManager::SetConfig(int block, int field, float value,char *inBuf)
 {
 	block -= 1;
-	int cfgid = CFGID_BUILD(block, field);
-	cfg_value[cfgid] = value;
-	m_ipc->IPCSendMsg(read_shm_single, &cfgid, 4);
+	int i = CFGID_BUILD(block, field);
+	int usrosdId = -1;
+	
+	if((block >= CFGID_OSD_BKID) && (block <= CFGID_OSD_BKID + 15))
+		usrosdId = block - CFGID_OSD_BKID;
+	else if((block >= CFGID_OSD2_BKID) && (block <= CFGID_OSD2_BKID + 15))
+		usrosdId = block - CFGID_OSD2_BKID + 16;
+	if((usrosdId >= 0) && (i == CFGID_OSD_CONTENT(usrosdId) || i == CFGID_OSD2_CONTENT(usrosdId)))
+	{
+		return 0;
+	}
+	
+	cfg_value[i] = value;
+	m_ipc->IPCSendMsg(read_shm_single, &i, 4);
 
 	return 0;
 }
 int CEventManager::GetConfig(comtype_t comtype, int block, int field)
 {
-	int cfgid = CFGID_BUILD(block-1, field);
-	float value = cfg_value[cfgid];
+	int app_block = block - 1;
+	int i = CFGID_BUILD(app_block, field);
+	int usrosdId = -1;
 	
-	Set_config_t tmp = {block, field, value};
-	ACK_ComParams.comtype = comtype;
-	ACK_ComParams.cmdid  = ACK_GetConfig;
-	ACK_ComParams.getConfigQueue.push_back(tmp);
+	if((app_block >= CFGID_OSD_BKID) && (app_block <= CFGID_OSD_BKID + 15))
+		usrosdId = app_block - CFGID_OSD_BKID;
+	else if((app_block >= CFGID_OSD2_BKID) && (app_block <= CFGID_OSD2_BKID + 15))
+		usrosdId = app_block - CFGID_OSD2_BKID + 16;
+	if((usrosdId >= 0) && (i == CFGID_OSD_CONTENT(usrosdId) || i == CFGID_OSD2_CONTENT(usrosdId)))
+	{
+		Get_osd_t tmp = {block, field, {0}};
+		int length = strlen(usr_value + usrosdId * USEROSD_LENGTH)<128?strlen(usr_value + usrosdId * USEROSD_LENGTH):128;
+		memcpy(tmp.buf, usr_value + usrosdId * USEROSD_LENGTH, length);
+		ACK_ComParams.comtype = comtype;
+		ACK_ComParams.cmdid  = ACK_GetOsd;
+		ACK_ComParams.getOsdQueue.push_back(tmp);
+	}
+	else
+	{
+		float value = cfg_value[i];
+		Set_config_t tmp = {block, field, value};
+		ACK_ComParams.comtype = comtype;
+		ACK_ComParams.cmdid  = ACK_GetConfig;
+		ACK_ComParams.getConfigQueue.push_back(tmp);
+	}
+	
 	OSA_semSignal(&m_semHndl);
 
 	return 0;
@@ -452,6 +504,7 @@ int CEventManager::GetConfig(comtype_t comtype, int block, int field)
 int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
 {
 	blockId -= 1;
+	string str;
 	string cfgAvtFile;
 	int configId_Max =profileNum;
 	char  cfg_avt[20] = "cfg_avt_";
@@ -472,18 +525,34 @@ int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
 			{
 				for(int i=0; i<configId_Max; i++)
 				{
-					sprintf(cfg_avt, "cfg_avt_%03d_%02d",  i/CFGID_BKFEILD_MAX, i%CFGID_BKFEILD_MAX);
+					int blkId = (i/CFGID_FEILD_MAX);
+					int feildId = (i%CFGID_FEILD_MAX);
+					int usrosdId = -1;
 					
-					int block = CFGID_blkId(i);
-					if(block != CFGID_RTS_BKID)
+					sprintf(cfg_avt, "cfg_avt_%03d_%02d", blkId, feildId);
+
+					if(blkId != CFGID_RTS_BKID)
 					{
-						if(0 == blockId)
+						if((-1 == blockId) || (blkId == blockId))
 						{
-							cfg_value[i] = (float)fr[cfg_avt];
-						}
-						else if(block == blockId)
-						{
-							cfg_value[i] = (float)fr[cfg_avt];
+							if((blkId >= CFGID_OSD_BKID) && (blkId <= CFGID_OSD_BKID + 15))
+								usrosdId = blkId - CFGID_OSD_BKID;
+							else if((blkId >= CFGID_OSD2_BKID) && (blkId <= CFGID_OSD2_BKID + 15))
+								usrosdId = blkId - CFGID_OSD2_BKID + 16;
+							if((usrosdId >= 0) && (i == CFGID_OSD_CONTENT(usrosdId) || i == CFGID_OSD2_CONTENT(usrosdId)))
+							{
+								str = (string)fr[cfg_avt];
+								memset(usr_value + usrosdId * USEROSD_LENGTH, 0, USEROSD_LENGTH);
+								cout<<"read i="<<i<<"!!str="<<str<<endl;
+								str.copy(usr_value+usrosdId*USEROSD_LENGTH, str.length()<USEROSD_LENGTH?str.length():USEROSD_LENGTH, 0);
+
+								if(blockId != -1)
+									m_ipc->IPCSendMsg(read_shm_usrosd, &usrosdId, 4);
+							}
+							else
+							{
+								cfg_value[i] = (float)fr[cfg_avt];
+							}
 						}
 					}
 				}
@@ -534,9 +603,28 @@ int CEventManager::SaveConfig()
 			{
 				for(int i=0; i<configId_Max; i++)
 				{
-					sprintf(cfg_avt, "cfg_avt_%03d_%02d",  i/CFGID_BKFEILD_MAX, i%CFGID_BKFEILD_MAX);
-					float value = cfg_value[i];
-					fr<< cfg_avt << value;
+					int blkId = (i/CFGID_FEILD_MAX);
+					int feildId = (i%CFGID_FEILD_MAX);
+					int usrosdId = -1;
+					sprintf(cfg_avt, "cfg_avt_%03d_%02d", blkId, feildId);
+					if((blkId >= CFGID_OSD_BKID) && (blkId <= CFGID_OSD_BKID + 15))
+						usrosdId = blkId - CFGID_OSD_BKID;
+					else if((blkId >= CFGID_OSD2_BKID) && (blkId <= CFGID_OSD2_BKID + 15))
+						usrosdId = blkId - CFGID_OSD2_BKID + 16;
+					if((usrosdId >= 0) && (i == CFGID_OSD_CONTENT(usrosdId) || i == CFGID_OSD2_CONTENT(usrosdId)))
+					{
+						int length = strlen(usr_value + usrosdId * USEROSD_LENGTH)<USEROSD_LENGTH?strlen(usr_value+ usrosdId * USEROSD_LENGTH):USEROSD_LENGTH;
+						string str;
+						for(int j = 0; j < length; j++)
+							str += usr_value[usrosdId * USEROSD_LENGTH + j];
+						
+						fr<< cfg_avt << str;
+					}
+					else
+					{
+						float value = cfg_value[i];
+						fr<< cfg_avt << value;
+					}
 				}
 			}
 			else
