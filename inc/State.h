@@ -92,6 +92,9 @@ public:
 
 private:
 	void platformCreate();
+
+	static State *m_st1, *m_st2, *m_st3, *m_st4, *m_st5;
+
 };
 
 

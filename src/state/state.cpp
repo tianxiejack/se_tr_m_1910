@@ -3,7 +3,11 @@
 
 using namespace std;
 State* pThis = NULL;
-State *st1 = NULL, *st2 = NULL, *st3 = NULL, *st4 = NULL, *st5 = NULL;
+State* State::m_st1 = NULL;
+State* State::m_st2 = NULL;
+State* State::m_st3 = NULL;
+State* State::m_st4 = NULL;
+State* State::m_st5 = NULL;
 
 CPTZControl* State::_ptz = NULL;
 AgreeMentBaseFormat* State::_agreement = NULL;
@@ -65,16 +69,16 @@ void State::platformCreate()
 
 void State::StateInit()
 {
-	if(st1 == NULL)
-		st1 = new StateAuto_Mtd();
-	if(st2 == NULL)
-		st2 = new StateSceneSelect();
-	if(st3 == NULL)
-		st3 = new PlatFormCapture();
-	if(st4 == NULL)
-		st4 = new BoxCapture();
-	if(st5 == NULL)
-		st5 = new ManualMtdCapture();
+	if(m_st1 == NULL)
+		m_st1 = new StateAuto_Mtd();
+	if(m_st2 == NULL)
+		m_st2 = new StateSceneSelect();
+	if(m_st3 == NULL)
+		m_st3 = new PlatFormCapture();
+	if(m_st4 == NULL)
+		m_st4 = new BoxCapture();
+	if(m_st5 == NULL)
+		m_st5 = new ManualMtdCapture();
 	platformCreate();
 }
 
@@ -84,23 +88,23 @@ int State::ChangeState(StateManger* con, char nextState)
 	switch(nextState)
 	{
 	case STATE_AUTOMTD:
-		con->ChangeState(st1);
+		con->ChangeState(m_st1);
 		break;
 
 	case STATE_SCENETRK:
-		con->ChangeState(st2);
+		con->ChangeState(m_st2);
 		break;
 
 	case STATE_PTZ:
-		con->ChangeState(st3);
+		con->ChangeState(m_st3);
 		break;
 
 	case STATE_BOX:
-		con->ChangeState(st4);
+		con->ChangeState(m_st4);
 		break;
 
 	case STATE_MANUALMTD:
-		con->ChangeState(st5);
+		con->ChangeState(m_st5);
 		break;
 	}
 	return curState;
