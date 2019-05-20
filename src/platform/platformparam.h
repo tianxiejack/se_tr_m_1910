@@ -120,10 +120,13 @@ typedef struct {
 	float fOffset_X;
 	float fOffset_Y;
 	float fDeadband;
+	float fDeadbandy;
 	float fCutpoint1;
+	float fCutpoint1y;
 	float fInputGain_X1;
 	float fInputGain_Y1;
 	float fCutpoint2;
+	float fCutpoint2y;
 	float fInputGain_X2;
 	float fInputGain_Y2;
 	float fPlatformAcquisitionModeGain_X;

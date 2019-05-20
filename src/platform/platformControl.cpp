@@ -6,6 +6,7 @@
 #include <time.h>
 #include <osa.h>
 #include "platformControl.h"
+#include "configtable.h"
 
 
 const float EPSINON = 0.000001f;
@@ -112,30 +113,35 @@ void CplatFormControl::PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams 
 
 	_Fiter->PlatformFilter_updatePidParams(&pPrm->platformFilterParam[0],&pPrm->platformFilterParam[1],m_Prm);
 
-	pPrm->demandMaxX = m_Prm[1588];
-	pPrm->demandMaxY = m_Prm[1589];
+	pPrm->demandMaxX = 8000;
+	pPrm->demandMaxY = 8000;
 
 	pPrm->bleedUsed = Bleed_BrosightError;
-	pPrm->deadbandX = m_Prm[1590];
-	pPrm->deadbandY = m_Prm[1591];
+	pPrm->deadbandX = 30;
+	pPrm->deadbandY = 30;
 
-	pPrm->acqOutputType = m_Prm[40];
-	pPrm->Kx = m_Prm[1456];
-	pPrm->Ky = m_Prm[1457];
-	pPrm->Error_X = m_Prm[1458];
-	pPrm->Error_Y = m_Prm[1459];
-	pPrm->Time = m_Prm[1460];
-	pPrm->bleedX =m_Prm[1461];
-	pPrm->bleedY =m_Prm[1462];
+	pPrm->acqOutputType = 2;
+	pPrm->Kx = m_Prm[CFGID_PID_RATIOX];
+	pPrm->Ky = m_Prm[CFGID_PID_RATIOY];
+	pPrm->Error_X = m_Prm[CFGID_PID_ERRORX];
+	pPrm->Error_Y = m_Prm[CFGID_PID_ERRORY];
+	pPrm->Time = m_Prm[CFGID_PID_TIME];
+	pPrm->bleedX =m_Prm[CFGID_PID_LIMITX];
+	pPrm->bleedY =m_Prm[CFGID_PID_LIMITY];
 
-	pPrm->joystickRateDemandParam.fDeadband =m_Prm[1];// 0.1f;
-	pPrm->joystickRateDemandParam.fCutpoint1 = m_Prm[2];//0.7f;
-	pPrm->joystickRateDemandParam.fInputGain_X1 =m_Prm[3];// 0.2f;
-	pPrm->joystickRateDemandParam.fInputGain_Y1 =m_Prm[4];// 0.3f;
-	pPrm->joystickRateDemandParam.fCutpoint2 = m_Prm[5];//0.7f;
-	pPrm->joystickRateDemandParam.fInputGain_X2 =m_Prm[6];// 0.2f;
-	pPrm->joystickRateDemandParam.fInputGain_Y2 =m_Prm[7];// 0.3f;
+	pPrm->joystickRateDemandParam.fDeadband =m_Prm[CFGID_JOS_deadx];// 0.1f;
+	pPrm->joystickRateDemandParam.fDeadbandy =m_Prm[CFGID_JOS_deady];
+	
+	pPrm->joystickRateDemandParam.fInputGain_X1 =m_Prm[CFGID_JOS_inputgainx1];// 0.2f;
+	pPrm->joystickRateDemandParam.fInputGain_Y1 =m_Prm[CFGID_JOS_inputgainy1];// 0.3f;
+	pPrm->joystickRateDemandParam.fInputGain_X2 =m_Prm[CFGID_JOS_inputgainx2];// 0.2f;
+	pPrm->joystickRateDemandParam.fInputGain_Y2 =m_Prm[CFGID_JOS_inputgainy2];// 0.3f;
 
+	pPrm->joystickRateDemandParam.fCutpoint1 = m_Prm[CFGID_JOS_cutpointx1];//0.7f;
+	pPrm->joystickRateDemandParam.fCutpoint1y = m_Prm[CFGID_JOS_cutpointy1];
+	pPrm->joystickRateDemandParam.fCutpoint2 = m_Prm[CFGID_JOS_cutpointx2];//0.7f;
+	pPrm->joystickRateDemandParam.fCutpoint2y = m_Prm[CFGID_JOS_cutpointy2];
+	
 	pPrm->joystickRateDemandParam.fPlatformAcquisitionModeGain_X = 5000.0f;
 	pPrm->joystickRateDemandParam.fPlatformAcquisitionModeGain_Y = 5000.0f;
 
