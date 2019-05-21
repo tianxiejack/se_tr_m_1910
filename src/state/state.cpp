@@ -244,7 +244,7 @@ void State::axisMove_interface(int x, int y)
 	m_pltInput.iTrkAlgState= 0;
 	m_Platform->PlatformCtrl_TrackerInput(m_plt, &m_pltInput);
 	m_Platform->PlatformCtrl_TrackerOutput(m_plt, &m_pltOutput);
-	printf("x = %f , y = %f \n", m_pltOutput.fPlatformDemandX, m_pltOutput.fPlatformDemandY);
+//	printf("%s : LINE : %d   , x = %f , y = %f \n",__func__, __LINE__,  m_pltOutput.fPlatformDemandX, m_pltOutput.fPlatformDemandY);
 	_ptz->m_iSetPanSpeed = m_ptzSpeed->GetPanSpeed(m_pltOutput.fPlatformDemandX);
 	_ptz->m_iSetTiltSpeed = m_ptzSpeed->GetTiltSpeed(m_pltOutput.fPlatformDemandY);
 }

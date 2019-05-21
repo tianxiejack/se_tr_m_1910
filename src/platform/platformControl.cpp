@@ -587,12 +587,11 @@ int CplatFormControl::PlatformCtrl_TrackerOutput(HPLTCTRL handle, PLATFORMCTRL_O
 int CplatFormControl::PlatformCtrl_VirtualInput(HPLTCTRL handle, int iIndex, float fValue)
 {
 	float fTmp;
-	printf("handle = %p \n", handle);
 	PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)handle->object;
 
 	if(pObj == NULL)
 	{
-		printf("pObj = %p \n", pObj);
+		printf("%s :  pObj = %p \n", __func__, pObj);
 		return -1;
 	}
 	fTmp = fValue;

@@ -358,20 +358,21 @@ void CEventParsing::parsingJostickAxisData(unsigned char* jos_data)
 	bool flag = false;
 	if(jos_data[AXIS_X] != xBak)
 	{
-		ComParams.platspeedx = jos_data[AXIS_X];
+		ComParams.platspeedx = jos_data[AXIS_X] - (0xff>>1);
 		xBak = jos_data[AXIS_X];
 		flag = true;
 	}
 
 	if(jos_data[AXIS_Y] != yBak)
 	{
-		ComParams.platspeedy = jos_data[AXIS_Y];
+		ComParams.platspeedy = jos_data[AXIS_Y] - (0xff>>1);
 		yBak = jos_data[AXIS_Y];
 		flag = true;
 	}
-	
+
 	if(flag)
 		_Msg->MSGDRIV_send(MSGID_EXT_INPUT_JOSPOS, &ComParams);
+	
 	return ;
 }
 

@@ -316,7 +316,7 @@ void CEventManager::MSG_Com_TrkOutput(void* p)
 	printf("trkoutput=%d\n", trkoutput);
 
 	do{
-	int x = _state->_ptz->m_iSetPanSpeed;
+		int x = pThis->_state->_ptz->m_iSetPanSpeed;
 	}
 	while(tmp->trkoutput == 0x02);
 }
