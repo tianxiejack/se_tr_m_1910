@@ -69,7 +69,7 @@ private:
 	int SetConfig(int block, int field, float value,char *inBuf);
 	int GetConfig(comtype_t comtype, int block, int field);
 	int DefaultConfig(comtype_t comtype, int blockId);
-	int SaveConfig();
+	int SaveConfig(comtype_t comtype);
 	void signalFeedBack(int argnum ...);
 	
 };

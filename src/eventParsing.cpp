@@ -95,7 +95,7 @@ void CEventParsing::thread_comsendEvent()
 			if((pThis->connetVector.size()>0) && (pThis->connetVector[0]->bConnecting))
 			{
 				pThis->pCom2->csend(repSendBuffer.comtype.fd, &repSendBuffer.sendBuff, repSendBuffer.byteSizeSend);
-#if 0
+#if 1
 				printf("net send %d bytes:\n", repSendBuffer.byteSizeSend);
 				for(int i = 0; i < repSendBuffer.byteSizeSend; i++)
 					printf("%02x ", repSendBuffer.sendBuff[i]);
@@ -107,7 +107,7 @@ void CEventParsing::thread_comsendEvent()
 			OSA_mutexUnlock(&pThis->mutexConn);
 		}
 		
-		if((ACK_GetConfig == ACK_ComParams.cmdid) || (ACK_GetOsd == ACK_ComParams.cmdid))
+		if((ACK_GetConfig == ACK_ComParams.cmdid) ||(ACK_GetOsd == ACK_ComParams.cmdid) ||(ACK_DefaultConfig == ACK_ComParams.cmdid))
 			OSA_semSignal(&m_semHndl_s);
 	}
 }
@@ -556,7 +556,7 @@ int CEventParsing::parsingComEvent(comtype_t comtype)
 				_Msg->MSGDRIV_send(MSGID_COM_INPUT_DEFAULTCFG, &ComParams);
 				break;
 			case 0x57:
-				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SAVECFG, NULL);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SAVECFG, &ComParams);
 				break;
             		default:
                			 printf("INFO: Unknow  Control Command, please check!!!\r\n ");
@@ -609,6 +609,9 @@ int  CEventParsing::getSendInfo(sendInfo * psendBuf)
 			break;
 		case ACK_DefaultConfig:
 			package_ACK_DefaultConfig(psendBuf);
+			break;
+		case ACK_saveconfig:
+			package_ACK_SaveConfig(psendBuf);
 			break;
 		case ACK_GetOsd:
 			package_ACK_GetOsd(psendBuf);
@@ -687,10 +690,18 @@ int  CEventParsing::package_ACK_GetConfig(sendInfo *psendBuf)
 }
 int  CEventParsing::package_ACK_DefaultConfig(sendInfo *psendBuf)
 {
-	int bodylen = 7;
+	int bodylen = 2;
 	psendBuf->sendBuff[4] = ACK_DefaultConfig;
 	psendBuf->sendBuff[5] = ACK_ComParams.defConfigQueue[0];
 	ACK_ComParams.defConfigQueue.erase(ACK_ComParams.defConfigQueue.begin());
+	
+	package_ACK_commondata(psendBuf, bodylen);
+}
+int  CEventParsing::package_ACK_SaveConfig(sendInfo *psendBuf)
+{
+	int bodylen = 2;
+	psendBuf->sendBuff[4] = ACK_saveconfig;
+	psendBuf->sendBuff[5] = ACK_ComParams.saveconfig;
 	
 	package_ACK_commondata(psendBuf, bodylen);
 }
