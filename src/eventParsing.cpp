@@ -607,6 +607,9 @@ int  CEventParsing::getSendInfo(sendInfo * psendBuf)
 		case ACK_GetConfig:
 			package_ACK_GetConfig(psendBuf);
 			break;
+		case ACK_DefaultConfig:
+			package_ACK_DefaultConfig(psendBuf);
+			break;
 		case ACK_GetOsd:
 			package_ACK_GetOsd(psendBuf);
 			break;
@@ -619,7 +622,7 @@ int  CEventParsing::getSendInfo(sendInfo * psendBuf)
 int  CEventParsing::package_ACK_Sensor(sendInfo *psendBuf)
 {
 	int bodylen = 3;
-	psendBuf->sendBuff[4] = 0x02;
+	psendBuf->sendBuff[4] = ACK_Sensor;
 	psendBuf->sendBuff[5] = ACK_ComParams.displaychid;
 	psendBuf->sendBuff[6] = ACK_ComParams.capturechid;
 	
@@ -628,7 +631,7 @@ int  CEventParsing::package_ACK_Sensor(sendInfo *psendBuf)
 int  CEventParsing::package_ACK_Workmode(sendInfo *psendBuf)
 {
 	int bodylen = 2;
-	psendBuf->sendBuff[4] = 0x03;
+	psendBuf->sendBuff[4] = ACK_Workmode;
 	psendBuf->sendBuff[5] = ACK_ComParams.workmode;
 	
 	package_ACK_commondata(psendBuf, bodylen);
@@ -636,7 +639,7 @@ int  CEventParsing::package_ACK_Workmode(sendInfo *psendBuf)
 int  CEventParsing::package_ACK_Capturemode(sendInfo *psendBuf)
 {
 	int bodylen = 2;
-	psendBuf->sendBuff[4] = 0x04;
+	psendBuf->sendBuff[4] = ACK_CaptureMode;
 	psendBuf->sendBuff[5] = ACK_ComParams.capturemode;
 	
 	package_ACK_commondata(psendBuf, bodylen);
@@ -644,7 +647,7 @@ int  CEventParsing::package_ACK_Capturemode(sendInfo *psendBuf)
 int  CEventParsing::package_ACK_TrkStat(sendInfo *psendBuf)
 {
 	int bodylen = 2;
-	psendBuf->sendBuff[4] = 0x05;
+	psendBuf->sendBuff[4] = ACK_TrkStat;
 	psendBuf->sendBuff[5] = ACK_ComParams.trkctrl;
 	
 	package_ACK_commondata(psendBuf, bodylen);
@@ -652,7 +655,7 @@ int  CEventParsing::package_ACK_TrkStat(sendInfo *psendBuf)
 int  CEventParsing::package_ACK_SecTrkStat(sendInfo *psendBuf)
 {
 	int bodylen = 2;
-	psendBuf->sendBuff[4] = 0x07;
+	psendBuf->sendBuff[4] = ACK_SectrkStat;
 	psendBuf->sendBuff[5] = ACK_ComParams.sectrkctrl;
 	
 	package_ACK_commondata(psendBuf, bodylen);
@@ -661,7 +664,7 @@ int  CEventParsing::package_ACK_Output(sendInfo *psendBuf)
 {
 
 	int bodylen = 7;
-	psendBuf->sendBuff[4] = 0x43;
+	psendBuf->sendBuff[4] = ACK_output;
 	psendBuf->sendBuff[5] = ACK_ComParams.trkstat;
 	psendBuf->sendBuff[6] = ACK_ComParams.outtype;
 	psendBuf->sendBuff[7] = ACK_ComParams.trkerrx & 0xff;
@@ -674,7 +677,7 @@ int  CEventParsing::package_ACK_Output(sendInfo *psendBuf)
 int  CEventParsing::package_ACK_GetConfig(sendInfo *psendBuf)
 {
 	int bodylen = 7;
-	psendBuf->sendBuff[4] = 0x52;
+	psendBuf->sendBuff[4] = ACK_GetConfig;
 	psendBuf->sendBuff[5] = ACK_ComParams.getConfigQueue[0].block;
 	psendBuf->sendBuff[6] = ACK_ComParams.getConfigQueue[0].field;
 	memcpy(psendBuf->sendBuff+7, &ACK_ComParams.getConfigQueue[0].value, 4);
@@ -682,12 +685,20 @@ int  CEventParsing::package_ACK_GetConfig(sendInfo *psendBuf)
 	
 	package_ACK_commondata(psendBuf, bodylen);
 }
-
+int  CEventParsing::package_ACK_DefaultConfig(sendInfo *psendBuf)
+{
+	int bodylen = 7;
+	psendBuf->sendBuff[4] = ACK_DefaultConfig;
+	psendBuf->sendBuff[5] = ACK_ComParams.defConfigQueue[0];
+	ACK_ComParams.defConfigQueue.erase(ACK_ComParams.defConfigQueue.begin());
+	
+	package_ACK_commondata(psendBuf, bodylen);
+}
 int  CEventParsing::package_ACK_GetOsd(sendInfo *psendBuf)
 {
 	int osdlength = strlen((char *)ACK_ComParams.getOsdQueue[0].buf)<128?strlen((char *)ACK_ComParams.getOsdQueue[0].buf):128;
 	int bodylen = osdlength + 3;
-	psendBuf->sendBuff[4] = 0x52;
+	psendBuf->sendBuff[4] = ACK_GetConfig;
 	psendBuf->sendBuff[5] = ACK_ComParams.getOsdQueue[0].block;
 	psendBuf->sendBuff[6] = ACK_ComParams.getOsdQueue[0].field;
 	memcpy(psendBuf->sendBuff+7, &ACK_ComParams.getOsdQueue[0].buf, osdlength);

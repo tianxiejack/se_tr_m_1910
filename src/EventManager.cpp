@@ -593,6 +593,10 @@ int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
 				{
 					m_ipc->IPCSendMsg(read_shm_block, &blockId, 0);
 				}
+					ACK_ComParams.comtype = comtype;
+					ACK_ComParams.cmdid  = ACK_DefaultConfig;
+					ACK_ComParams.defConfigQueue.push_back(blockId+1);
+					OSA_semSignal(&m_semHndl);
 			}
 			else
 			{
@@ -708,6 +712,9 @@ void CEventManager::signalFeedBack(int argnum ...)
 			ACK_ComParams.trkerry = va_arg(ap, int);
 			printf("[%s]trkstat=%d,outtype=%d,trkerrx=%d,trkerry=%d\n", __FUNCTION__, ACK_ComParams.trkstat, ACK_ComParams.outtype, ACK_ComParams.trkerrx, ACK_ComParams.trkerry);
 			flag = 1;
+			break;
+		case ACK_DefaultConfig:
+			ACK_ComParams.trkstat = va_arg(ap, int);
 			break;
 		default:
 			break;
