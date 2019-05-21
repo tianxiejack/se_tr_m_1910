@@ -210,6 +210,10 @@ void CEventManager::MSG_JosPos(void* p)
 			dir = 0;
 		pThis->_StateManager->inter_Iris_FocusCtrl(Focus, dir);
 	}
+	else if(pThis->cfg_value[CFGID_RTS_trkstat])
+	{
+		//do nothing
+	}
 	else
 	{
 		pThis->_StateManager->inter_AxisMove(tmp->platspeedx, tmp->platspeedy);
