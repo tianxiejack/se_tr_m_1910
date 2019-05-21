@@ -117,6 +117,7 @@ typedef enum{
 	ACK_SetConfig = 0x51,
 	ACK_GetConfig = 0x52,
 	ACK_SetOsd = 0x53,
+	ACK_DefaultConfig = 0x54,
 	ACK_impconfig = 0x55,
 	ACK_expconfig = 0x56,
 	ACK_saveconfig = 0x57,
@@ -195,8 +196,19 @@ typedef struct{
 typedef struct{
 	comtype_t comtype;
 	int cmdid;
+	int displaychid;
+	int capturechid;
+	int workmode;
+	int capturemode;
+	int trkctrl;
+	int sectrkctrl;
+	int trkstat;
+	int outtype;
+	short trkerrx;
+	short trkerry;
 	vector<Set_config_t>  getConfigQueue;
 	vector<Get_osd_t> getOsdQueue;
+	vector<int>  defConfigQueue;
 }ACK_ComParams_t;
 
 typedef struct {
@@ -229,11 +241,19 @@ private:
 	static void *thread_netrecvEvent(void *p);
 	void parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, comtype_t comtype);
 	int parsingComEvent(comtype_t comtype);
-	unsigned char check_sum(int len_t);
+	unsigned char recvcheck_sum(int len_t);
 	int getSendInfo(sendInfo * psendBuf);
+	int  package_ACK_Sensor(sendInfo *psendBuf);
+	int  package_ACK_Workmode(sendInfo *psendBuf);
+	int  package_ACK_Capturemode(sendInfo *psendBuf);
+	int  package_ACK_TrkStat(sendInfo *psendBuf);
+	int  package_ACK_SecTrkStat(sendInfo *psendBuf);
+	int  package_ACK_Output(sendInfo *psendBuf);
 	int package_ACK_GetConfig(sendInfo *psendBuf);
+	int  package_ACK_DefaultConfig(sendInfo *psendBuf);
 	int  package_ACK_GetOsd(sendInfo *psendBuf);
-	unsigned char sendcheck_sum(int len, unsigned char *tmpbuf);
+	int  package_ACK_commondata(sendInfo *psendBuf, int bodylen);
+	unsigned char sendcheck_sum(unsigned char *tmpbuf, int len);
 	int comfd;
 	CPortInterface *pCom1, *pCom2;
 	vector<unsigned char>  rcvBufQue;
