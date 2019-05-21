@@ -210,7 +210,10 @@ void CEventManager::MSG_JosPos(void* p)
 			dir = 0;
 		pThis->_StateManager->inter_Iris_FocusCtrl(Focus, dir);
 	}
-	//else  jos move
+	else
+	{
+		pThis->_StateManager->inter_AxisMove(tmp->platspeedx, tmp->platspeedy);
+	}
 
 }
 void CEventManager::MSG_PovPosX(void* p)
@@ -311,6 +314,11 @@ void CEventManager::MSG_Com_TrkOutput(void* p)
 	ComParams_t *tmp = (ComParams_t *)p;
 	unsigned short trkoutput = tmp->trkoutput;
 	printf("trkoutput=%d\n", trkoutput);
+
+	do{
+	int x = _state->_ptz->m_iSetPanSpeed;
+	}
+	while(tmp->trkoutput == 0x02);
 }
 void CEventManager::MSG_Com_SetCfg(void* p)
 {

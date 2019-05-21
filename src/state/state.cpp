@@ -15,6 +15,8 @@ CPlatformInterface* State::m_Platform = NULL;
 CPTZSpeedTransfer*  State::m_ptzSpeed = NULL;
 CIPCProc* State::m_ipc = NULL;
 float* State::cfg_value = NULL;
+View* State::viewParam = NULL;
+HPLTCTRL  State::m_plt = NULL;
 
 State::State()
 {
@@ -59,7 +61,6 @@ void State::OperationInterface(StateManger* con)
 
 void State::platformCreate()
 {
-	m_plt = NULL;
 	viewParam = m_Platform->sensorParams();
 	m_Platform->PlatformCtrl_sensor_Init(cfg_value);
 	m_Platform->PlatformCtrl_CreateParams_Init(&m_cfgPlatParam, cfg_value, viewParam);
@@ -237,12 +238,15 @@ void State::switchSensor_interface(int chid)
 
 void State::axisMove_interface(int x, int y)
 {
-	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickXInput, x/JOS_VALUE_MAX);
-	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickYInput, y/JOS_VALUE_MAX);
+	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickXInput, (float)x/JOS_VALUE_MAX);
+	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickYInput, (float)y/JOS_VALUE_MAX);
 
 	m_pltInput.iTrkAlgState= 0;
 	m_Platform->PlatformCtrl_TrackerInput(m_plt, &m_pltInput);
 	m_Platform->PlatformCtrl_TrackerOutput(m_plt, &m_pltOutput);
+	printf("x = %f , y = %f \n", m_pltOutput.fPlatformDemandX, m_pltOutput.fPlatformDemandY);
+	_ptz->m_iSetPanSpeed = m_ptzSpeed->GetPanSpeed(m_pltOutput.fPlatformDemandX);
+	_ptz->m_iSetTiltSpeed = m_ptzSpeed->GetTiltSpeed(m_pltOutput.fPlatformDemandY);
 }
 
 void State::Ctrl_Iris(int dir)

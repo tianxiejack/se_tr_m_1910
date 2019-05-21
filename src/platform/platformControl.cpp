@@ -121,6 +121,8 @@ void CplatFormControl::PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams 
 	pPrm->deadbandY = 30;
 
 	pPrm->acqOutputType = 2;
+
+
 	pPrm->Kx = m_Prm[CFGID_PID_RATIOX];
 	pPrm->Ky = m_Prm[CFGID_PID_RATIOY];
 	pPrm->Error_X = m_Prm[CFGID_PID_ERRORX];
@@ -585,12 +587,17 @@ int CplatFormControl::PlatformCtrl_TrackerOutput(HPLTCTRL handle, PLATFORMCTRL_O
 int CplatFormControl::PlatformCtrl_VirtualInput(HPLTCTRL handle, int iIndex, float fValue)
 {
 	float fTmp;
+	printf("handle = %p \n", handle);
 	PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)handle->object;
 
 	if(pObj == NULL)
+	{
+		printf("pObj = %p \n", pObj);
 		return -1;
-	pObj->inter.virtalInput[iIndex] = fTmp;
+	}
 	fTmp = fValue;
+	pObj->inter.virtalInput[iIndex] = fTmp;
+
 	return 0;
 }
 

@@ -32,6 +32,6 @@ int BoxCapture::curStateInterface()
 
 void BoxCapture::axisMove(int x, int y)
 {
-
+	printf("Box Move \n");
 }
 
