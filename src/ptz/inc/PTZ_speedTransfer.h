@@ -12,7 +12,7 @@ class CPTZSpeedTransfer
 public:
 	CPTZSpeedTransfer();
 	~CPTZSpeedTransfer();
-	void create(vector<float> param);
+	void create();
 	static CGlobalDate* _GlobalDate;
 	int m_PanSpeedTab[64];
 	int m_TilSpeedTab[64];
@@ -22,7 +22,7 @@ public:
 	int GetTiltSpeed(float fIn);
 	int SpeedTabInit();
 	int PTZSpeed_creat();
-	void UpdateParams(vector<float> data, int block);
+	void UpdateParams();
 
 private:
 	int SpeedLevelPan[10];

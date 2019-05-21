@@ -25,6 +25,7 @@ CPTZSpeedTransfer::CPTZSpeedTransfer()
 	m_bTabInit = FALSE;
 	memset(SpeedLevelPan, 0, sizeof(SpeedLevelPan));
 	memset(SpeedLeveTilt, 0, sizeof(SpeedLeveTilt));
+	create();
 
 #if speedMap
 	memset(m_PanSpeedTab,0,sizeof(m_PanSpeedTab));
@@ -39,10 +40,9 @@ CPTZSpeedTransfer::~CPTZSpeedTransfer()
 	#endif
 }
 
-void CPTZSpeedTransfer::create(vector<float> param)
+void CPTZSpeedTransfer::create()  // 暂时将等级匹配填为固定值
 {
-	for(int i=99; i<101; i++)
-		UpdateParams(param, i);
+		UpdateParams();
 }
 
 #if speedMap
@@ -353,36 +353,31 @@ int CPTZSpeedTransfer::GetTiltSpeed(float fIn)
 
 #endif
 
-void CPTZSpeedTransfer::UpdateParams(vector<float> data, int block)
+void CPTZSpeedTransfer::UpdateParams()
 {
-	int num;
-	if(block == 99)
-	{
-		num = (block-1)*16;
-		SpeedLevelPan[0] = data[num];
-		SpeedLevelPan[1] = data[++num];
-		SpeedLevelPan[2] = data[++num];
-		SpeedLevelPan[3] = data[++num];
-		SpeedLevelPan[4] = data[++num];
-		SpeedLevelPan[5] = data[++num];
-		SpeedLevelPan[6] = data[++num];
-		SpeedLevelPan[7] = data[++num];
-		SpeedLevelPan[8] = data[++num];
-		SpeedLeveTilt[0] = data[++num];
-		SpeedLeveTilt[1] = data[++num];
-		SpeedLeveTilt[2] = data[++num];
-		SpeedLeveTilt[3] = data[++num];
-		SpeedLeveTilt[4] = data[++num];
-		SpeedLeveTilt[5] = data[++num];
-		SpeedLeveTilt[6] = data[++num];
-	}
+	int num = 0;
+	int data[20] = {65, 111, 418, 824, 1339, 2029, 3046, 4812, 8000, 8000, \
+							158, 209, 639, 1312, 1733, 2448, 3687, 5269, 8000, 8000};
+	SpeedLevelPan[0] = data[num];
+	SpeedLevelPan[1] = data[++num];
+	SpeedLevelPan[2] = data[++num];
+	SpeedLevelPan[3] = data[++num];
+	SpeedLevelPan[4] = data[++num];
+	SpeedLevelPan[5] = data[++num];
+	SpeedLevelPan[6] = data[++num];
+	SpeedLevelPan[7] = data[++num];
+	SpeedLevelPan[8] = data[++num];
+	SpeedLevelPan[9] = data[++num];
 
-	if(block == 100)
-	{
-		num = (block-1)*16;
-		SpeedLeveTilt[7] = data[num];
-		SpeedLeveTilt[8] = data[++num];
-		SpeedLevelPan[9] = data[++num];
-		SpeedLeveTilt[9] = data[++num];
-	}
+	SpeedLeveTilt[0] = data[++num];
+	SpeedLeveTilt[1] = data[++num];
+	SpeedLeveTilt[2] = data[++num];
+	SpeedLeveTilt[3] = data[++num];
+	SpeedLeveTilt[4] = data[++num];
+	SpeedLeveTilt[5] = data[++num];
+	SpeedLeveTilt[6] = data[++num];
+	SpeedLeveTilt[7] = data[++num];
+	SpeedLeveTilt[8] = data[++num];
+	SpeedLeveTilt[9] = data[++num];
+
 }

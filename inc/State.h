@@ -54,9 +54,9 @@ public:
 public:
 	int curState;
 	OSA_SemHndl m_sem;
-	View* viewParam;
+	static View* viewParam;
 	IPC_PRM_INT ipcParam;
-	HPLTCTRL  m_plt;
+	static HPLTCTRL  m_plt;
 	PLATFORMCTRL_TrackerInput m_pltInput;
 	PLATFORMCTRL_Output m_pltOutput;
 	PlatformCtrl_CreateParams m_cfgPlatParam;
@@ -92,6 +92,9 @@ public:
 
 private:
 	void platformCreate();
+
+	static State *m_st1, *m_st2, *m_st3, *m_st4, *m_st5;
+
 };
 
 
@@ -122,7 +125,6 @@ public:
 	virtual int curStateInterface();
 	virtual void TrkCtrl(char Enable);
 	virtual void trkSearch(int type, int x, int y){};
-	virtual void axisMove(int x, int y);
 };
 
 
@@ -135,7 +137,6 @@ public:
 private:
 	virtual  void OperationChangeState(StateManger* con);
 	virtual int curStateInterface();
-	virtual void axisMove(int x, int y);
 };
 
 

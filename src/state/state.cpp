@@ -3,7 +3,11 @@
 
 using namespace std;
 State* pThis = NULL;
-State *st1 = NULL, *st2 = NULL, *st3 = NULL, *st4 = NULL, *st5 = NULL;
+State* State::m_st1 = NULL;
+State* State::m_st2 = NULL;
+State* State::m_st3 = NULL;
+State* State::m_st4 = NULL;
+State* State::m_st5 = NULL;
 
 CPTZControl* State::_ptz = NULL;
 AgreeMentBaseFormat* State::_agreement = NULL;
@@ -11,6 +15,8 @@ CPlatformInterface* State::m_Platform = NULL;
 CPTZSpeedTransfer*  State::m_ptzSpeed = NULL;
 CIPCProc* State::m_ipc = NULL;
 float* State::cfg_value = NULL;
+View* State::viewParam = NULL;
+HPLTCTRL  State::m_plt = NULL;
 
 State::State()
 {
@@ -55,7 +61,6 @@ void State::OperationInterface(StateManger* con)
 
 void State::platformCreate()
 {
-	m_plt = NULL;
 	viewParam = m_Platform->sensorParams();
 	m_Platform->PlatformCtrl_sensor_Init(cfg_value);
 	m_Platform->PlatformCtrl_CreateParams_Init(&m_cfgPlatParam, cfg_value, viewParam);
@@ -65,16 +70,16 @@ void State::platformCreate()
 
 void State::StateInit()
 {
-	if(st1 == NULL)
-		st1 = new StateAuto_Mtd();
-	if(st2 == NULL)
-		st2 = new StateSceneSelect();
-	if(st3 == NULL)
-		st3 = new PlatFormCapture();
-	if(st4 == NULL)
-		st4 = new BoxCapture();
-	if(st5 == NULL)
-		st5 = new ManualMtdCapture();
+	if(m_st1 == NULL)
+		m_st1 = new StateAuto_Mtd();
+	if(m_st2 == NULL)
+		m_st2 = new StateSceneSelect();
+	if(m_st3 == NULL)
+		m_st3 = new PlatFormCapture();
+	if(m_st4 == NULL)
+		m_st4 = new BoxCapture();
+	if(m_st5 == NULL)
+		m_st5 = new ManualMtdCapture();
 	platformCreate();
 }
 
@@ -84,23 +89,23 @@ int State::ChangeState(StateManger* con, char nextState)
 	switch(nextState)
 	{
 	case STATE_AUTOMTD:
-		con->ChangeState(st1);
+		con->ChangeState(m_st1);
 		break;
 
 	case STATE_SCENETRK:
-		con->ChangeState(st2);
+		con->ChangeState(m_st2);
 		break;
 
 	case STATE_PTZ:
-		con->ChangeState(st3);
+		con->ChangeState(m_st3);
 		break;
 
 	case STATE_BOX:
-		con->ChangeState(st4);
+		con->ChangeState(m_st4);
 		break;
 
 	case STATE_MANUALMTD:
-		con->ChangeState(st5);
+		con->ChangeState(m_st5);
 		break;
 	}
 	return curState;
@@ -233,12 +238,15 @@ void State::switchSensor_interface(int chid)
 
 void State::axisMove_interface(int x, int y)
 {
-	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickXInput, x/JOS_VALUE_MAX);
-	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickYInput, y/JOS_VALUE_MAX);
+	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickXInput, (float)x/JOS_VALUE_MAX);
+	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickYInput, (float)y/JOS_VALUE_MAX);
 
 	m_pltInput.iTrkAlgState= 0;
 	m_Platform->PlatformCtrl_TrackerInput(m_plt, &m_pltInput);
 	m_Platform->PlatformCtrl_TrackerOutput(m_plt, &m_pltOutput);
+	printf("x = %f , y = %f \n", m_pltOutput.fPlatformDemandX, m_pltOutput.fPlatformDemandY);
+	_ptz->m_iSetPanSpeed = m_ptzSpeed->GetPanSpeed(m_pltOutput.fPlatformDemandX);
+	_ptz->m_iSetTiltSpeed = m_ptzSpeed->GetTiltSpeed(m_pltOutput.fPlatformDemandY);
 }
 
 void State::Ctrl_Iris(int dir)

@@ -30,11 +30,6 @@ int StateSceneSelect::curStateInterface()
 	return curState;
 }
 
-void StateSceneSelect::axisMove(int x, int y)
-{
-
-}
-
 void StateSceneSelect::TrkCtrl(char Enable)
 {
 	ipcParam.intPrm[0] = 1;
