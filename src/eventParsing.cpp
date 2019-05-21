@@ -240,52 +240,89 @@ int CEventParsing::thread_ReclaimConnect()
 
 
 
-void CEventParsing::parsingJostickPovData(unsigned char* jos_data)
+void CEventParsing::buttonStopHandle(int index)
 {
-	static unsigned char povbak = 0;
-	if(jos_data[POV_BUTTON] != povbak)
+	switch(index)
 	{
-		switch(jos_data[POV_BUTTON])
-		{
-		case js_pov_up:
-			ComParams.trkmove = 0x04;
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSY, &ComParams);
-			break;
-		case js_pov_right:
-			ComParams.trkmove = 0x02;
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSX, &ComParams);
-			break;
-		case js_pov_down:
-			ComParams.trkmove = 0x08;
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSY, &ComParams);
-			break;
-		case js_pov_left:
-			ComParams.trkmove = 0x01;
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSX, &ComParams);
-			break;
-		case js_1:
-			ComParams.trkctrl = 0x00;
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_TRACKCTRL, &ComParams);
-			break;
-		case js_2:
-			ComParams.displaychid = 0;
-			ComParams.capturechid = 0xff;
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_SwitchSensor, &ComParams);
-			break;
-		case js_3:
+		case 3:
 			if(ComParams.zoomctrl == 0)
 				ComParams.zoomctrl = 2;
 			else
 				ComParams.zoomctrl = 0;
 			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_ZOOMLONGCTRL, &ComParams);
+			index = 3;
 			break;
-		case js_4:
+		case 4:
 			if(ComParams.zoomctrl == 0)
 				ComParams.zoomctrl = 1;
 			else
 				ComParams.zoomctrl = 0;
 			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_ZOOMSHORTCTRL, &ComParams);
+			index = 4;
 			break;
+		
+		
+	}
+
+	
+	return ;
+}
+
+
+
+void CEventParsing::parsingJostickPovData(unsigned char* jos_data)
+{
+	static unsigned char povbak = 0;
+	static int index = 0;
+	if(jos_data[POV_BUTTON] != povbak)
+	{		
+		switch(jos_data[POV_BUTTON])
+		{
+			case js_pov_up:
+				ComParams.trkmove = 0x04;
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSY, &ComParams);
+				break;
+			case js_pov_right:
+				ComParams.trkmove = 0x02;
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSX, &ComParams);
+				break;
+			case js_pov_down:
+				ComParams.trkmove = 0x08;
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSY, &ComParams);
+				break;
+			case js_pov_left:
+				ComParams.trkmove = 0x01;
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSX, &ComParams);
+				break;
+			case js_1:
+				ComParams.trkctrl = 0x00;
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_TRACKCTRL, &ComParams);
+				break;
+			case js_2:
+				ComParams.displaychid = 0;
+				ComParams.capturechid = 0xff;
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_SwitchSensor, &ComParams);
+				break;
+			case js_3:
+				if(ComParams.zoomctrl == 0)
+					ComParams.zoomctrl = 2;
+				else
+					ComParams.zoomctrl = 0;
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_ZOOMLONGCTRL, &ComParams);
+				index = 3;
+				break;
+			case js_4:
+				if(ComParams.zoomctrl == 0)
+					ComParams.zoomctrl = 1;
+				else
+					ComParams.zoomctrl = 0;
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_ZOOMSHORTCTRL, &ComParams);
+				index = 4;
+				break;
+			default:
+				buttonStopHandle(index);	
+				index = 0;
+				break;
 		}
 		povbak = jos_data[POV_BUTTON];
 	}
