@@ -237,11 +237,12 @@ int CEventParsing::thread_ReclaimConnect()
 	}
     	return 0;
 }
-void CEventParsing::parsingJostickEvent(unsigned char* jos_data)
+
+
+
+void CEventParsing::parsingJostickPovData(unsigned char* jos_data)
 {
-	static int povbak=0, butbak=0, xBak=0, yBak=0;
-	static int Iris_Focus;
-	/*joystick button event*/
+	static unsigned char povbak = 0;
 	if(jos_data[POV_BUTTON] != povbak)
 	{
 		switch(jos_data[POV_BUTTON])
@@ -289,6 +290,15 @@ void CEventParsing::parsingJostickEvent(unsigned char* jos_data)
 		povbak = jos_data[POV_BUTTON];
 	}
 
+	return;
+}
+
+
+
+void CEventParsing::parsingJostickButtonData(unsigned char* jos_data)
+{
+	static unsigned char butbak = 0;
+	static int Iris_Focus = 0;
 	if(jos_data[BUTTON] != butbak)
 	{
 		switch(jos_data[BUTTON])
@@ -336,20 +346,44 @@ void CEventParsing::parsingJostickEvent(unsigned char* jos_data)
 		}
 		butbak = jos_data[BUTTON];
 	}
+	
+	return ;
+}
 
+
+
+void CEventParsing::parsingJostickAxisData(unsigned char* jos_data)
+{
+	static unsigned char xBak=0, yBak=0;
+	bool flag = false;
 	if(jos_data[AXIS_X] != xBak)
 	{
 		ComParams.platspeedx = jos_data[AXIS_X];
-		_Msg->MSGDRIV_send(MSGID_EXT_INPUT_JOSPOS, &ComParams);
 		xBak = jos_data[AXIS_X];
+		flag = true;
 	}
 
 	if(jos_data[AXIS_Y] != yBak)
 	{
 		ComParams.platspeedy = jos_data[AXIS_Y];
-		_Msg->MSGDRIV_send(MSGID_EXT_INPUT_JOSPOS, &ComParams);
 		yBak = jos_data[AXIS_Y];
+		flag = true;
 	}
+	
+	if(flag)
+		_Msg->MSGDRIV_send(MSGID_EXT_INPUT_JOSPOS, &ComParams);
+	return ;
+}
+
+
+
+void CEventParsing::parsingJostickEvent(unsigned char* jos_data)
+{
+	/*joystick button event*/
+	parsingJostickPovData(jos_data);
+	parsingJostickButtonData(jos_data);
+	parsingJostickAxisData(jos_data);
+	return;
 }
 
 void CEventParsing::parsingframe(unsigned char *tmpRcvBuff, int sizeRcv, comtype_t comtype)
