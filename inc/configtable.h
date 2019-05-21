@@ -1,6 +1,11 @@
 #ifndef _CONFIG_TABLE_H_
 #define _CONFIG_TABLE_H_
 
+#define AIM_WIDTH					64
+#define AIM_HEIGHT					64
+
+#define AVT_TRK_AIM_SIZE			2
+
 typedef enum {
 	eSen_CH0	= 0x00,
 	eSen_CH1	= 0x01,
@@ -19,6 +24,23 @@ enum devvideo{
 	video_pal,
 	MAX_CHAN,
 };
+
+#define MAIN_CHID					video_gaoqing0
+#define PAL_VIRCHID					0
+
+#define VIDEO_DIS_WIDTH		1920
+#define VIDEO_DIS_HEIGHT		1080
+
+#define BALL_CHID			video_gaoqing
+#define GUN_CHID			video_gaoqing0
+
+#define min_width_ratio 0.2
+#define max_width_ratio 0.8
+#define min_height_ratio 0.2
+#define max_height_ratio 0.8
+
+extern int vcapWH[5][2];
+extern int vdisWH[5][2];
 
 static int ShowDPI[MAX_CHAN][2] = {{1920, 1080},{1920, 1080},{1920, 1080},{1920, 1080},{720, 576}};
 
@@ -81,13 +103,15 @@ typedef enum
 {
 	CFGID_RTS_BASE = CFGID_BUILD( CFGID_RTS_BKID, 0 ),
 	CFGID_RTS_mainch = CFGID_BUILD( CFGID_RTS_BKID, 0 ),
-	CFGID_RTS_trken = CFGID_BUILD( CFGID_RTS_BKID, 1 ),
-	CFGID_RTS_trkalg = CFGID_BUILD( CFGID_RTS_BKID, 2 ),
-	CFGID_RTS_trkstat = CFGID_BUILD( CFGID_RTS_BKID, 3 ),
-	CFGID_RTS_trkerrx = CFGID_BUILD( CFGID_RTS_BKID, 4 ),
-	CFGID_RTS_trkerry = CFGID_BUILD( CFGID_RTS_BKID, 5 ),
-	CFGID_RTS_mtden = CFGID_BUILD( CFGID_RTS_BKID, 6 ),
-	CFGID_RTS_mtddet = CFGID_BUILD( CFGID_RTS_BKID, 7 ),	// MtdDetectStat
+	CFGID_RTS_mainch2 = CFGID_BUILD( CFGID_RTS_BKID, 1 ),
+	CFGID_RTS_trken = CFGID_BUILD( CFGID_RTS_BKID, 3 ),
+	CFGID_RTS_trkmode = CFGID_BUILD( CFGID_RTS_BKID, 4 ),
+	CFGID_RTS_sectrkstat = CFGID_BUILD( CFGID_RTS_BKID, 5 ),
+	CFGID_RTS_trkstat = CFGID_BUILD( CFGID_RTS_BKID, 6 ),
+	CFGID_RTS_trkerrx = CFGID_BUILD( CFGID_RTS_BKID, 7 ),
+	CFGID_RTS_trkerry = CFGID_BUILD( CFGID_RTS_BKID, 8 ),
+	CFGID_RTS_mtden = CFGID_BUILD( CFGID_RTS_BKID, 11 ),
+	CFGID_RTS_mtddet = CFGID_BUILD( CFGID_RTS_BKID, 12 ),	// MtdDetectStat
 }CFGID_RTS;
 
 typedef enum 
@@ -176,8 +200,8 @@ typedef enum
 #define CFGID_INPUT_CHNAME(BKID)	CFGID_BUILD( BKID, 1 )
 #define CFGID_INPUT_CHVALID(BKID)	CFGID_BUILD( BKID, 3 )
 #define CFGID_INPUT_CHRES(BKID)	CFGID_BUILD( BKID, 4 )	// resolution
-#define CFGID_INPUT_FOVTYPE(BKID)	CFGID_BUILD( BKID, 5 )
-#define CFGID_INPUT_AIMTYPE(BKID)	CFGID_BUILD( BKID, 7 )
+#define CFGID_INPUT_FOVTYPE(BKID)	CFGID_BUILD( BKID, 5 )	// lv 0-n
+#define CFGID_INPUT_AIMTYPE(BKID)	CFGID_BUILD( BKID, 7 )	// 0-2
 #define CFGID_INPUT_SENISIVITY(BKID)	CFGID_BUILD( BKID, 9 )
 #define CFGID_INPUT_DETX(BKID)	CFGID_BUILD( BKID, 10 )
 #define CFGID_INPUT_DETY(BKID)	CFGID_BUILD( BKID, 11 )

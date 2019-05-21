@@ -27,6 +27,8 @@ private:
 	char *usr_value;
 	bool exit_ipcthread;
 	float winPos[2];
+	int outtype;
+	comtype_t outcomtype;
 	void IPC_Creat();
 	void MSG_register();
 
@@ -68,6 +70,7 @@ private:
 	int GetConfig(comtype_t comtype, int block, int field);
 	int DefaultConfig(comtype_t comtype, int blockId);
 	int SaveConfig();
+	void signalFeedBack(int argnum ...);
 	
 };
 

@@ -46,7 +46,7 @@ void State::OperationInterface(StateManger* con)
 		ipcParam.intPrm[0] = 0;
 		m_ipc->IPCSendMsg(mtd, ipcParam.intPrm, 4);
 	}
-	if(cfg_value[CFGID_RTS_trkalg])
+	if(cfg_value[CFGID_RTS_trkmode])
 	{
 		ipcParam.intPrm[0] = 0;
 		m_ipc->IPCSendMsg(sceneTrk, ipcParam.intPrm, 4);

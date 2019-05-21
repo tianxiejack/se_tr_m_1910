@@ -6,6 +6,7 @@
  */
 #include "EventManager.hpp"
 #include <opencv2/core/core.hpp>
+#include <cstdarg>
 
 CEventManager* CEventManager::pThis = NULL;
 extern ACK_ComParams_t ACK_ComParams;
@@ -58,9 +59,19 @@ void CEventManager::IPC_Creat()
 
 void CEventManager::thread_ipcEvent()
 {
+	int cfgid = -1;
 	while(!pThis->exit_ipcthread)
 	{
-		pThis->m_ipc->IPCRecvMsg(NULL);
+		cfgid = pThis->m_ipc->IPCRecvMsg(NULL);
+		switch(cfgid)
+		{
+			case CFGID_RTS_trkstat:
+				if(1 == pThis->outtype)
+					pThis->signalFeedBack(6, pThis->outcomtype, ACK_output, (int)pThis->cfg_value[CFGID_RTS_trkstat], pThis->outtype, (int)pThis->cfg_value[CFGID_RTS_trkerrx], (int)pThis->cfg_value[CFGID_RTS_trkerry]);
+				else if(2 == pThis->outtype)
+					;
+				break;
+		}
 	}
 }
 
@@ -109,6 +120,8 @@ void CEventManager::MSG_Trk(void* p)
 	if(tmp->trkctrl == 2)
 		tmp->trkctrl = 0;
 	pThis->_StateManager->inter_TrkCtrl(tmp->trkctrl);
+
+	pThis->signalFeedBack(3, tmp->comtype, ACK_TrkStat, (int)pThis->cfg_value[CFGID_RTS_trken]);
 }
 void CEventManager::MSG_SwitchSensor(void* p)
 {
@@ -116,6 +129,11 @@ void CEventManager::MSG_SwitchSensor(void* p)
 	int displaychid = tmp->displaychid;
 	int capturechid = tmp->capturechid;
 	pThis->_StateManager->inter_SwitchSensor(capturechid);
+
+	if(1 == tmp->displaychid)
+		pThis->signalFeedBack(4, tmp->comtype, ACK_Sensor, tmp->displaychid, (int)pThis->cfg_value[CFGID_RTS_mainch]);
+	else if(2 == tmp->displaychid)
+		pThis->signalFeedBack(4, tmp->comtype, ACK_Sensor, tmp->displaychid, (int)pThis->cfg_value[CFGID_RTS_mainch]);
 }
 void CEventManager::MSG_ZoomLong(void* p)
 {
@@ -134,6 +152,14 @@ void CEventManager::MSG_TrkSearch(void* p)
 		pThis->_StateManager->inter_TrkSearch(tmp->sectrkctrl, pThis->winPos[0], pThis->winPos[1]);
 	if(!pThis->cfg_value[CFGID_RTS_trken])
 		tmp->sectrkctrl = 0;
+
+	int sectrkstat = pThis->cfg_value[CFGID_RTS_sectrkstat];
+	if((0 == sectrkstat) || (3 == sectrkstat))
+		pThis->signalFeedBack(3, tmp->comtype, ACK_SectrkStat, 3);
+	else if(1 == sectrkstat)
+		pThis->signalFeedBack(3, tmp->comtype, ACK_SectrkStat, 1);
+	else if(2 == sectrkstat)
+		pThis->signalFeedBack(3, tmp->comtype, ACK_SectrkStat, 2);
 }
 void CEventManager::MSG_CaptureMode(void* p)
 {
@@ -153,6 +179,15 @@ void CEventManager::MSG_CaptureMode(void* p)
 	{
 		tmp->capturemode = captureModeBack;
 	}
+
+
+	int capturemode = pThis->_StateManager->CurStateInterface();
+	if(STATE_PTZ == capturemode)
+		pThis->signalFeedBack(3, tmp->comtype, ACK_CaptureMode, 1);
+	else if(STATE_BOX == capturemode)
+		pThis->signalFeedBack(3, tmp->comtype, ACK_CaptureMode, 2);
+	else if(STATE_MANUALMTD == capturemode)
+		pThis->signalFeedBack(3, tmp->comtype, ACK_CaptureMode, 3);
 }
 void CEventManager::MSG_IrisAndFocus(void* p)
 {
@@ -177,6 +212,14 @@ void CEventManager::MSG_WorkMode(void* p)
 		pThis->_StateManager->ToStateAuto_Mtd();
 	else if(tmp->workmode == STATE_SCENETRK)
 		pThis->_StateManager->ToStateSceneSelect();
+
+	int workmode = pThis->_StateManager->CurStateInterface();
+	if((ROUTINE_STATE == workmode) || (STATE_PTZ == workmode) ||(STATE_BOX == workmode) || (STATE_MANUALMTD == workmode))
+		pThis->signalFeedBack(3, tmp->comtype, ACK_Workmode, 1);
+	else if(STATE_AUTOMTD == workmode)
+		pThis->signalFeedBack(3, tmp->comtype, ACK_Workmode, 2);
+	else if(STATE_SCENETRK == workmode)
+		pThis->signalFeedBack(3, tmp->comtype, ACK_Workmode, 3);
 }
 void CEventManager::MSG_JosPos(void* p)
 {
@@ -311,6 +354,8 @@ void CEventManager::MSG_Com_TrkOutput(void* p)
 	ComParams_t *tmp = (ComParams_t *)p;
 	unsigned short trkoutput = tmp->trkoutput;
 	printf("trkoutput=%d\n", trkoutput);
+	pThis->outtype = tmp->trkoutput;
+	pThis->outcomtype = tmp->comtype;
 }
 void CEventManager::MSG_Com_SetCfg(void* p)
 {
@@ -612,4 +657,60 @@ int CEventManager::SaveConfig()
 	}
 	else
 		fclose(fp);
+}
+
+void CEventManager::signalFeedBack(int argnum ...)
+{
+	int flag = 0;
+
+	va_list ap;
+	va_start(ap, argnum);
+	ACK_ComParams.comtype = va_arg(ap, comtype_t);
+	ACK_ComParams.cmdid  = va_arg(ap, int);
+	printf("[%s]fd=%d,type=%d, cmdid=%d\n", __FUNCTION__, ACK_ComParams.comtype.fd, ACK_ComParams.comtype.type, ACK_ComParams.cmdid);
+	
+	switch(ACK_ComParams.cmdid)
+	{
+		case ACK_Sensor:
+			ACK_ComParams.displaychid = va_arg(ap, int);
+			ACK_ComParams.capturechid = va_arg(ap, int);
+			printf("[%s]displaychid=%d,capturechid=%d\n", __FUNCTION__, ACK_ComParams.displaychid, ACK_ComParams.capturechid);
+			flag = 1;
+			break;
+		case ACK_Workmode:
+			ACK_ComParams.workmode = va_arg(ap, int);
+			printf("[%s]workmode=%d\n", __FUNCTION__, ACK_ComParams.workmode);
+			flag = 1;
+			break;
+		case ACK_CaptureMode:
+			ACK_ComParams.capturemode = va_arg(ap, int);
+			printf("[%s]capturemode=%d\n", __FUNCTION__, ACK_ComParams.capturemode);
+			flag = 1;
+			break;
+		case ACK_TrkStat:
+			ACK_ComParams.trkctrl = va_arg(ap, int);
+			printf("[%s]rkctrl=%d\n", __FUNCTION__,ACK_ComParams.trkctrl);
+			flag = 1;
+			break;
+		case ACK_SectrkStat:
+			ACK_ComParams.sectrkctrl = va_arg(ap, int);
+			printf("[%s]sectrkctrl=%d\n", __FUNCTION__, ACK_ComParams.sectrkctrl);
+			flag = 1;
+			break;
+		case ACK_output:
+			ACK_ComParams.trkstat = va_arg(ap, int);
+			ACK_ComParams.outtype = va_arg(ap, int);
+			ACK_ComParams.trkerrx = va_arg(ap, int);
+			ACK_ComParams.trkerry = va_arg(ap, int);
+			printf("[%s]trkstat=%d,outtype=%d,trkerrx=%d,trkerry=%d\n", __FUNCTION__, ACK_ComParams.trkstat, ACK_ComParams.outtype, ACK_ComParams.trkerrx, ACK_ComParams.trkerry);
+			flag = 1;
+			break;
+		default:
+			break;
+	}
+	va_end(ap);
+	if(flag)
+	{
+		OSA_semSignal(&m_semHndl);
+	}
 }
