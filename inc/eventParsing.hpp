@@ -262,6 +262,13 @@ private:
 	vector<CConnectVECTOR *>  connetVector;
 	OSA_MutexHndl mutexConn;
 
+private:
+	void parsingJostickPovData(unsigned char* jos_data);
+	void parsingJostickButtonData(unsigned char* jos_data);
+	void parsingJostickAxisData(unsigned char* jos_data);
+	void buttonStopHandle(int index);
+
+
 };
 
 

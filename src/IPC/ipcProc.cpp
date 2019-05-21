@@ -82,10 +82,23 @@ int CIPCProc::IPCRecvMsg(void* prm)
 		}
 		break;
 	case read_shm_single:
-		if(pIn->intPrm[0] == CFGID_RTS_trkstat)
-			return (CFGID_RTS_trkstat);
-		else if(pIn->intPrm[0] == CFGID_RTS_mtddet)
-			return (CFGID_RTS_mtddet);
+		{
+			int trkstat = pIn->intPrm[6];
+
+			printf("trkstat = %d \n",trkstat);
+		
+			printf("err x,y :(%f , %f) \n", pIn->intPrm[7] , pIn->intPrm[8]);
+
+		}
+		
+
+		
+		//if(pIn->intPrm[0] == CFGID_RTS_trkstat)
+		//	return (CFGID_RTS_trkstat);
+		//else if(pIn->intPrm[0] == CFGID_RTS_mtddet)
+		//	return (CFGID_RTS_mtddet);
+
+		
 		break;
 
 	default:
@@ -100,7 +113,7 @@ void CIPCProc::getIPCMsgProc()
 	IPC_PRM_INT *pIn = (IPC_PRM_INT *)&recvData.param;
 	while(!exitThreadIPCRcv)
 	{
-		ipc_recvmsg(&recvData,IPC_FRIMG_MSG);
+		//ipc_recvmsg(&recvData,IPC_FRIMG_MSG);
 		//pthread_mutex_lock(&mutex);
 
 		switch(recvData.cmd_ID)
