@@ -13,6 +13,7 @@
 #define CFGID_FEILD_MAX	16
 #define CFGID_BLOCK_MAX	128
 #define CFGID_USEROSD_MAX	32
+#define USEROSD_LENGTH	128
 
 #define DEFAULTPATH "/"
 
@@ -90,7 +91,7 @@ static void Ipc_init()
 	IpcHandl[IPC_USER_SHA].Identify = IPC_USER_SHA;
 	IpcHandl[IPC_USER_SHA].Class=IPC_Class_SHA;
 	IpcHandl[IPC_USER_SHA].IPCID = 0;
-	IpcHandl[IPC_USER_SHA].length = 128*CFGID_USEROSD_MAX;
+	IpcHandl[IPC_USER_SHA].length = USEROSD_LENGTH*CFGID_USEROSD_MAX;
 	IpcHandl[IPC_USER_SHA].RWmode = shm_rdwr;
 	IpcHandl[IPC_USER_SHA].ptr = NULL;
 

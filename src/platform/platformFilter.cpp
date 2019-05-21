@@ -6,6 +6,7 @@
 
 #include "platformFilter.h"
 #include "platformparam.h"
+#include "configtable.h"
 
 #define EPSINON   (0.000001f)
 
@@ -70,24 +71,24 @@ void CPlatformFilter::PlatformFilter_updatePidParams(PlatformFilter_CreateParams
 	if(pPrm == NULL || pPrm2 == NULL)
 		return;
 	
-	int i = 1441;
-	if(pPrm->Kp  != m_Prm[i])
-		pPrm->Kp  = m_Prm[i];
-	if(pPrm->Ki != m_Prm[++i])
-		pPrm->Ki = m_Prm[i];
-	if(pPrm->Kd != m_Prm[++i])
-		pPrm->Kd = m_Prm[i];
-	if(pPrm->K != m_Prm[++i])
-		pPrm->K = m_Prm[i];
+	//int i = 1441;
+	if(pPrm->Kp  != m_Prm[CFGID_PID_KPX])
+		pPrm->Kp  = m_Prm[CFGID_PID_KPX];
+	if(pPrm->Ki != m_Prm[CFGID_PID_KIX])
+		pPrm->Ki = m_Prm[CFGID_PID_KIX];
+	if(pPrm->Kd != m_Prm[CFGID_PID_KDX])
+		pPrm->Kd = m_Prm[CFGID_PID_KDX];
+	if(pPrm->K != m_Prm[CFGID_PID_KX])
+		pPrm->K = m_Prm[CFGID_PID_KX];
 
-	if(pPrm2->Kp  != m_Prm[++i])
-		pPrm2->Kp  = m_Prm[i];
-	if(pPrm2->Ki != m_Prm[++i])
-		pPrm2->Ki = m_Prm[i];
-	if(pPrm2->Kd != m_Prm[++i])
-		pPrm2->Kd = m_Prm[i];
-	if(pPrm2->K != m_Prm[++i])
-		pPrm2->K = m_Prm[i];
+	if(pPrm2->Kp  != m_Prm[CFGID_PID_KPY])
+		pPrm2->Kp  = m_Prm[CFGID_PID_KPY];
+	if(pPrm2->Ki != m_Prm[CFGID_PID_KIY])
+		pPrm2->Ki = m_Prm[CFGID_PID_KIY];
+	if(pPrm2->Kd != m_Prm[CFGID_PID_KDY])
+		pPrm2->Kd = m_Prm[CFGID_PID_KDY];
+	if(pPrm2->K != m_Prm[CFGID_PID_KY])
+		pPrm2->K = m_Prm[CFGID_PID_KY];
 
 	return ;
 }

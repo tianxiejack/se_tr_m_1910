@@ -406,7 +406,6 @@ int  CEventManager::ReadConfigFile()
 					{
 						str = (string)fr[cfg_avt];
 						memset(usr_value + usrosdId * USEROSD_LENGTH, 0, USEROSD_LENGTH);
-						cout<<"read i="<<i<<"!!str="<<str<<endl;
 						str.copy(usr_value+usrosdId*USEROSD_LENGTH, str.length()<USEROSD_LENGTH?str.length():USEROSD_LENGTH, 0);
 					}
 					else
@@ -450,6 +449,9 @@ int CEventManager::SetConfig(int block, int field, float value,char *inBuf)
 	cfg_value[i] = value;
 	m_ipc->IPCSendMsg(read_shm_single, &i, 4);
 
+	if(((block >= CFGID_INPUT1_BKID) && (block <= CFGID_INPUT1_BKID + 6)) || ((block >= CFGID_INPUT2_BKID) && (block <= CFGID_INPUT5_BKID + 6)) )
+		_state->m_Platform->PlatformCtrl_sensor_Init(cfg_value);
+
 	return 0;
 }
 int CEventManager::GetConfig(comtype_t comtype, int block, int field)
@@ -491,7 +493,7 @@ int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
 	string cfgAvtFile;
 	int configId_Max =profileNum;
 	char  cfg_avt[20] = "cfg_avt_";
-	cfgAvtFile = "Profile.yml";
+	cfgAvtFile = "Profile_default.yml";
 	FILE *fp = fopen(cfgAvtFile.c_str(), "rt");
 
 	if(fp != NULL)
@@ -526,7 +528,6 @@ int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
 							{
 								str = (string)fr[cfg_avt];
 								memset(usr_value + usrosdId * USEROSD_LENGTH, 0, USEROSD_LENGTH);
-								cout<<"read i="<<i<<"!!str="<<str<<endl;
 								str.copy(usr_value+usrosdId*USEROSD_LENGTH, str.length()<USEROSD_LENGTH?str.length():USEROSD_LENGTH, 0);
 
 								if(blockId != -1)
@@ -536,6 +537,9 @@ int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
 							{
 								cfg_value[i] = (float)fr[cfg_avt];
 							}
+
+							if(((blkId >= CFGID_INPUT1_BKID) && (blkId <= CFGID_INPUT1_BKID + 6)) || ((blkId >= CFGID_INPUT2_BKID) && (blkId <= CFGID_INPUT5_BKID + 6)) )
+								_state->m_Platform->PlatformCtrl_sensor_Init(cfg_value);
 						}
 					}
 				}
