@@ -43,7 +43,7 @@ class State
 {
 public:
 	State();
-	virtual void StateInit();
+	void StateInit();
 	void create();
 	virtual ~State();
 	virtual void OperationInterface(StateManger* con);
@@ -69,7 +69,8 @@ public:
 	virtual void trkSearch(int type, int x, int y);
 	virtual void Iris_FocusCtrl(int type, int dir);
 	virtual void pov_move(int x,int y);
-	
+	virtual void mtdhandle(int arg){};
+
 
 public:
 	void switchSensor_interface(int chid);
@@ -80,7 +81,8 @@ public:
 	void init_time();
 	void uninit_time();
 	static void detectionFunc (int sign);
-	void trkMovControl();
+	void trkMovControl(int status,int errx,int erry);
+	
 
 public:
 	static CIPCProc* m_ipc;
@@ -114,7 +116,7 @@ private:
 	void trkSearch(int type, int x, int y){};
 	void switchSensor(char chid);
 	void TrkCtrl(char Enable);
-
+	void mtdhandle(int arg);
 };
 
 

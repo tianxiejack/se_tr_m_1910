@@ -22,22 +22,20 @@ CEventManager::CEventManager()
 	exit_ipcthread = false;
 	memset(winPos, 0, sizeof(winPos));
 	_Msg = CMessage::getInstance();
-	_state = new PlatFormCapture();
-	_StateManager = new StateManger(_state);
+	_StateManager = new StateManger(new PlatFormCapture());
 	_Handle = _Msg->MSGDRIV_create();
 	MSG_register();
 	m_ipc = (CIPCProc*)_StateManager->returnIpc();
 	IPC_Creat();
 	ReadConfigFile();
 	_StateManager->GetParams(cfg_value);
-	_state->StateInit();
+	_StateManager->_state->StateInit();
 }
 
 CEventManager::~CEventManager()
 {
 	exit_ipcthread = true;
 	delete pThis;
-	delete _state;
 	delete _StateManager;
 	delete m_ipc;
 	_Msg->MSGDRIV_destroy(_Handle);
@@ -67,20 +65,22 @@ void CEventManager::thread_ipcEvent()
 		{
 			case CFGID_RTS_trkstat:
 
-				//m_pixelErr.status = (int)pThis->cfg_value[CFGID_RTS_trkstat];
-				//m_pixelErr.errx = pThis->cfg_value[CFGID_RTS_trkerrx];	
-				//m_pixelErr.erry = pThis->cfg_value[CFGID_RTS_trkerry];
-pThis->_state->m_pltInput.iTrkAlgState = (int)pThis->cfg_value[CFGID_RTS_trkstat];
-pThis->_state->m_pltInput.fTargetBoresightErrorX = pThis->cfg_value[CFGID_RTS_trkerrx];
-pThis->_state->m_pltInput.fTargetBoresightErrorY = pThis->cfg_value[CFGID_RTS_trkerry];
-
+				pThis->m_pixelErr.status = pThis->cfg_value[CFGID_RTS_trkstat];
+				pThis->m_pixelErr.errx = pThis->cfg_value[CFGID_RTS_trkerrx];
+				pThis->m_pixelErr.erry = pThis->cfg_value[CFGID_RTS_trkerry];
+				
 				pThis->_Msg->MSGDRIV_send(MSGID_COM_INPUT_TRKCONTROL, 0);
-
 
 				if(1 == pThis->outtype)
 					pThis->signalFeedBack(6, pThis->outcomtype, ACK_output, (int)pThis->cfg_value[CFGID_RTS_trkstat], pThis->outtype, (int)pThis->cfg_value[CFGID_RTS_trkerrx], (int)pThis->cfg_value[CFGID_RTS_trkerry]);
-				else if(2 == pThis->outtype)
-					;
+
+				break;
+
+			case CFGID_RTS_mtddet:	
+				pThis->_StateManager->_state->mtdhandle(pThis->cfg_value[CFGID_RTS_mtddet]);
+				break;
+
+			default:
 				break;
 		}
 	}
@@ -174,7 +174,7 @@ void CEventManager::MSG_TrkSearch(void* p)
 		pThis->signalFeedBack(3, tmp->comtype, ACK_SectrkStat, 3);
 	else if(1 == sectrkstat){
 		pThis->signalFeedBack(3, tmp->comtype, ACK_SectrkStat, 1);
-		pThis->_state->m_Platform->PlatformCtrl_reset4trk(pThis->_state->m_plt);
+		pThis->_StateManager->_state->m_Platform->PlatformCtrl_reset4trk(pThis->_StateManager->_state->m_plt);
 	}
 	else if(2 == sectrkstat)
 		pThis->signalFeedBack(3, tmp->comtype, ACK_SectrkStat, 2);
@@ -290,7 +290,7 @@ void CEventManager::MSG_JosPos(void* p)
 void CEventManager::MSG_PovPosX(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
-	pThis->_state->pov_move(	tmp->trkmove , 0);
+	pThis->_StateManager->_state->pov_move(	tmp->trkmove , 0);
 		
 	//MSG_Com_TrkMove(p);
 	//MSG_Com_MtdSelect(p);
@@ -299,7 +299,7 @@ void CEventManager::MSG_PovPosX(void* p)
 void CEventManager::MSG_PovPosY(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
-	pThis->_state->pov_move(	0, tmp->trkmove);
+	pThis->_StateManager->_state->pov_move(	0, tmp->trkmove);
 	return ;
 }
 
@@ -311,8 +311,8 @@ void CEventManager::MSG_Com_SelfCheck(void* p)
 
 
 void CEventManager::MSG_Com_TrkMovControl(void* p)
-{
-	pThis->_state->trkMovControl();
+{	
+	pThis->_StateManager->_state->trkMovControl(pThis->m_pixelErr.status , pThis->m_pixelErr.errx , pThis->m_pixelErr.erry );
 	return ;
 }
 
@@ -401,11 +401,6 @@ void CEventManager::MSG_Com_TrkOutput(void* p)
 	ComParams_t *tmp = (ComParams_t *)p;
 	unsigned short trkoutput = tmp->trkoutput;
 	printf("trkoutput=%d\n", trkoutput);
-
-	//do{
-	//	int x = pThis->_state->_ptz->m_iSetPanSpeed;
-	//}
-	//while(tmp->trkoutput == 0x02);
 
 	pThis->outtype = tmp->trkoutput;
 	pThis->outcomtype = tmp->comtype;
@@ -544,7 +539,7 @@ int CEventManager::SetConfig(int block, int field, float value,char *inBuf)
 	m_ipc->IPCSendMsg(read_shm_single, &i, 4);
 
 	if(((block >= CFGID_INPUT1_BKID) && (block <= CFGID_INPUT1_BKID + 6)) || ((block >= CFGID_INPUT2_BKID) && (block <= CFGID_INPUT5_BKID + 6)) )
-		_state->m_Platform->PlatformCtrl_sensor_Init(cfg_value);
+		_StateManager->_state->m_Platform->PlatformCtrl_sensor_Init(cfg_value);
 
 	return 0;
 }
@@ -633,7 +628,7 @@ int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
 							}
 
 							if(((blkId >= CFGID_INPUT1_BKID) && (blkId <= CFGID_INPUT1_BKID + 6)) || ((blkId >= CFGID_INPUT2_BKID) && (blkId <= CFGID_INPUT5_BKID + 6)) )
-								_state->m_Platform->PlatformCtrl_sensor_Init(cfg_value);
+								_StateManager->_state->m_Platform->PlatformCtrl_sensor_Init(cfg_value);
 						}
 					}
 				}

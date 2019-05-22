@@ -26,7 +26,6 @@ private:
 	MSGDRIV_Handle _Handle;
 	CMessage* _Msg;
 	StateManger* _StateManager;
-	State* _state;
 	CIPCProc* m_ipc;
 	static CEventManager* pThis;
 	float *cfg_value;

@@ -11,10 +11,12 @@ StateAuto_Mtd::StateAuto_Mtd()
 
 }
 
+
 StateAuto_Mtd::~StateAuto_Mtd()
 {
 
 }
+
 
 void StateAuto_Mtd::OperationChangeState(StateManger* con)
 {
@@ -23,7 +25,9 @@ void StateAuto_Mtd::OperationChangeState(StateManger* con)
 	OperationInterface(con);
 	ipcParam.intPrm[0] = 1;
 	m_ipc->IPCSendMsg(mtd, ipcParam.intPrm, 4);
+	return ;
 }
+
 
 int StateAuto_Mtd::curStateInterface()
 {
@@ -41,16 +45,22 @@ void StateAuto_Mtd::switchSensor(char chid)
 
 void StateAuto_Mtd::TrkCtrl(char Enable)
 {
-	if(Enable && cfg_value[CFGID_RTS_mtddet])
-	{	
-		ipcParam.intPrm[0] = 3;
-		m_ipc->IPCSendMsg(mtdSelect, ipcParam.intPrm, 4);
-		if(m_plt != NULL)
-			m_Platform->PlatformCtrl_reset4trk(m_plt);
-	}
-	else if(!Enable)
-	{
-		State::TrkCtrl(Enable);
-	}
 	return ;
 }
+
+
+void StateAuto_Mtd::mtdhandle(int arg)
+{
+	if(!cfg_value[CFGID_RTS_trken])
+	{
+		if(arg)
+		{
+			ipcParam.intPrm[0] = 3;
+			m_ipc->IPCSendMsg(mtdSelect, ipcParam.intPrm, 4);	
+		}
+	}
+
+	
+	return ;
+}
+

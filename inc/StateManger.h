@@ -45,9 +45,10 @@ private:
 	void OperationChangState();
 
 private:
-	State* _state;
 	int curState;
 	float* cfg_param;
+public:
+	State* _state;
 };
 #endif /*~_CONTEXT_H_*/
 

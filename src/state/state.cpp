@@ -335,11 +335,14 @@ void State::detectionFunc (int sign)
 
 
 
-void State::trkMovControl()
+void State::trkMovControl(int status,int errx,int erry)
 {
 	if(m_plt == NULL)
 		return ;
 
+	m_pltInput.iTrkAlgState = status;
+	m_pltInput.fTargetBoresightErrorX = errx;
+	m_pltInput.fTargetBoresightErrorY = erry;
 	
 	m_Platform->PlatformCtrl_TrackerInput(m_plt, &m_pltInput);
 	m_Platform->PlatformCtrl_TrackerOutput(m_plt, &m_pltOutput);
