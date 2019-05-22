@@ -113,6 +113,8 @@ private:
 	void ZoomCtrl(char type){};
 	void trkSearch(int type, int x, int y){};
 	void switchSensor(char chid);
+	void TrkCtrl(char Enable);
+
 };
 
 

@@ -35,6 +35,14 @@ void StateSceneSelect::TrkCtrl(char Enable)
 	m_sceneflag = Enable;
 	ipcParam.intPrm[0] = m_sceneflag;
 	m_ipc->IPCSendMsg(sceneTrk, ipcParam.intPrm, 4);
+
+	if(Enable){
+		ipcParam.intPrm[0] = 7;
+		m_ipc->IPCSendMsg(workmode, ipcParam.intPrm, 4);
+	}else{
+		ipcParam.intPrm[0] = 3;
+		m_ipc->IPCSendMsg(workmode, ipcParam.intPrm, 4);
+	}
 	return ;
 }
 

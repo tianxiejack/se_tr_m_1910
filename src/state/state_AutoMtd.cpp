@@ -23,7 +23,6 @@ void StateAuto_Mtd::OperationChangeState(StateManger* con)
 	OperationInterface(con);
 	ipcParam.intPrm[0] = 1;
 	m_ipc->IPCSendMsg(mtd, ipcParam.intPrm, 4);
-	printf("mtd is open \n");
 }
 
 int StateAuto_Mtd::curStateInterface()
@@ -33,9 +32,25 @@ int StateAuto_Mtd::curStateInterface()
 	return curState;
 }
 
+
 void StateAuto_Mtd::switchSensor(char chid)
 {
 
 }
 
 
+void StateAuto_Mtd::TrkCtrl(char Enable)
+{
+	if(Enable && cfg_value[CFGID_RTS_mtddet])
+	{	
+		ipcParam.intPrm[0] = 3;
+		m_ipc->IPCSendMsg(mtdSelect, ipcParam.intPrm, 4);
+		if(m_plt != NULL)
+			m_Platform->PlatformCtrl_reset4trk(m_plt);
+	}
+	else if(!Enable)
+	{
+		State::TrkCtrl(Enable);
+	}
+	return ;
+}
