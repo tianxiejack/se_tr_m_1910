@@ -124,6 +124,8 @@ void State::TrkCtrl(char Enable)
 	{
 		m_Platform->PlatformCtrl_reset4trk(m_plt);
 	}
+	if(!Enable)
+		_ptz->ptzStop();
 }
 
 void State::switchSensor(char chid)
@@ -248,8 +250,11 @@ void State::switchSensor_interface(int chid)
 
 void State::axisMove_interface(int x, int y)
 {
-	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickXInput, (float)x/JOS_VALUE_MAX);
-	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickYInput, (float)y/JOS_VALUE_MAX);
+	x -= (JOS_VALUE_MAX>>1);
+	y -= (JOS_VALUE_MAX>>1);
+	
+	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickXInput, (float)x/(JOS_VALUE_MAX>>1));
+	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickYInput, (float)y/(JOS_VALUE_MAX>>1));
 
 	m_pltInput.iTrkAlgState= 0;
 	m_Platform->PlatformCtrl_TrackerInput(m_plt, &m_pltInput);

@@ -48,7 +48,7 @@ void ManualMtdCapture::TrkCtrl(char Enable)
 void ManualMtdCapture::axisMove(int x, int y)
 {
 
-	if( abs(x) <= 20 && abs(y) <= 20 )
+	if( abs(x - (0xff>>1)) <= 20 && abs(y - (0xff>>1)) <= 20 )
 	{
 		_ptz->ptzStop();
 		if(!mtdStatus){

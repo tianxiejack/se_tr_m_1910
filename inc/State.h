@@ -152,9 +152,13 @@ public:
 	BoxCapture();
 	virtual ~BoxCapture();
 private:
-	virtual  void OperationChangeState(StateManger* con);
-	virtual int curStateInterface();
-	virtual void axisMove(int x, int y);
+	void OperationChangeState(StateManger* con);
+	int curStateInterface();
+	void axisMove(int x, int y);
+	void TrkCtrl(char Enable);
+
+private:
+	int winx,winy;
 };
 
 
