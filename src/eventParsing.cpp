@@ -250,21 +250,24 @@ void CEventParsing::buttonStopHandle(int index)
 			else
 				ComParams.zoomctrl = 0;
 			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_ZOOMLONGCTRL, &ComParams);
-			index = 3;
 			break;
+			
 		case 4:
 			if(ComParams.zoomctrl == 0)
 				ComParams.zoomctrl = 1;
 			else
 				ComParams.zoomctrl = 0;
 			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_ZOOMSHORTCTRL, &ComParams);
-			index = 4;
 			break;
-		
-		
-	}
 
-	
+		case 6:
+			ComParams.sectrkctrl = ComParams.sectrkctrl % 2 + 1;
+			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_TRACKSEARCHCTRL, &ComParams);
+			break;
+			
+		default:
+			break;
+	}
 	return ;
 }
 
@@ -336,50 +339,56 @@ void CEventParsing::parsingJostickButtonData(unsigned char* jos_data)
 {
 	static unsigned char butbak = 0;
 	static int Iris_Focus = 0;
+	static int index = 0;
 	if(jos_data[BUTTON] != butbak)
 	{
 		switch(jos_data[BUTTON])
 		{
-		case js_5:
-			//_Msg->MSGDRIV_send(, jos_data);
-			break;
-		case js_6:
-			ComParams.sectrkctrl = ComParams.sectrkctrl % 2 + 1;
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_TRACKSEARCHCTRL, &ComParams);
-			break;
-		case js_7:
-			//_Msg->MSGDRIV_send(, jos_data);
-			break;
-		case js_8:
-			ComParams.capturemode = (ComParams.capturemode + 1)%3;
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_captureMode, &ComParams);
-			break;
-		case js_9:
-			//_Msg->MSGDRIV_send(, jos_data);
-			break;
-		case js_10:
-			//_Msg->MSGDRIV_send(, jos_data);
-			break;
-		case js_11:
-			Iris_Focus= (Iris_Focus + 1)%3;
-			if(Iris_Focus == 1)
-			{
-				ComParams.irisctrl= 0x03;
-				ComParams.focusctrl = 0;
-			}
-			else if(Iris_Focus == 2)
-			{
-				ComParams.focusctrl = 0x03;
-				ComParams.irisctrl= 0;
-			}
-			else
-				ComParams.irisctrl = ComParams.focusctrl = 0;
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_IrisAndFocusAndExit, &ComParams);
-			break;
-		case js_12:
-			ComParams.workmode = (ComParams.workmode + 1)%3;
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_workMode, &ComParams);
-			break;
+			case js_5:
+				//_Msg->MSGDRIV_send(, jos_data);
+				break;
+			case js_6:
+				ComParams.sectrkctrl = ComParams.sectrkctrl % 2 + 1;
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_TRACKSEARCHCTRL, &ComParams);
+				index = 6;
+				break;
+			case js_7:
+				//_Msg->MSGDRIV_send(, jos_data);
+				break;
+			case js_8:
+				ComParams.capturemode = (ComParams.capturemode + 1)%3;
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_captureMode, &ComParams);
+				break;
+			case js_9:
+				//_Msg->MSGDRIV_send(, jos_data);
+				break;
+			case js_10:
+				//_Msg->MSGDRIV_send(, jos_data);
+				break;
+			case js_11:
+				Iris_Focus= (Iris_Focus + 1)%3;
+				if(Iris_Focus == 1)
+				{
+					ComParams.irisctrl= 0x03;
+					ComParams.focusctrl = 0;
+				}
+				else if(Iris_Focus == 2)
+				{
+					ComParams.focusctrl = 0x03;
+					ComParams.irisctrl= 0;
+				}
+				else
+					ComParams.irisctrl = ComParams.focusctrl = 0;
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_IrisAndFocusAndExit, &ComParams);
+				break;
+			case js_12:
+				ComParams.workmode = (ComParams.workmode + 1)%3;
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_workMode, &ComParams);
+				break;
+			default:
+				buttonStopHandle(index);
+				index = 0;
+				break;
 		}
 		butbak = jos_data[BUTTON];
 	}

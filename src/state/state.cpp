@@ -52,11 +52,16 @@ void State::OperationInterface(StateManger* con)
 		ipcParam.intPrm[0] = 0;
 		m_ipc->IPCSendMsg(mtd, ipcParam.intPrm, 4);
 	}
-	if(cfg_value[CFGID_RTS_trkmode])
+
+	if(cfg_value[CFGID_RTS_trken])
 	{
 		ipcParam.intPrm[0] = 0;
-		m_ipc->IPCSendMsg(sceneTrk, ipcParam.intPrm, 4);
-	}
+		if(cfg_value[CFGID_RTS_trkmode])
+			m_ipc->IPCSendMsg(sceneTrk, ipcParam.intPrm, 4);
+		else
+			m_ipc->IPCSendMsg(trk, ipcParam.intPrm, 4);
+	}	
+	return ;
 }
 
 void State::platformCreate()

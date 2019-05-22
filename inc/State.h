@@ -36,7 +36,7 @@ typedef enum{
 	STATE_BOX,
 	STATE_MANUALMTD,
 }state_st;
-const int JOS_VALUE_MAX = 0xFF;
+const int JOS_VALUE_MAX = (0xFF>>1);
 class StateManger;
 
 class State
@@ -81,7 +81,7 @@ public:
 
 
 public:
-	static 	CIPCProc* m_ipc;
+	static CIPCProc* m_ipc;
 	static CPTZControl* _ptz;
 	static AgreeMentBaseFormat* _agreement;
 	static CPlatformInterface* m_Platform;
@@ -125,6 +125,11 @@ public:
 	virtual int curStateInterface();
 	virtual void TrkCtrl(char Enable);
 	virtual void trkSearch(int type, int x, int y){};
+
+private:
+	bool m_sceneflag;
+
+	
 };
 
 
@@ -167,6 +172,12 @@ private:
 	virtual void switchSensor(char chid);
 	virtual void ZoomCtrl(char type);
 	virtual void trkSearch(int type, int x, int y){};
+
+private:
+	void openCloseMtd(bool flag);
+
+	bool mtdStatus;
+	
 };
 
 

@@ -66,6 +66,11 @@ void CEventManager::thread_ipcEvent()
 		switch(cfgid)
 		{
 			case CFGID_RTS_trkstat:
+
+				
+				
+
+				
 				if(1 == pThis->outtype)
 					pThis->signalFeedBack(6, pThis->outcomtype, ACK_output, (int)pThis->cfg_value[CFGID_RTS_trkstat], pThis->outtype, (int)pThis->cfg_value[CFGID_RTS_trkerrx], (int)pThis->cfg_value[CFGID_RTS_trkerry]);
 				else if(2 == pThis->outtype)
@@ -90,6 +95,7 @@ void CEventManager::MSG_register()
 	_Msg->MSGDRIV_register(MSGID_EXT_INPUT_POVPOSY, MSG_PovPosY, NULL);
 
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SELFCHECK, MSG_Com_SelfCheck, NULL);
+	_Msg->MSGDRIV_register(MSGID_COM_INPUT_TRKCONTROL, MSG_Com_TrkControl, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_TRKMOVE, MSG_Com_TrkMove, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SECTRKPOS, MSG_Com_SecTrkPos, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_MTDSELECT, MSG_Com_MtdSelect, NULL);
@@ -110,6 +116,7 @@ void CEventManager::MSG_register()
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_DEFAULTCFG, MSG_Com_DefaultCfg, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SAVECFG, MSG_Com_SaveCfg, NULL);
 
+	return ;
 }
 
 void CEventManager::MSG_Trk(void* p)
@@ -221,6 +228,9 @@ void CEventManager::MSG_WorkMode(void* p)
 	else if(STATE_SCENETRK == workmode)
 		pThis->signalFeedBack(3, tmp->comtype, ACK_Workmode, 3);
 }
+
+
+
 void CEventManager::MSG_JosPos(void* p)
 {
 	int dir;
@@ -259,6 +269,7 @@ void CEventManager::MSG_JosPos(void* p)
 	}
 	else
 	{
+		//printf("  x  , y (%d , %d )  \n", tmp->platspeedx,tmp->platspeedy );
 		pThis->_StateManager->inter_AxisMove(tmp->platspeedx, tmp->platspeedy);
 	}
 
@@ -277,6 +288,17 @@ void CEventManager::MSG_Com_SelfCheck(void* p)
 {
 	printf("MSG_Com_SelfCheck start\n");
 }
+
+
+
+void CEventManager::MSG_Com_TrkControl(void* p)
+{
+	
+
+	return ;
+}
+
+
 
 void CEventManager::MSG_Com_TrkMove(void* p)
 {

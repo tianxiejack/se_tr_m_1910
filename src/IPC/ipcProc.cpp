@@ -82,23 +82,12 @@ int CIPCProc::IPCRecvMsg(void* prm)
 		}
 		break;
 	case read_shm_single:
-		{
-			int trkstat = pIn->intPrm[6];
-
-			printf("trkstat = %d \n",trkstat);
-		
-			printf("err x,y :(%f , %f) \n", pIn->intPrm[7] , pIn->intPrm[8]);
-
-		}
-		
-
-		
-		//if(pIn->intPrm[0] == CFGID_RTS_trkstat)
-		//	return (CFGID_RTS_trkstat);
-		//else if(pIn->intPrm[0] == CFGID_RTS_mtddet)
-		//	return (CFGID_RTS_mtddet);
-
-		
+		{	
+			if(pIn->intPrm[0] == CFGID_RTS_trkstat)
+				return (CFGID_RTS_trkstat);
+			else if(pIn->intPrm[0] == CFGID_RTS_mtddet)
+				return (CFGID_RTS_mtddet);
+		}		
 		break;
 
 	default:

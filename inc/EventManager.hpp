@@ -46,6 +46,7 @@ private:
 	static void MSG_PovPosY(void* p);
 
 	static void MSG_Com_SelfCheck(void* p);
+	static void MSG_Com_TrkControl(void* p);
 	static void MSG_Com_TrkMove(void* p);
 	static void MSG_Com_SecTrkPos(void* p);
 	static void MSG_Com_MtdSelect(void* p);

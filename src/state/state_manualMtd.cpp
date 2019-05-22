@@ -6,7 +6,7 @@
  */
 #include "State.h"
 
-ManualMtdCapture::ManualMtdCapture()
+ManualMtdCapture::ManualMtdCapture():mtdStatus(false)
 {
 
 }
@@ -18,10 +18,8 @@ ManualMtdCapture::~ManualMtdCapture()
 
 void ManualMtdCapture::OperationChangeState(StateManger* con)
 {
-
 	OperationInterface(con);
-	ipcParam.intPrm[0] = 1;
-	m_ipc->IPCSendMsg(mtd, ipcParam.intPrm, 4);
+	openCloseMtd(true);
 }
 
 int ManualMtdCapture::curStateInterface()
@@ -47,7 +45,23 @@ void ManualMtdCapture::TrkCtrl(char Enable)
 
 void ManualMtdCapture::axisMove(int x, int y)
 {
-
+	printf(" mtdStatus = %d \n",mtdStatus);
+	printf("x   , y  = (%d   , %d ) \n", x, y );
+	if( abs(x) <= 20 && abs(y) <= 20 )
+	{
+		_ptz->ptzStop();
+		if(!mtdStatus){
+			openCloseMtd(true);
+		}
+	}
+	else
+	{
+		if(mtdStatus)
+			openCloseMtd(false);
+		axisMove_interface(x,y);
+	}
+	
+	return ;
 }
 
 void ManualMtdCapture::switchSensor(char chid)
@@ -58,5 +72,14 @@ void ManualMtdCapture::switchSensor(char chid)
 void ManualMtdCapture::ZoomCtrl(char type)
 {
 
+}
+
+
+void ManualMtdCapture::openCloseMtd(bool flag)
+{
+	ipcParam.intPrm[0] = flag;
+	m_ipc->IPCSendMsg(mtd, ipcParam.intPrm, 4);
+	mtdStatus = flag;
+	return ;
 }
 

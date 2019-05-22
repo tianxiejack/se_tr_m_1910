@@ -1,9 +1,4 @@
-/*
- * state_Box.cpp
- *
- *  Created on: 2019年5月16日
- *      Author: d
- */
+
 #include "State.h"
 
 BoxCapture::BoxCapture()
