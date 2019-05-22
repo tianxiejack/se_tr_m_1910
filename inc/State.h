@@ -68,6 +68,8 @@ public:
 	virtual void axisMove(int x, int y);
 	virtual void trkSearch(int type, int x, int y);
 	virtual void Iris_FocusCtrl(int type, int dir);
+	virtual void pov_move(int x,int y);
+	
 
 public:
 	void switchSensor_interface(int chid);
@@ -105,13 +107,12 @@ public:
 	StateAuto_Mtd();
 	virtual ~StateAuto_Mtd();
 private:
-	virtual  void OperationChangeState(StateManger* con);
-	virtual int curStateInterface();
-	virtual void TrkCtrl(char Enable){};
-	virtual void axisMove(int x, int y){};
-	virtual void ZoomCtrl(char type){};
-	virtual void trkSearch(int type, int x, int y){};
-	virtual void switchSensor(char chid);
+	void OperationChangeState(StateManger* con);
+	int curStateInterface();
+	void axisMove(int x, int y){};
+	void ZoomCtrl(char type){};
+	void trkSearch(int type, int x, int y){};
+	void switchSensor(char chid);
 };
 
 
@@ -169,14 +170,15 @@ public:
 	ManualMtdCapture();
 	virtual ~ManualMtdCapture();
 private:
-	virtual  void OperationChangeState(StateManger* con);
-	virtual int curStateInterface();
-	virtual void TrkCtrl(char Enable);
-	virtual void axisMove(int x, int y);
-	virtual void switchSensor(char chid);
-	virtual void ZoomCtrl(char type);
-	virtual void trkSearch(int type, int x, int y){};
-
+	void OperationChangeState(StateManger* con);
+	int curStateInterface();
+	void TrkCtrl(char Enable);
+	void axisMove(int x, int y);
+	void switchSensor(char chid);
+	void ZoomCtrl(char type);
+	void trkSearch(int type, int x, int y){};
+	void pov_move(int x,int y);
+	
 private:
 	void openCloseMtd(bool flag);
 

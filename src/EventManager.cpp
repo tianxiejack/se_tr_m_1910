@@ -289,12 +289,18 @@ void CEventManager::MSG_JosPos(void* p)
 }
 void CEventManager::MSG_PovPosX(void* p)
 {
-	MSG_Com_TrkMove(p);
-	MSG_Com_MtdSelect(p);
+	ComParams_t *tmp = (ComParams_t *)p;
+	pThis->_state->pov_move(	tmp->trkmove , 0);
+		
+	//MSG_Com_TrkMove(p);
+	//MSG_Com_MtdSelect(p);
+	return ;
 }
 void CEventManager::MSG_PovPosY(void* p)
 {
-	MSG_Com_TrkMove(p);
+	ComParams_t *tmp = (ComParams_t *)p;
+	pThis->_state->pov_move(	0, tmp->trkmove);
+	return ;
 }
 
 void CEventManager::MSG_Com_SelfCheck(void* p)

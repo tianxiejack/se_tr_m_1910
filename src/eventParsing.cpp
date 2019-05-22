@@ -282,7 +282,7 @@ void CEventParsing::parsingJostickPovData(unsigned char* jos_data)
 		switch(jos_data[POV_BUTTON])
 		{
 			case js_pov_up:
-				ComParams.trkmove = 0x04;
+				ComParams.trkmove = 0x02;
 				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSY, &ComParams);
 				break;
 			case js_pov_right:
@@ -290,7 +290,7 @@ void CEventParsing::parsingJostickPovData(unsigned char* jos_data)
 				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSX, &ComParams);
 				break;
 			case js_pov_down:
-				ComParams.trkmove = 0x08;
+				ComParams.trkmove = 0x01;
 				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSY, &ComParams);
 				break;
 			case js_pov_left:
@@ -799,6 +799,7 @@ int  CEventParsing::package_ACK_GetOsd(sendInfo *psendBuf)
 	package_ACK_commondata(psendBuf, bodylen);
 }
 
+
 int  CEventParsing::package_ACK_commondata(sendInfo *psendBuf, int bodylen)
 {
 	psendBuf->sendBuff[0] = 0xEB;
@@ -811,6 +812,8 @@ int  CEventParsing::package_ACK_commondata(sendInfo *psendBuf, int bodylen)
 	psendBuf->byteSizeSend = bodylen + 5;
 	psendBuf->comtype = ACK_ComParams.comtype;
 }
+
+
 unsigned char CEventParsing::sendcheck_sum(unsigned char *tmpbuf, int len)
 {
 	unsigned char ckeSum=0;

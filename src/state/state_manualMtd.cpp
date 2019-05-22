@@ -33,17 +33,24 @@ int ManualMtdCapture::curStateInterface()
 
 void ManualMtdCapture::TrkCtrl(char Enable)
 {
-	if(cfg_value[CFGID_RTS_mtddet] == 1 && Enable == 1)
-	{
-		ipcParam.intPrm[0] = Enable;
-		m_ipc->IPCSendMsg(trk, ipcParam.intPrm, 4);
+	if(Enable && cfg_value[CFGID_RTS_mtddet])
+	{	
+		ipcParam.intPrm[0] = 3;
+		m_ipc->IPCSendMsg(mtdSelect, ipcParam.intPrm, 4);
+		if(m_plt != NULL)
+			m_Platform->PlatformCtrl_reset4trk(m_plt);
+		mtdStatus = false;
 	}
-	else if(cfg_value[CFGID_RTS_trken] == 1 && Enable == 0)
+	else if(!Enable)
 	{
-		ipcParam.intPrm[0] = Enable;
-		m_ipc->IPCSendMsg(trk, ipcParam.intPrm, 4);
+		State::TrkCtrl(Enable);
+		if(!mtdStatus)
+			openCloseMtd(true);
 	}
+	return ;
 }
+
+
 
 void ManualMtdCapture::axisMove(int x, int y)
 {
@@ -81,6 +88,21 @@ void ManualMtdCapture::openCloseMtd(bool flag)
 	ipcParam.intPrm[0] = flag;
 	m_ipc->IPCSendMsg(mtd, ipcParam.intPrm, 4);
 	mtdStatus = flag;
+	return ;
+}
+
+
+
+void ManualMtdCapture::pov_move(int x,int y)
+{
+	if(cfg_value[CFGID_RTS_trken])
+		State::pov_move( x , y );
+	else
+	{
+		ipcParam.intPrm[0] = x;
+		m_ipc->IPCSendMsg(mtdSelect, ipcParam.intPrm, 4);
+	}
+
 	return ;
 }
 

@@ -118,14 +118,21 @@ int State::ChangeState(StateManger* con, char nextState)
 
 void State::TrkCtrl(char Enable)
 {
+	struct timeval tmp;
 	ipcParam.intPrm[0] = Enable;
 	m_ipc->IPCSendMsg(trk, ipcParam.intPrm, 4);
 	if(Enable && m_plt != NULL)
-	{
+	{	
 		m_Platform->PlatformCtrl_reset4trk(m_plt);
 	}
 	if(!Enable)
+	{
 		_ptz->ptzStop();
+		tmp.tv_sec = 0;
+		tmp.tv_usec = 300;
+		select(0, NULL, NULL, NULL, &tmp);
+		_ptz->ptzStop();
+	}
 }
 
 void State::switchSensor(char chid)
@@ -350,4 +357,11 @@ void State::trkMovControl()
 }
 
 
+void State::pov_move(int x,int y)
+{
+	ipcParam.intPrm[0] = x;
+	ipcParam.intPrm[1] = y;	
+	m_ipc->IPCSendMsg(posmove,ipcParam.intPrm,4*2);
+	return ;
+}
 
