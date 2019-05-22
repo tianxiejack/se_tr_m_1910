@@ -318,7 +318,26 @@ void State::detectionFunc (int sign)
 
 
 
+void State::trkMovControl()
+{
+	if(m_plt == NULL)
+		return ;
 
+	
+	m_Platform->PlatformCtrl_TrackerInput(m_plt, &m_pltInput);
+	m_Platform->PlatformCtrl_TrackerOutput(m_plt, &m_pltOutput);
+	
+	if(1)//(cfg_value[CFGID_PTZ_protype] == 1)
+	{
+		_ptz->m_iSetPanSpeed = m_ptzSpeed->GetPanSpeed((int)m_pltOutput.fPlatformDemandX);
+		_ptz->m_iSetTiltSpeed = m_ptzSpeed->GetTiltSpeed((int)m_pltOutput.fPlatformDemandY);
+
+		printf("%s :    panSpeed :%d  , tilSpeed : %d  \n",__func__,_ptz->m_iSetPanSpeed,_ptz->m_iSetTiltSpeed);
+	}
+
+	
+	return ;
+}
 
 
 

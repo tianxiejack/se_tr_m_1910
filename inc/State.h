@@ -78,7 +78,7 @@ public:
 	void init_time();
 	void uninit_time();
 	static void detectionFunc (int sign);
-
+	void trkMovControl();
 
 public:
 	static CIPCProc* m_ipc;

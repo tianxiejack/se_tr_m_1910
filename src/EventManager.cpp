@@ -67,10 +67,16 @@ void CEventManager::thread_ipcEvent()
 		{
 			case CFGID_RTS_trkstat:
 
-				
-				
+				//m_pixelErr.status = (int)pThis->cfg_value[CFGID_RTS_trkstat];
+				//m_pixelErr.errx = pThis->cfg_value[CFGID_RTS_trkerrx];	
+				//m_pixelErr.erry = pThis->cfg_value[CFGID_RTS_trkerry];
+pThis->_state->m_pltInput.iTrkAlgState = (int)pThis->cfg_value[CFGID_RTS_trkstat];
+pThis->_state->m_pltInput.fTargetBoresightErrorX = pThis->cfg_value[CFGID_RTS_trkerrx];
+pThis->_state->m_pltInput.fTargetBoresightErrorY = pThis->cfg_value[CFGID_RTS_trkerry];
 
-				
+				pThis->_Msg->MSGDRIV_send(MSGID_COM_INPUT_TRKCONTROL, 0);
+
+
 				if(1 == pThis->outtype)
 					pThis->signalFeedBack(6, pThis->outcomtype, ACK_output, (int)pThis->cfg_value[CFGID_RTS_trkstat], pThis->outtype, (int)pThis->cfg_value[CFGID_RTS_trkerrx], (int)pThis->cfg_value[CFGID_RTS_trkerry]);
 				else if(2 == pThis->outtype)
@@ -95,7 +101,7 @@ void CEventManager::MSG_register()
 	_Msg->MSGDRIV_register(MSGID_EXT_INPUT_POVPOSY, MSG_PovPosY, NULL);
 
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SELFCHECK, MSG_Com_SelfCheck, NULL);
-	_Msg->MSGDRIV_register(MSGID_COM_INPUT_TRKCONTROL, MSG_Com_TrkControl, NULL);
+	_Msg->MSGDRIV_register(MSGID_COM_INPUT_TRKCONTROL, MSG_Com_TrkMovControl, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_TRKMOVE, MSG_Com_TrkMove, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SECTRKPOS, MSG_Com_SecTrkPos, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_MTDSELECT, MSG_Com_MtdSelect, NULL);
@@ -291,10 +297,9 @@ void CEventManager::MSG_Com_SelfCheck(void* p)
 
 
 
-void CEventManager::MSG_Com_TrkControl(void* p)
+void CEventManager::MSG_Com_TrkMovControl(void* p)
 {
-	
-
+	pThis->_state->trkMovControl();
 	return ;
 }
 
