@@ -210,6 +210,7 @@ typedef struct{
 	vector<Set_config_t>  getConfigQueue;
 	vector<Get_osd_t> getOsdQueue;
 	vector<int>  defConfigQueue;
+	int saveconfig;
 }ACK_ComParams_t;
 
 typedef struct {
@@ -252,6 +253,7 @@ private:
 	int  package_ACK_Output(sendInfo *psendBuf);
 	int package_ACK_GetConfig(sendInfo *psendBuf);
 	int  package_ACK_DefaultConfig(sendInfo *psendBuf);
+	int  package_ACK_SaveConfig(sendInfo *psendBuf);
 	int  package_ACK_GetOsd(sendInfo *psendBuf);
 	int  package_ACK_commondata(sendInfo *psendBuf, int bodylen);
 	unsigned char sendcheck_sum(unsigned char *tmpbuf, int len);

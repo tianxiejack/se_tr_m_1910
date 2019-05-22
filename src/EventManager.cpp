@@ -441,6 +441,8 @@ void CEventManager::MSG_Com_DefaultCfg(void* p)
 	while(tmp->defConfigQueue.size()){
 		block = tmp->defConfigQueue.at(0);
 		printf("default block=%d\n", block);
+		OSA_semWait(&m_semHndl_s, OSA_TIMEOUT_FOREVER);
+		printf("after default block=%d\n", block);
 		pThis->DefaultConfig(tmp->comtype, block);
 		tmp->defConfigQueue.erase(tmp->defConfigQueue.begin());
 	}
@@ -448,7 +450,8 @@ void CEventManager::MSG_Com_DefaultCfg(void* p)
 void CEventManager::MSG_Com_SaveCfg(void* p)
 {
 	printf("MSG_Com_SaveCfg start\n");
-	pThis->SaveConfig();
+	ComParams_t *tmp = (ComParams_t *)p;
+	pThis->SaveConfig(tmp->comtype);
 }
 
 int  CEventManager::ReadConfigFile()
@@ -630,10 +633,9 @@ int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
 				{
 					m_ipc->IPCSendMsg(read_shm_block, &blockId, 0);
 				}
-					ACK_ComParams.comtype = comtype;
-					ACK_ComParams.cmdid  = ACK_DefaultConfig;
-					ACK_ComParams.defConfigQueue.push_back(blockId+1);
-					OSA_semSignal(&m_semHndl);
+
+				signalFeedBack(3, comtype, ACK_DefaultConfig, blockId+1);
+
 			}
 			else
 			{
@@ -647,13 +649,14 @@ int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
 	}
 	return 0;
 }
-int CEventManager::SaveConfig()
+int CEventManager::SaveConfig(comtype_t comtype)
 {
 	printf("-----------save config------\n");
 	string cfgAvtFile;
 	int configId_Max = profileNum;
 	char  cfg_avt[30] = "cfg_avt_";
 	cfgAvtFile = "Profile.yml";
+	int status = -1;
 
 	FILE *fp = fopen(cfgAvtFile.c_str(), "rt+");
 
@@ -664,7 +667,7 @@ int CEventManager::SaveConfig()
 		fclose(fp);
 		
 		if(len < 10)
-			return  -1;
+			status  = 0;
 		else
 		{
 			FileStorage fr(cfgAvtFile, FileStorage::WRITE);
@@ -695,13 +698,23 @@ int CEventManager::SaveConfig()
 						fr<< cfg_avt << value;
 					}
 				}
+				status  = 1;
+				
 			}
 			else
-				return -1;
+			{
+				status  = 0;
+			}
 		}
 	}
 	else
+	{
 		fclose(fp);
+		status  = 0;
+	}
+
+	signalFeedBack(3, comtype, ACK_saveconfig, status);
+		
 }
 
 void CEventManager::signalFeedBack(int argnum ...)
@@ -751,7 +764,13 @@ void CEventManager::signalFeedBack(int argnum ...)
 			flag = 1;
 			break;
 		case ACK_DefaultConfig:
-			ACK_ComParams.trkstat = va_arg(ap, int);
+			ACK_ComParams.defConfigQueue.push_back(va_arg(ap, int));
+			printf("[%s], default block=%d\n", __FUNCTION__, ACK_ComParams.defConfigQueue[0]);
+			flag = 1;
+			break;
+		case ACK_saveconfig:
+			ACK_ComParams.saveconfig = va_arg(ap, int);
+			flag = 1;
 			break;
 		default:
 			break;
