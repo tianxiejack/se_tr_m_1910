@@ -18,6 +18,8 @@ ManualMtdCapture::~ManualMtdCapture()
 
 void ManualMtdCapture::OperationChangeState(StateManger* con)
 {
+	ipcParam.intPrm[0] = 6;
+	m_ipc->IPCSendMsg(workmode, ipcParam.intPrm, 4);
 	OperationInterface(con);
 	openCloseMtd(true);
 }
@@ -45,8 +47,7 @@ void ManualMtdCapture::TrkCtrl(char Enable)
 
 void ManualMtdCapture::axisMove(int x, int y)
 {
-	printf(" mtdStatus = %d \n",mtdStatus);
-	printf("x   , y  = (%d   , %d ) \n", x, y );
+
 	if( abs(x) <= 20 && abs(y) <= 20 )
 	{
 		_ptz->ptzStop();
