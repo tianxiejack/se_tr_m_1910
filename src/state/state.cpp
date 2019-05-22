@@ -120,6 +120,11 @@ void State::TrkCtrl(char Enable)
 {
 	ipcParam.intPrm[0] = Enable;
 	m_ipc->IPCSendMsg(trk, ipcParam.intPrm, 4);
+	if(Enable && m_plt != NULL)
+	{
+		printf("trkctl reset \n");
+		m_Platform->PlatformCtrl_reset4trk(m_plt);
+	}
 }
 
 void State::switchSensor(char chid)
@@ -332,7 +337,7 @@ void State::trkMovControl()
 		_ptz->m_iSetPanSpeed = m_ptzSpeed->GetPanSpeed((int)m_pltOutput.fPlatformDemandX);
 		_ptz->m_iSetTiltSpeed = m_ptzSpeed->GetTiltSpeed((int)m_pltOutput.fPlatformDemandY);
 
-		printf("%s :    panSpeed :%d  , tilSpeed : %d  \n",__func__,_ptz->m_iSetPanSpeed,_ptz->m_iSetTiltSpeed);
+		//printf("%s :    panSpeed :%d  , tilSpeed : %d  \n",__func__,_ptz->m_iSetPanSpeed,_ptz->m_iSetTiltSpeed);
 	}
 
 	

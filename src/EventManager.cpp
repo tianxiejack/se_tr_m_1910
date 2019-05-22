@@ -158,6 +158,9 @@ void CEventManager::MSG_ZoomShort(void* p)
 	ComParams_t *tmp = (ComParams_t *)p;
 	pThis->_StateManager->inter_ZoomCtrl(tmp->zoomctrl);
 }
+
+
+
 void CEventManager::MSG_TrkSearch(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
@@ -169,11 +172,16 @@ void CEventManager::MSG_TrkSearch(void* p)
 	int sectrkstat = pThis->cfg_value[CFGID_RTS_sectrkstat];
 	if((0 == sectrkstat) || (3 == sectrkstat))
 		pThis->signalFeedBack(3, tmp->comtype, ACK_SectrkStat, 3);
-	else if(1 == sectrkstat)
+	else if(1 == sectrkstat){
 		pThis->signalFeedBack(3, tmp->comtype, ACK_SectrkStat, 1);
+		pThis->_state->m_Platform->PlatformCtrl_reset4trk(pThis->_state->m_plt);
+	}
 	else if(2 == sectrkstat)
 		pThis->signalFeedBack(3, tmp->comtype, ACK_SectrkStat, 2);
 }
+
+
+
 void CEventManager::MSG_CaptureMode(void* p)
 {
 	static int captureModeBack;
