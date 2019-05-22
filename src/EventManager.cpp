@@ -283,8 +283,7 @@ void CEventManager::MSG_JosPos(void* p)
 	}
 	else
 	{
-		//printf("  x  , y (%d , %d )  \n", tmp->platspeedx,tmp->platspeedy );
-		pThis->_StateManager->inter_AxisMove(tmp->platspeedx, tmp->platspeedy);
+		pThis->_StateManager->inter_AxisMove(tmp->platspeedx - (0xff>>1), tmp->platspeedy - (0xff>>1));
 	}
 
 }

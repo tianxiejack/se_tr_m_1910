@@ -122,7 +122,6 @@ void State::TrkCtrl(char Enable)
 	m_ipc->IPCSendMsg(trk, ipcParam.intPrm, 4);
 	if(Enable && m_plt != NULL)
 	{
-		printf("trkctl reset \n");
 		m_Platform->PlatformCtrl_reset4trk(m_plt);
 	}
 }
@@ -151,6 +150,7 @@ void State::trkSearch(int type, int x, int y)
 {
 	if(!cfg_value[CFGID_RTS_trken])
 		return;
+	
 	if( x<0)
 		x =0;
 	else  if(x > 1920)

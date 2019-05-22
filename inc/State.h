@@ -36,7 +36,7 @@ typedef enum{
 	STATE_BOX,
 	STATE_MANUALMTD,
 }state_st;
-const int JOS_VALUE_MAX = (0xFF>>1);
+const int JOS_VALUE_MAX = (0xFF);
 class StateManger;
 
 class State

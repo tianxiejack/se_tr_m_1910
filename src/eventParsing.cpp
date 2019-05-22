@@ -404,14 +404,14 @@ void CEventParsing::parsingJostickAxisData(unsigned char* jos_data)
 	bool flag = false;
 	if(jos_data[AXIS_X] != xBak)
 	{
-		ComParams.platspeedx = jos_data[AXIS_X] - (0xff>>1);
+		ComParams.platspeedx = jos_data[AXIS_X];
 		xBak = jos_data[AXIS_X];
 		flag = true;
 	}
 
 	if(jos_data[AXIS_Y] != yBak)
 	{
-		ComParams.platspeedy = jos_data[AXIS_Y] - (0xff>>1);
+		ComParams.platspeedy = jos_data[AXIS_Y];
 		yBak = jos_data[AXIS_Y];
 		flag = true;
 	}
