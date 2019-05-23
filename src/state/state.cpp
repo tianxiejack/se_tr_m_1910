@@ -382,4 +382,13 @@ void State::PreposHandle(int arg)
 		_ptz->setPrepos();
 	return ;
 }
+
+
+void State::getcurRate(float& curx , float& cury)
+{
+	curx = m_pltOutput.fPlatformDemandX;
+	cury = m_pltOutput.fPlatformDemandY;
+	return ;
+}
+
 	

@@ -84,7 +84,7 @@ public:
 	static void detectionFunc (int sign);
 	void trkMovControl(int status,int errx,int erry);
 	void PreposHandle(int arg);
-
+	void getcurRate(float& curx , float& cury);
 	
 public:
 	static CIPCProc* m_ipc;
