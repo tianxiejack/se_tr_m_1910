@@ -526,7 +526,7 @@ int CEventParsing::parsingComEvent(comtype_t comtype)
         		switch(rcvBufQue.at(4))
         		{
             		case 0x01:
-				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SELFCHECK, NULL);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SELFCHECK, &ComParams);
                 			break;
 			case 0x02:
 				ComParams.displaychid = rcvBufQue.at(5);
@@ -599,10 +599,10 @@ int CEventParsing::parsingComEvent(comtype_t comtype)
 				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SETZOOM, &ComParams);
 				break;
 			case 0x41:
-				_Msg->MSGDRIV_send(MSGID_COM_INPUT_QUERYPTZPOS, NULL);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_QUERYPTZPOS, &ComParams);
 				break;
 			case 0x42:
-				_Msg->MSGDRIV_send(MSGID_COM_INPUT_GETZOOM, NULL);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_GETZOOM, &ComParams);
 				break;
 			case 0x43:
 				ComParams.trkoutput = rcvBufQue.at(5);
@@ -688,6 +688,12 @@ int  CEventParsing::getSendInfo(sendInfo * psendBuf)
 		case ACK_SectrkStat:
 			package_ACK_SecTrkStat(psendBuf);
 			break;
+		case ACK_QueryPos:
+			package_ACK_QueryPos(psendBuf);
+			break;
+		case ACK_QueryZoom:
+			package_ACK_QueryZoom(psendBuf);
+			break;
 		case ACK_output:
 			package_ACK_Output(psendBuf);
 			break;
@@ -750,6 +756,26 @@ int  CEventParsing::package_ACK_SecTrkStat(sendInfo *psendBuf)
 	int bodylen = 2;
 	psendBuf->sendBuff[4] = ACK_SectrkStat;
 	psendBuf->sendBuff[5] = ACK_ComParams.sectrkctrl;
+	
+	package_ACK_commondata(psendBuf, bodylen);
+}
+int  CEventParsing::package_ACK_QueryPos(sendInfo *psendBuf)
+{
+	int bodylen = 5;
+	psendBuf->sendBuff[4] = ACK_QueryPos;
+	psendBuf->sendBuff[5] = ACK_ComParams.querypan & 0xff;
+	psendBuf->sendBuff[6] = (ACK_ComParams.querypan >> 8) & 0xff;
+	psendBuf->sendBuff[7] = ACK_ComParams.querytil & 0xff;
+	psendBuf->sendBuff[8] = (ACK_ComParams.querytil >> 8) & 0xff;
+	
+	package_ACK_commondata(psendBuf, bodylen);
+}
+int  CEventParsing::package_ACK_QueryZoom(sendInfo *psendBuf)
+{
+	int bodylen = 3;
+	psendBuf->sendBuff[4] = ACK_QueryZoom;
+	psendBuf->sendBuff[5] = ACK_ComParams.queryzoom & 0xff;
+	psendBuf->sendBuff[6] = (ACK_ComParams.queryzoom >> 8) & 0xff;
 	
 	package_ACK_commondata(psendBuf, bodylen);
 }

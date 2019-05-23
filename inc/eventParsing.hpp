@@ -204,6 +204,9 @@ typedef struct{
 	int trkctrl;
 	int sectrkctrl;
 	int trkstat;
+	unsigned short querypan;
+	unsigned short querytil;
+	unsigned short queryzoom;
 	int outtype;
 	short trkerrx;
 	short trkerry;
@@ -251,6 +254,8 @@ private:
 	int  package_ACK_Capturemode(sendInfo *psendBuf);
 	int  package_ACK_TrkStat(sendInfo *psendBuf);
 	int  package_ACK_SecTrkStat(sendInfo *psendBuf);
+	int  package_ACK_QueryPos(sendInfo *psendBuf);
+	int  package_ACK_QueryZoom(sendInfo *psendBuf);
 	int  package_ACK_Output(sendInfo *psendBuf);
 	int package_ACK_GetConfig(sendInfo *psendBuf);
 	int  package_ACK_SetConfig(sendInfo *psendBuf);
