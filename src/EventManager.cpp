@@ -369,6 +369,8 @@ void CEventManager::MSG_Com_SetPlatSpeed(void* p)
 	short platspeedy = tmp->platspeedy;
 	printf("platspeed x,y=(%d,%d)\n",platspeedx, platspeedy);
 }
+
+
 void CEventManager::MSG_Com_SetPlatAngle(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
@@ -376,26 +378,39 @@ void CEventManager::MSG_Com_SetPlatAngle(void* p)
 	unsigned short platTilt = tmp->platTilt;
 	printf("platangle x,y=(%d,%d)\n",platPan, platTilt);
 }
+
+
 void CEventManager::MSG_Com_PrsetPos(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
 	unsigned short presetpos = tmp->presetpos;
 	printf("presetpos=%d\n", presetpos);
 }
+
+
 void CEventManager::MSG_Com_SetZoom(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
 	unsigned short setzoom = tmp->setzoom;
-	printf("setzoom=%d\n", setzoom);
+	pThis->_StateManager->_state->_ptz->setZoomPos(setzoom);
+	return ;
 }
+
+
 void CEventManager::MSG_Com_QueryPtzPos(void* p)
 {
-	printf("MSG_Com_GetPlatAngle start\n");
+	pThis->_StateManager->_state->_ptz->QueryPos();
+	return ;
 }
+
+
 void CEventManager::MSG_Com_GetZoom(void* p)
 {
-	printf("MSG_Com_GetZoom start\n");
+	pThis->_StateManager->_state->_ptz->QueryZoom();
+	return ;
 }
+
+
 void CEventManager::MSG_Com_TrkOutput(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;

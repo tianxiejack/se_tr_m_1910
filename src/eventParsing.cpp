@@ -282,7 +282,7 @@ void CEventParsing::parsingJostickPovData(unsigned char* jos_data)
 		switch(jos_data[POV_BUTTON])
 		{
 			case js_pov_up:
-				ComParams.trkmove = 0x02;
+				ComParams.trkmove = 0x01;
 				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSY, &ComParams);
 				break;
 			case js_pov_right:
@@ -290,7 +290,7 @@ void CEventParsing::parsingJostickPovData(unsigned char* jos_data)
 				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSX, &ComParams);
 				break;
 			case js_pov_down:
-				ComParams.trkmove = 0x01;
+				ComParams.trkmove = 0x02;
 				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSY, &ComParams);
 				break;
 			case js_pov_left:
@@ -345,7 +345,7 @@ void CEventParsing::parsingJostickButtonData(unsigned char* jos_data)
 		switch(jos_data[BUTTON])
 		{
 			case js_5:
-				//_Msg->MSGDRIV_send(, jos_data);
+				
 				break;
 			case js_6:
 				ComParams.sectrkctrl = ComParams.sectrkctrl % 2 + 1;
@@ -353,17 +353,17 @@ void CEventParsing::parsingJostickButtonData(unsigned char* jos_data)
 				index = 6;
 				break;
 			case js_7:
-				//_Msg->MSGDRIV_send(, jos_data);
+				
 				break;
 			case js_8:
 				ComParams.capturemode = (ComParams.capturemode + 1)%3;
 				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_captureMode, &ComParams);
 				break;
 			case js_9:
-				//_Msg->MSGDRIV_send(, jos_data);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_QUERYPTZPOS, 0);
 				break;
 			case js_10:
-				//_Msg->MSGDRIV_send(, jos_data);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_GETZOOM, 0);
 				break;
 			case js_11:
 				Iris_Focus= (Iris_Focus + 1)%3;
