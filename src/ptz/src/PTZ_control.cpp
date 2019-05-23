@@ -13,7 +13,8 @@ CPTZControl* CPTZControl::pThis = 0;
 
 CPTZControl::CPTZControl(AgreeMentBaseFormat* _imp):pCom(NULL), 
 	exitQuery_X(false), exitQuery_Y(false), exitQueryzoom(false),
-	m_Mtd_Moitor(0),m_Mtd_Moitor_X(0),m_Mtd_Moitor_Y(0)
+	m_Mtd_Moitor(0),m_Mtd_Moitor_X(0),m_Mtd_Moitor_Y(0),	m_rcv_zoomValue(2849),
+	m_sync_pos(0),m_sync_fovComp(0),m_stateChange(false)
 {
 
 	m_bStopZoom = false;
@@ -263,7 +264,7 @@ void CPTZControl::RecvByte(unsigned char byRecv)
 				m_iZoomPos = recvBuffer[4];
 				m_iZoomPos <<= 8;
 				m_iZoomPos += recvBuffer[5];
-				_GlobalDate->rcv_zoomValue = (unsigned short)m_iZoomPos;
+				m_rcv_zoomValue = (unsigned short)m_iZoomPos;
 				diffValue = zoom_bak - m_iZoomPos;
 				if(abs(diffValue) < 700)
 				{
@@ -272,7 +273,7 @@ void CPTZControl::RecvByte(unsigned char byRecv)
 				}
 				if(m_Mtd_Moitor == 1)
 				{
-					_GlobalDate->Mtd_Moitor_Zoom  = m_iZoomPos;
+					m_Mtd_Moitor_Zoom  = m_iZoomPos;
 					m_iZoomPos =m_Mtd_Moitor = 0;
 				}
 				sync_zoom = 1;
@@ -292,9 +293,9 @@ void CPTZControl::RecvByte(unsigned char byRecv)
 			m_nWait = 0;
 
 			if(sync_pan &&  sync_Tilt)
-				_GlobalDate->sync_pos= 0;
+				m_sync_pos= 0;
 			if(sync_zoom)
-				_GlobalDate->sync_fovComp = 0;
+				m_sync_fovComp = 0;
 			sync_pan = sync_Tilt = sync_zoom = 0;
 		}
 	}
@@ -326,7 +327,7 @@ int CPTZControl::sendCmd(LPPELCO_D_REQPKT pCmd, PELCO_RESPONSE_t tResp /* = PELC
 		sign++;
 		if(sign == 3)
 		{
-			_GlobalDate->sync_pos = _GlobalDate->sync_fovComp = 0;
+			m_sync_pos = m_sync_fovComp = 0;
 			sign = 0;
 		}
 		iRet = -1;
@@ -489,7 +490,7 @@ void CPTZControl::ptzSetPos(Uint16 posx, Uint16 posy)
 	dtimer.startTimer(breakQuery_X, 3000);
 	for(; exitQuery_X == false;)
 	{
-		if(_GlobalDate->stateChange)
+		if(m_stateChange)
 		{
 			ptzStop();
 			break;
@@ -507,7 +508,7 @@ void CPTZControl::ptzSetPos(Uint16 posx, Uint16 posy)
 	dtimer.startTimer(breakQuery_Y, 3000);
 	for(; exitQuery_Y == false;)
 	{
-		if(_GlobalDate->stateChange)
+		if(m_stateChange)
 		{
 			ptzStop();
 			break;
@@ -533,7 +534,7 @@ void CPTZControl::setZoomPos(Uint16 value)
 	struct timeval tmp;
 	for(; exitQueryzoom == false;)
 	{
-		if(_GlobalDate->stateChange)
+		if(m_stateChange)
 		{
 			ptzStop();
 			break;

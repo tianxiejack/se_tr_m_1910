@@ -233,12 +233,9 @@ char Mtd_ipc_target; /*receive ipc detect message; 1: find target; 0: no target*
 char Mtd_Limit;  /* Block IPC messages if you enter the trace */
 char Mtd_Manual_Limit;  /*检测到目标后才能响应进跟踪指令*/
 
-unsigned short Mtd_Moitor_Zoom;
 bool MtdAutoLoop;
 int ThreeMode_bak;
-int sync_fovComp;
-int sync_pos;
-unsigned short rcv_zoomValue;
+
 int jos_ctrl;
 int host_ctrl;
 int workMode;
@@ -253,7 +250,7 @@ int stateBak;
 int ptzType;
 int goToPreset;
 int changezoom;
-bool stateChange;
+
 bool host_osdBoxShow[5];
 bool host_CROSS_draw_show[5];
 unsigned char MtdSetAreaBox;

@@ -155,10 +155,12 @@ protected:
 
 public:
 	char m_Mtd_Moitor; /*Recording detection area; 1: record; 0: don't record*/
-	unsigned short m_Mtd_Moitor_X;
-	unsigned short m_Mtd_Moitor_Y;
-	
+	unsigned short m_Mtd_Moitor_X,m_Mtd_Moitor_Y,m_Mtd_Moitor_Zoom;
+	int m_sync_pos,m_sync_fovComp;
+	unsigned short m_rcv_zoomValue;
+	bool m_stateChange;
 
+	
 };
 
 #endif
