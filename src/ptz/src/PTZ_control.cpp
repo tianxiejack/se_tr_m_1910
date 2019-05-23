@@ -14,7 +14,7 @@ CPTZControl* CPTZControl::pThis = 0;
 CPTZControl::CPTZControl(AgreeMentBaseFormat* _imp):pCom(NULL), 
 	exitQuery_X(false), exitQuery_Y(false), exitQueryzoom(false),
 	m_Mtd_Moitor(0),m_Mtd_Moitor_X(0),m_Mtd_Moitor_Y(0),	m_rcv_zoomValue(2849),
-	m_sync_pos(0),m_sync_fovComp(0),m_stateChange(false)
+	m_sync_pos(false),m_sync_fovComp(false),m_stateChange(false)
 {
 
 	m_bStopZoom = false;
@@ -158,7 +158,7 @@ void CPTZControl::dataInThrd()
         FD_SET(fd_ptz, &rd_set);
 #if 1
         timeout.tv_sec   = 0;
-        timeout.tv_usec = 200000;
+        timeout.tv_usec = 200*1000;
         result = select(fd_ptz+1, &rd_set, NULL, NULL, &timeout);
         if(result == -1 || exitDataInThread )
             break;
@@ -198,7 +198,8 @@ void CPTZControl::dataInThrd()
 
 void CPTZControl::RecvByte(unsigned char byRecv)
 {
-	int sync_pan, sync_Tilt, sync_zoom;
+	static bool sync_pan = false, sync_Tilt = false, sync_zoom= false;
+
 	if(uiCurRecvLen == 0){
 
 		if(byRecv == 0xFF){
@@ -241,7 +242,7 @@ void CPTZControl::RecvByte(unsigned char byRecv)
 					m_iPanPos = 0;
 				}
 				//fprintf(stdout, "INFO: m_iPanPos is %d\n",m_iPanPos);
-				sync_pan = 1;
+				sync_pan = true;
 				break;
 			case 0x5B:
 				m_iTiltPos = recvBuffer[4];
@@ -257,7 +258,7 @@ void CPTZControl::RecvByte(unsigned char byRecv)
 					m_Mtd_Moitor_Y  = m_iTiltPos;
 					m_iTiltPos = 0;
 				}
-				sync_Tilt = 1;
+				sync_Tilt = true;
 				//printf("INFO: m_iTiltPos is %d\n",m_iTiltPos);
 				break;
 			case 0x5D:
@@ -276,7 +277,7 @@ void CPTZControl::RecvByte(unsigned char byRecv)
 					m_Mtd_Moitor_Zoom  = m_iZoomPos;
 					m_iZoomPos =m_Mtd_Moitor = 0;
 				}
-				sync_zoom = 1;
+				sync_zoom = true;
 				//printf("INFO: zoompos is %d\n",m_iZoomPos);
 				break;
 			case 0x63:
@@ -292,11 +293,16 @@ void CPTZControl::RecvByte(unsigned char byRecv)
 			uiCurRecvLen = 0;
 			m_nWait = 0;
 
-			if(sync_pan &&  sync_Tilt)
-				m_sync_pos= 0;
-			if(sync_zoom)
-				m_sync_fovComp = 0;
-			sync_pan = sync_Tilt = sync_zoom = 0;
+			if(sync_pan &&  sync_Tilt){
+				m_sync_pos= false;
+				sync_pan = false;
+				sync_Tilt = false;
+			}
+			
+			if(sync_zoom){
+				m_sync_fovComp = false;
+				sync_zoom = false;
+			}
 		}
 	}
 }
@@ -327,7 +333,8 @@ int CPTZControl::sendCmd(LPPELCO_D_REQPKT pCmd, PELCO_RESPONSE_t tResp /* = PELC
 		sign++;
 		if(sign == 3)
 		{
-			m_sync_pos = m_sync_fovComp = 0;
+			m_sync_pos = false;
+			m_sync_fovComp = false;
 			sign = 0;
 		}
 		iRet = -1;
@@ -479,6 +486,7 @@ void CPTZControl::ptzZoomStop()
 	sendCmd(m_pReq, PELCO_RESPONSE_Null);
 }
 
+
 void CPTZControl::ptzSetPos(Uint16 posx, Uint16 posy)
 {
 	timeout = 0;
@@ -539,14 +547,14 @@ void CPTZControl::setZoomPos(Uint16 value)
 			ptzStop();
 			break;
 		}
-		QueryZoom();
+		queryZoom();
 	}
 	exitQueryzoom = false;
 
 }
 
-void CPTZControl::QueryPos()
-{
+void CPTZControl::simpleQueryPos()
+{	
 	QueryPanPos();
 	struct timeval tmp;
 	tmp.tv_sec = 0;
@@ -558,7 +566,7 @@ void CPTZControl::QueryPos()
 	select(0, NULL, NULL, NULL, &tmp);
 }
 
-void CPTZControl::QueryZoom()
+void CPTZControl::queryZoom()
 {
 	_agreeMent->QueryZoomPos(m_pReq, m_byAddr);
 	sendCmd(m_pReq, PELCO_RESPONSE_Extended);
@@ -749,8 +757,71 @@ void CPTZControl::test_left()
 	pCom->csend(fd_ptz, _agreeMent->sendBuf, 10);
 }
 
+
 void CPTZControl::test_stop()
 {
 	_agreeMent->MakeStop();
 	pCom->csend(fd_ptz, _agreeMent->sendBuf, 10);
 }
+
+
+void CPTZControl::setPrepos()
+{
+	Preset(0x03, 20);
+	queryPos();
+	m_Mtd_Moitor_X = m_iPanPos;
+	m_Mtd_Moitor_Y = m_iTiltPos;
+	printf(" m_Mtd_Moitor_X = %d, Y =%d \n",m_Mtd_Moitor_X,m_Mtd_Moitor_Y);
+	return ;
+}
+
+void CPTZControl::runToPrepos()
+{
+	Preset(0x07, 20);
+	judgepos();
+	return ;
+}
+
+
+void CPTZControl::queryPos()
+{
+	m_sync_pos = true;
+	while(m_sync_pos)
+		simpleQueryPos();
+	return ;
+}
+
+bool CPTZControl::judgePanTilpos()
+{
+	if( m_Mtd_Moitor_X == m_iPanPos && m_Mtd_Moitor_Y == m_iTiltPos )
+		return true;
+	return false;
+}
+
+void CPTZControl::judgepos()
+{
+	while(1)
+	{
+		queryPos();
+		if(judgePanTilpos())
+			break;
+	}
+
+	return ;
+}
+
+
+void CPTZControl::getpos(int& pan, int& til)
+{
+	pan = m_iPanPos;
+	til = m_iTiltPos;
+	return;
+}
+
+
+void CPTZControl::getzoom(int& zoom)
+{
+	zoom = m_iZoomPos;
+	return ;
+}
+

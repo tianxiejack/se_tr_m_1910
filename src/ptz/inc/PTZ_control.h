@@ -74,10 +74,9 @@ public:
 	int ptzStop();
 	void ptzSetPos(Uint16 posx, Uint16 posy);
 	void setZoomPos(Uint16 value);
-	void QueryZoom();
 	void QueryPanPos();
 	void QueryTiltPos();
-	void QueryPos();
+	void simpleQueryPos();
 
 	void shRunOutput();
 	void PanoramicMirror_Init();
@@ -156,11 +155,22 @@ protected:
 public:
 	char m_Mtd_Moitor; /*Recording detection area; 1: record; 0: don't record*/
 	unsigned short m_Mtd_Moitor_X,m_Mtd_Moitor_Y,m_Mtd_Moitor_Zoom;
-	int m_sync_pos,m_sync_fovComp;
+	bool m_sync_pos,m_sync_fovComp;
 	unsigned short m_rcv_zoomValue;
 	bool m_stateChange;
 
+public:
+	void setPrepos();
+	void runToPrepos();
+	void queryPos();
+	bool judgePanTilpos();
+	void judgepos();
+	void queryZoom();
+
+	void getpos(int& pan, int& til);
+	void getzoom(int& zoom);
 	
+
 };
 
 #endif

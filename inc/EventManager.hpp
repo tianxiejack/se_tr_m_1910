@@ -61,7 +61,7 @@ private:
 	static void MSG_Com_FocusCtrl(void* p);
 	static void MSG_Com_SetPlatSpeed(void* p);
 	static void MSG_Com_SetPlatAngle(void* p);
-	static void MSG_Com_PrsetPos(void* p);
+	static void MSG_Com_PreposHandle(void* p);
 	static void MSG_Com_SetZoom(void* p);
 	static void MSG_Com_QueryPtzPos(void* p);
 	static void MSG_Com_GetZoom(void* p);
