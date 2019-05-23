@@ -42,7 +42,7 @@ View* CplatFormControl::sensorParams()
 	return _Sensor->backParams();
 }
 
-void CplatFormControl::PlatformCtrl_sensor_Init(float* data)
+void CplatFormControl::PlatformCtrl_sensor_Init(int* data)
 {
 	_Sensor->updateParam(data);
 	return ;
@@ -85,7 +85,7 @@ HPLTCTRL CplatFormControl::PlatformCtrl_Create(PlatformCtrl_CreateParams *pPrm)
 
 
 
-void CplatFormControl::PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams *pPrm, float* m_Prm, View* m_Sensor)
+void CplatFormControl::PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams *pPrm, int* m_Prm, View* m_Sensor)
 {
 	int i;
 	if(pPrm == NULL || m_Sensor == NULL)
@@ -122,27 +122,24 @@ void CplatFormControl::PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams 
 
 	pPrm->acqOutputType = 2;
 
+	memcpy(&pPrm->Kx, m_Prm + CFGID_PID_RATIOX, 4);
+	memcpy(&pPrm->Ky, m_Prm + CFGID_PID_RATIOY, 4);
+	memcpy(&pPrm->Error_X, m_Prm + CFGID_PID_ERRORX, 4);
+	memcpy(&pPrm->Error_Y, m_Prm + CFGID_PID_ERRORY, 4);
+	memcpy(&pPrm->Time, m_Prm + CFGID_PID_TIME, 4);
+	memcpy(&pPrm->bleedX, m_Prm + CFGID_PID_LIMITX, 4);
+	memcpy(&pPrm->bleedY, m_Prm + CFGID_PID_LIMITY, 4);
 
-	pPrm->Kx = m_Prm[CFGID_PID_RATIOX];
-	pPrm->Ky = m_Prm[CFGID_PID_RATIOY];
-	pPrm->Error_X = m_Prm[CFGID_PID_ERRORX];
-	pPrm->Error_Y = m_Prm[CFGID_PID_ERRORY];
-	pPrm->Time = m_Prm[CFGID_PID_TIME];
-	pPrm->bleedX =m_Prm[CFGID_PID_LIMITX];
-	pPrm->bleedY =m_Prm[CFGID_PID_LIMITY];
-
-	pPrm->joystickRateDemandParam.fDeadband =m_Prm[CFGID_JOS_deadx];// 0.1f;
-	pPrm->joystickRateDemandParam.fDeadbandy =m_Prm[CFGID_JOS_deady];
-	
-	pPrm->joystickRateDemandParam.fInputGain_X1 =m_Prm[CFGID_JOS_inputgainx1];// 0.2f;
-	pPrm->joystickRateDemandParam.fInputGain_Y1 =m_Prm[CFGID_JOS_inputgainy1];// 0.3f;
-	pPrm->joystickRateDemandParam.fInputGain_X2 =m_Prm[CFGID_JOS_inputgainx2];// 0.2f;
-	pPrm->joystickRateDemandParam.fInputGain_Y2 =m_Prm[CFGID_JOS_inputgainy2];// 0.3f;
-
-	pPrm->joystickRateDemandParam.fCutpoint1 = m_Prm[CFGID_JOS_cutpointx1];//0.7f;
-	pPrm->joystickRateDemandParam.fCutpoint1y = m_Prm[CFGID_JOS_cutpointy1];
-	pPrm->joystickRateDemandParam.fCutpoint2 = m_Prm[CFGID_JOS_cutpointx2];//0.7f;
-	pPrm->joystickRateDemandParam.fCutpoint2y = m_Prm[CFGID_JOS_cutpointy2];
+	memcpy(&pPrm->joystickRateDemandParam.fDeadband, m_Prm + CFGID_JOS_deadx, 4);// 0.1f;
+	memcpy(&pPrm->joystickRateDemandParam.fDeadbandy, m_Prm + CFGID_JOS_deady, 4);
+	memcpy(&pPrm->joystickRateDemandParam.fInputGain_X1, m_Prm + CFGID_JOS_inputgainx1, 4);// 0.2f;
+	memcpy(&pPrm->joystickRateDemandParam.fInputGain_Y1, m_Prm + CFGID_JOS_inputgainy1, 4);// 0.3f;
+	memcpy(&pPrm->joystickRateDemandParam.fInputGain_X2, m_Prm + CFGID_JOS_inputgainx2, 4);// 0.2f;
+	memcpy(&pPrm->joystickRateDemandParam.fInputGain_Y2, m_Prm + CFGID_JOS_inputgainy2, 4);// 0.3f;
+	memcpy(&pPrm->joystickRateDemandParam.fCutpoint1, m_Prm + CFGID_JOS_cutpointx1, 4);//0.7f;
+	memcpy(&pPrm->joystickRateDemandParam.fCutpoint1y, m_Prm + CFGID_JOS_cutpointy1, 4);
+	memcpy(&pPrm->joystickRateDemandParam.fCutpoint2, m_Prm + CFGID_JOS_cutpointx2, 4);//0.7f;
+	memcpy(&pPrm->joystickRateDemandParam.fCutpoint2y, m_Prm + CFGID_JOS_cutpointy2, 4);
 	
 	pPrm->joystickRateDemandParam.fPlatformAcquisitionModeGain_X = 5000.0f;
 	pPrm->joystickRateDemandParam.fPlatformAcquisitionModeGain_Y = 5000.0f;

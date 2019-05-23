@@ -23,7 +23,7 @@ private:
 	State* _state;
 	CIPCProc* m_ipc;
 	static CEventManager* pThis;
-	float *cfg_value;
+	int *cfg_value;
 	char *usr_value;
 	bool exit_ipcthread;
 	float winPos[2];
@@ -66,11 +66,15 @@ private:
 	static void MSG_Com_DefaultCfg(void* p);
 	static void MSG_Com_SaveCfg(void* p);
 	int  ReadConfigFile();
-	int SetConfig(int block, int field, float value,char *inBuf);
+	int SetConfig(int block, int field, int value,char *inBuf);
 	int GetConfig(comtype_t comtype, int block, int field);
 	int DefaultConfig(comtype_t comtype, int blockId);
 	int SaveConfig(comtype_t comtype);
 	void signalFeedBack(int argnum ...);
+	int is_float(int cfgid);
+	string intip2string(unsigned int intip);
+	unsigned int stringip2int(string str);
+	vector<string> csplit(const string& str, const string& delim);
 	
 };
 

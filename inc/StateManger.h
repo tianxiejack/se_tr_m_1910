@@ -19,7 +19,7 @@ public:
 	~StateManger();
 
 	void* returnIpc();
-	void GetParams(float* p);
+	void GetParams(int* p);
 	int CurStateInterface();
 
 	void ToStateAuto_Mtd();

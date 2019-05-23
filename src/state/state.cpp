@@ -14,7 +14,7 @@ AgreeMentBaseFormat* State::_agreement = NULL;
 CPlatformInterface* State::m_Platform = NULL;
 CPTZSpeedTransfer*  State::m_ptzSpeed = NULL;
 CIPCProc* State::m_ipc = NULL;
-float* State::cfg_value = NULL;
+int* State::cfg_value = NULL;
 View* State::viewParam = NULL;
 HPLTCTRL  State::m_plt = NULL;
 

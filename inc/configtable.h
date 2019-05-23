@@ -97,6 +97,8 @@ typedef enum
 {
 	CFGID_PTZ_BASE = CFGID_BUILD( CFGID_PTZ_BKID, 0 ),
 	CFGID_PTZ_comm = CFGID_BUILD( CFGID_PTZ_BKID, 0 ),
+	CFGID_PTZ_stopbit = CFGID_BUILD( CFGID_PTZ_BKID, 4 ),
+	CFGID_PTZ_netip = CFGID_BUILD( CFGID_PTZ_BKID, 6 ),
 }CFGID_PTZ;
 
 typedef enum 
@@ -118,6 +120,9 @@ typedef enum
 {
 	CFGID_TRK_BASE = CFGID_BUILD( CFGID_TRK_BKID, 0 ),
 	CFGID_TRK_assitime = CFGID_BUILD( CFGID_TRK_BKID, 15 ),
+
+	CFGID_TRK_BASE2 = CFGID_BUILD( CFGID_TRK_BKID+1, 0 ),
+	CFGID_TRK_BASE3 = CFGID_BUILD( CFGID_TRK_BKID+2, 0 ),
 }CFGID_TRK;
 
 typedef enum 
@@ -244,7 +249,7 @@ static inline int CFGID_INPUT_boresightX(int BKID , int NUM)
 {
 	int ret;
 	if(NUM <= 8)
-		ret = CFGID_BUILD( BKID+4, NUM*2 );
+		ret = CFGID_BUILD( BKID+4, (NUM-1)*2 );
 	else
 		ret = CFGID_BUILD( BKID+5, (NUM-9)*2);
 	return ret;
@@ -254,12 +259,20 @@ static inline int CFGID_INPUT_boresightY(int BKID , int NUM)
 {
 	int ret;
 	if(NUM <= 8)
-		ret = CFGID_BUILD( BKID+4, NUM*2+1 );
+		ret = CFGID_BUILD( BKID+4, (NUM-1)*2+1 );
 	else
 		ret = CFGID_BUILD( BKID+5, (NUM-9)*2 +1);
 	return ret;
 }
 
+static inline int CFGID_INPUT_Feedback(int BKID , int NUM)
+{
+	int ret;
+
+	ret = CFGID_BUILD( BKID+3, NUM + 2);
+
+	return ret;
+} 
 
 
 // sys config table part end
