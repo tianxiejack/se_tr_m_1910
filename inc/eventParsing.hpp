@@ -86,7 +86,7 @@ typedef enum _sys_msg_id_ {
 	MSGID_COM_INPUT_FOCUSCTRL,
 	MSGID_COM_INPUT_SETPLATSPEED,
 	MSGID_COM_INPUT_SETPLATANGLE,
-	MSGID_COM_INPUT_PRESETPOS,
+	MSGID_COM_INPUT_PREPOS,
 	MSGID_COM_INPUT_SETZOOM,
 	MSGID_COM_INPUT_QUERYPTZPOS,
 	MSGID_COM_INPUT_GETZOOM,
@@ -185,7 +185,7 @@ typedef struct{
 	short platspeedy;
 	unsigned short platPan;
 	unsigned short platTilt;
-	int presetpos;
+	int prepos;
 	unsigned short setzoom;
 	int trkoutput;
 	vector<Set_config_t>  setConfigQueue;

@@ -111,7 +111,7 @@ void CEventManager::MSG_register()
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_ZOOMCTRL, MSG_Com_ZoomCtrl, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SETPLATSPEED, MSG_Com_SetPlatSpeed, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SETPLATANGLE, MSG_Com_SetPlatAngle, NULL);
-	_Msg->MSGDRIV_register(MSGID_COM_INPUT_PRESETPOS, MSG_Com_PrsetPos, NULL);
+	_Msg->MSGDRIV_register(MSGID_COM_INPUT_PREPOS, MSG_Com_PreposHandle, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SETZOOM, MSG_Com_SetZoom, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_QUERYPTZPOS, MSG_Com_QueryPtzPos, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_GETZOOM, MSG_Com_GetZoom, NULL);
@@ -380,11 +380,11 @@ void CEventManager::MSG_Com_SetPlatAngle(void* p)
 }
 
 
-void CEventManager::MSG_Com_PrsetPos(void* p)
+void CEventManager::MSG_Com_PreposHandle(void* p)
 {
-	ComParams_t *tmp = (ComParams_t *)p;
-	unsigned short presetpos = tmp->presetpos;
-	printf("presetpos=%d\n", presetpos);
+	ComParams_t *tmp = (ComParams_t *)p;	
+	pThis->_StateManager->_state->PreposHandle(tmp->prepos);
+	return ;
 }
 
 

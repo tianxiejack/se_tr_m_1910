@@ -368,3 +368,12 @@ void State::pov_move(int x,int y)
 	return ;
 }
 
+void State::PreposHandle(int arg)
+{
+	if(1 == arg )
+		_ptz->runToPrepos();
+	else if (2  == arg)
+		_ptz->setPrepos();
+	return ;
+}
+	

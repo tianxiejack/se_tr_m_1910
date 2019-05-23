@@ -82,8 +82,9 @@ public:
 	void uninit_time();
 	static void detectionFunc (int sign);
 	void trkMovControl(int status,int errx,int erry);
-	
+	void PreposHandle(int arg);
 
+	
 public:
 	static CIPCProc* m_ipc;
 	static CPTZControl* _ptz;

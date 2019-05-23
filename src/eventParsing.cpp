@@ -360,10 +360,12 @@ void CEventParsing::parsingJostickButtonData(unsigned char* jos_data)
 				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_captureMode, &ComParams);
 				break;
 			case js_9:
-				_Msg->MSGDRIV_send(MSGID_COM_INPUT_QUERYPTZPOS, 0);
+				ComParams.prepos = 0x2;
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_PREPOS, &ComParams);
 				break;
 			case js_10:
-				_Msg->MSGDRIV_send(MSGID_COM_INPUT_GETZOOM, 0);
+				ComParams.prepos = 0x1;
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_PREPOS, &ComParams);
 				break;
 			case js_11:
 				Iris_Focus= (Iris_Focus + 1)%3;
@@ -589,8 +591,8 @@ int CEventParsing::parsingComEvent(comtype_t comtype)
 				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SETPLATANGLE, &ComParams);
 				break;
 			case 0x11:
-				ComParams.presetpos = rcvBufQue.at(5);
-				_Msg->MSGDRIV_send(MSGID_COM_INPUT_PRESETPOS, &ComParams);
+				ComParams.prepos = rcvBufQue.at(5);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_PREPOS, &ComParams);
 				break;
 			case 0x12:
 				ComParams.setzoom = rcvBufQue.at(5) |(rcvBufQue.at(6) << 8);
