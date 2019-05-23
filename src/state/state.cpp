@@ -17,6 +17,11 @@ CIPCProc* State::m_ipc = NULL;
 int* State::cfg_value = NULL;
 View* State::viewParam = NULL;
 HPLTCTRL  State::m_plt = NULL;
+int State::curState = STATE_PTZ;
+PlatformCtrl_CreateParams State::m_cfgPlatParam = {0};
+PLATFORMCTRL_TrackerInput State::m_pltInput = {0};
+PLATFORMCTRL_Output State::m_pltOutput; 
+DxTimer* State::m_timer = NULL;
 
 State::State()
 {
@@ -32,8 +37,9 @@ State::State()
 		m_ptzSpeed = new CPTZSpeedTransfer();
 	if(m_ipc == NULL)
 		m_ipc = new CIPCProc();
-
-	curState = STATE_PTZ;
+	if(m_timer == NULL)
+		m_timer = new DxTimer();
+	
 	selectch = {1, 1, 1, 1, 1, 0};
 	curValidChid = selectch.idx;
 	OSA_semCreate(&m_sem, 1, 0);

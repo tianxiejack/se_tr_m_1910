@@ -78,6 +78,7 @@ public:
     int stopTimer(unsigned int timerId);
     int resetTimer(unsigned int timerId, unsigned int nMs);
     int killTimer(int timerId);
+    void Dx_destroyTimer();
 
 private:
     void MSGDRIV_attachMsgFun(TMSGDRIV_Class *handle, int msgId, TMsgApiFun pRtnFun, void *context);
@@ -86,7 +87,6 @@ private:
     void Dx_initTimer();
     int Dx_setTimer(unsigned int timerId, unsigned int nMs);
     int Dx_stopTimer(unsigned int timerId);
-    void Dx_destroyTimer();
     void PTH_msgrecv();
     int PTH_timerloop(int interval);
     void Dx_OnTimer();

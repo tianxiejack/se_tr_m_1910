@@ -50,16 +50,17 @@ public:
 	virtual void OperationChangeState(StateManger* con) = 0;
 	virtual int curStateInterface() = 0;
 	virtual int ChangeState(StateManger* con, char nextState);
-
+	
 public:
-	int curState;
+	static int curState;
 	OSA_SemHndl m_sem;
 	static View* viewParam;
 	IPC_PRM_INT ipcParam;
 	static HPLTCTRL  m_plt;
-	PLATFORMCTRL_TrackerInput m_pltInput;
-	PLATFORMCTRL_Output m_pltOutput;
-	PlatformCtrl_CreateParams m_cfgPlatParam;
+	static PLATFORMCTRL_TrackerInput m_pltInput;
+	static PLATFORMCTRL_Output m_pltOutput;
+	static PlatformCtrl_CreateParams m_cfgPlatParam;
+	static DxTimer* m_timer;
 
 public:
 	virtual void TrkCtrl(char Enable);
@@ -70,7 +71,7 @@ public:
 	virtual void Iris_FocusCtrl(int type, int dir);
 	virtual void pov_move(int x,int y);
 	virtual void mtdhandle(int arg){};
-
+	virtual void recvTrkmsg(){};
 
 public:
 	void switchSensor_interface(int chid);
@@ -110,6 +111,7 @@ public:
 	StateAuto_Mtd();
 	virtual ~StateAuto_Mtd();
 private:
+	static StateAuto_Mtd* pThis;
 	void OperationChangeState(StateManger* con);
 	int curStateInterface();
 	void axisMove(int x, int y){};
@@ -118,12 +120,13 @@ private:
 	void switchSensor(char chid);
 	void TrkCtrl(char Enable);
 	void mtdhandle(int arg);
-	bool isReady4trk(){return m_ready4trk==true;}
 	void autoMtdMainloop();
-
+	void outTrk();
+	void recvTrkmsg(void* p);
+	static void TimeCallback(void* p);
 private:
-	bool m_ready4trk;
 	bool m_haveobj;
+	int timeAutoMtd;
 
 };
 
