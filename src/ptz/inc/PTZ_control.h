@@ -151,6 +151,14 @@ protected:
 
 	OSA_MutexHndl m_mutex;
 	OSA_SemHndl m_sem;
+
+
+public:
+	char m_Mtd_Moitor; /*Recording detection area; 1: record; 0: don't record*/
+	unsigned short m_Mtd_Moitor_X;
+	unsigned short m_Mtd_Moitor_Y;
+	
+
 };
 
 #endif

@@ -11,7 +11,9 @@
 unsigned char trackBuf[10];
 CPTZControl* CPTZControl::pThis = 0;
 
-CPTZControl::CPTZControl(AgreeMentBaseFormat* _imp):pCom(NULL), exitQuery_X(false), exitQuery_Y(false), exitQueryzoom(false)
+CPTZControl::CPTZControl(AgreeMentBaseFormat* _imp):pCom(NULL), 
+	exitQuery_X(false), exitQuery_Y(false), exitQueryzoom(false),
+	m_Mtd_Moitor(0),m_Mtd_Moitor_X(0),m_Mtd_Moitor_Y(0)
 {
 
 	m_bStopZoom = false;
@@ -232,9 +234,9 @@ void CPTZControl::RecvByte(unsigned char byRecv)
 					exitQuery_X = true;
 					posx_bak =0;
 				}
-				if(_GlobalDate->Mtd_Moitor == 1)
+				if(m_Mtd_Moitor == 1)
 				{
-					_GlobalDate->Mtd_Moitor_X = m_iPanPos;
+					m_Mtd_Moitor_X = m_iPanPos;
 					m_iPanPos = 0;
 				}
 				//fprintf(stdout, "INFO: m_iPanPos is %d\n",m_iPanPos);
@@ -249,9 +251,9 @@ void CPTZControl::RecvByte(unsigned char byRecv)
 					exitQuery_Y = true;
 					posy_bak = 0;
 				}
-				if(_GlobalDate->Mtd_Moitor == 1)
+				if(m_Mtd_Moitor == 1)
 				{
-					_GlobalDate->Mtd_Moitor_Y  = m_iTiltPos;
+					m_Mtd_Moitor_Y  = m_iTiltPos;
 					m_iTiltPos = 0;
 				}
 				sync_Tilt = 1;
@@ -268,10 +270,10 @@ void CPTZControl::RecvByte(unsigned char byRecv)
 					exitQueryzoom = true;
 					zoom_bak = 0;
 				}
-				if(_GlobalDate->Mtd_Moitor == 1)
+				if(m_Mtd_Moitor == 1)
 				{
 					_GlobalDate->Mtd_Moitor_Zoom  = m_iZoomPos;
-					m_iZoomPos = _GlobalDate->Mtd_Moitor = 0;
+					m_iZoomPos =m_Mtd_Moitor = 0;
 				}
 				sync_zoom = 1;
 				//printf("INFO: zoompos is %d\n",m_iZoomPos);

@@ -228,13 +228,11 @@ long int time_stop;
  bool resetType;
 char ImgMtdStat;
 char mtdMode;
-char Mtd_Moitor; /*Recording detection area; 1: record; 0: don't record*/
 char Mtd_ExitMode;
 char Mtd_ipc_target; /*receive ipc detect message; 1: find target; 0: no target*/
 char Mtd_Limit;  /* Block IPC messages if you enter the trace */
 char Mtd_Manual_Limit;  /*检测到目标后才能响应进跟踪指令*/
-unsigned short Mtd_Moitor_X;   	/*Detect regional center coordinates*/
-unsigned short Mtd_Moitor_Y;
+
 unsigned short Mtd_Moitor_Zoom;
 bool MtdAutoLoop;
 int ThreeMode_bak;
