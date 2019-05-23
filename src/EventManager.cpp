@@ -105,8 +105,8 @@ void CEventManager::thread_ipcEvent()
 					float x,y;
 					pThis->_StateManager->_state->getcurRate(x,y);
 					int intx,inty;
-					memcpy(&intx,x,4);
-					memcpy(&inty,y,4);
+					memcpy(&intx,&x,4);
+					memcpy(&inty,&y,4);
 					pThis->signalFeedBack(6, pThis->outcomtype, ACK_output, (int)pThis->cfg_value[CFGID_RTS_trkstat], pThis->outtype, intx, inty);
 				}
 				break;
