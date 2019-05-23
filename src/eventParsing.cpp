@@ -688,6 +688,12 @@ int  CEventParsing::getSendInfo(sendInfo * psendBuf)
 		case ACK_SectrkStat:
 			package_ACK_SecTrkStat(psendBuf);
 			break;
+		case ACK_CtrlPos:
+			package_ACK_CtrlPos(psendBuf);
+			break;
+		case ACK_SetZoom:
+			package_ACK_SetZoom(psendBuf);
+			break;
 		case ACK_QueryPos:
 			package_ACK_QueryPos(psendBuf);
 			break;
@@ -756,6 +762,26 @@ int  CEventParsing::package_ACK_SecTrkStat(sendInfo *psendBuf)
 	int bodylen = 2;
 	psendBuf->sendBuff[4] = ACK_SectrkStat;
 	psendBuf->sendBuff[5] = ACK_ComParams.sectrkctrl;
+	
+	package_ACK_commondata(psendBuf, bodylen);
+}
+int  CEventParsing::package_ACK_CtrlPos(sendInfo *psendBuf)
+{
+	int bodylen = 5;
+	psendBuf->sendBuff[4] = ACK_CtrlPos;
+	psendBuf->sendBuff[5] = ACK_ComParams.ctrlpan & 0xff;
+	psendBuf->sendBuff[6] = (ACK_ComParams.ctrlpan >> 8) & 0xff;
+	psendBuf->sendBuff[7] = ACK_ComParams.ctrltil & 0xff;
+	psendBuf->sendBuff[8] = (ACK_ComParams.ctrltil >> 8) & 0xff;
+
+	package_ACK_commondata(psendBuf, bodylen);
+}
+int  CEventParsing::package_ACK_SetZoom(sendInfo *psendBuf)
+{
+	int bodylen = 3;
+	psendBuf->sendBuff[4] = ACK_QueryZoom;
+	psendBuf->sendBuff[5] = ACK_ComParams.setzoom & 0xff;
+	psendBuf->sendBuff[6] = (ACK_ComParams.setzoom >> 8) & 0xff;
 	
 	package_ACK_commondata(psendBuf, bodylen);
 }

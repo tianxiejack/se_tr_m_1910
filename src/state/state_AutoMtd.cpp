@@ -71,11 +71,9 @@ void StateAuto_Mtd::autoMtdMainloop()
 	
 	while(curState == STATE_AUTOMTD)
 	{
-if(curState == STATE_AUTOMTD)
-	printf("curState STATE_AUTOMTD \n");
-else
-	printf(" have changed the state \n");
-printf("m_haveobj  = %d \n",m_haveobj);
+		if(curState != STATE_AUTOMTD)
+			printf(" have changed the state \n");
+		
 		tmp.tv_sec = 0;
 		tmp.tv_usec = 100*1000;
 		select(0, NULL, NULL, NULL, &tmp);	

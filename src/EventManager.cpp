@@ -399,10 +399,16 @@ void CEventManager::MSG_Com_SetPlatSpeed(void* p)
 
 void CEventManager::MSG_Com_SetPlatAngle(void* p)
 {
+	int pan, til;
 	ComParams_t *tmp = (ComParams_t *)p;
 	unsigned short platPan = tmp->platPan;
 	unsigned short platTilt = tmp->platTilt;
+	
 	pThis->_StateManager->_state->_ptz->ptzSetPos(platPan, platTilt);
+	
+	pThis->_StateManager->_state->_ptz->queryPos();
+	pThis->_StateManager->_state->_ptz->getpos(pan, til);
+	pThis->signalFeedBack(4, tmp->comtype, ACK_CtrlPos, pan, til);
 	return ;
 }
 
@@ -410,23 +416,25 @@ void CEventManager::MSG_Com_SetPlatAngle(void* p)
 void CEventManager::MSG_Com_PreposHandle(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;	
-printf("111 get the pos   : %d , %d  \n",pThis->cfg_value[CFGID_PREPOS_preposx],pThis->cfg_value[CFGID_PREPOS_preposy]);
 
 	pThis->_StateManager->_state->PreposHandle(tmp->prepos);
 	if(2 == tmp->prepos)
-	{
-printf("222 save the pos   : %d , %d  \n",pThis->cfg_value[CFGID_PREPOS_preposx],pThis->cfg_value[CFGID_PREPOS_preposy]);
 		pThis->SaveConfig(tmp->comtype);
-	}
+
 	return ;
 }
 
 
 void CEventManager::MSG_Com_SetZoom(void* p)
 {
+	int zoom;
 	ComParams_t *tmp = (ComParams_t *)p;
 	unsigned short setzoom = tmp->setzoom;
 	pThis->_StateManager->_state->_ptz->setZoomPos(setzoom);
+
+	pThis->_StateManager->_state->_ptz->queryZoom();
+	pThis->_StateManager->_state->_ptz->getzoom(zoom);
+	pThis->signalFeedBack(3, tmp->comtype, ACK_SetZoom, zoom);
 	return ;
 }
 
@@ -880,6 +888,13 @@ void CEventManager::signalFeedBack(int argnum ...)
 		case ACK_SectrkStat:
 			ACK_ComParams.sectrkctrl = va_arg(ap, int);
 			printf("[%s]sectrkctrl=%d\n", __FUNCTION__, ACK_ComParams.sectrkctrl);
+			break;
+		case ACK_CtrlPos:
+			ACK_ComParams.ctrlpan = va_arg(ap, int);
+			ACK_ComParams.ctrltil = va_arg(ap, int);
+			break;
+		case ACK_SetZoom:
+			ACK_ComParams.setzoom = va_arg(ap, int);
 			break;
 		case ACK_QueryPos:
 			ACK_ComParams.querypan = va_arg(ap, int);

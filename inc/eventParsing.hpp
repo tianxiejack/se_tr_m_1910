@@ -109,9 +109,9 @@ typedef enum{
 	ACK_CaptureMode = 0x04,
 	ACK_TrkStat = 0x05,
 	ACK_SectrkStat = 0x07,
-	ACK_QueryPT = 0x10,
+	ACK_CtrlPos = 0x10,
 	ACK_PresetPos = 0x11,
-	ACK_ZoomCtrl = 0x12,
+	ACK_SetZoom = 0x12,
 	ACK_QueryPos = 0x41,
 	ACK_QueryZoom = 0x42,
 	ACK_output = 0x43,
@@ -203,6 +203,9 @@ typedef struct{
 	int capturemode;
 	int trkctrl;
 	int sectrkctrl;
+	unsigned short ctrlpan;
+	unsigned short ctrltil;
+	unsigned short setzoom;
 	int trkstat;
 	unsigned short querypan;
 	unsigned short querytil;
@@ -254,6 +257,8 @@ private:
 	int  package_ACK_Capturemode(sendInfo *psendBuf);
 	int  package_ACK_TrkStat(sendInfo *psendBuf);
 	int  package_ACK_SecTrkStat(sendInfo *psendBuf);
+	int  package_ACK_CtrlPos(sendInfo *psendBuf);
+	int  package_ACK_SetZoom(sendInfo *psendBuf);
 	int  package_ACK_QueryPos(sendInfo *psendBuf);
 	int  package_ACK_QueryZoom(sendInfo *psendBuf);
 	int  package_ACK_Output(sendInfo *psendBuf);
