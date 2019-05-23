@@ -94,12 +94,20 @@ void CEventManager::thread_ipcEvent()
 				pThis->m_pixelErr.erry = value;
 				
 				pThis->_Msg->MSGDRIV_send(MSGID_COM_INPUT_TRKCONTROL, 0);
-
+				pThis->_StateManager->_state->recvTrkmsg();
+					
 				if(1 == pThis->outtype)
 				{
 					memcpy(&errorx, pThis->cfg_value + CFGID_RTS_trkerrx, 4);
 					memcpy(&errory, pThis->cfg_value + CFGID_RTS_trkerry, 4);
 					pThis->signalFeedBack(6, pThis->outcomtype, ACK_output, (int)pThis->cfg_value[CFGID_RTS_trkstat], pThis->outtype, (int)errorx, (int)errory);
+				}else if(2 == pThis->outtype){
+					float x,y;
+					pThis->_StateManager->_state->getcurRate(x,y);
+					int intx,inty;
+					memcpy(&intx,&x,4);
+					memcpy(&inty,&y,4);
+					pThis->signalFeedBack(6, pThis->outcomtype, ACK_output, (int)pThis->cfg_value[CFGID_RTS_trkstat], pThis->outtype, intx, inty);
 				}
 				break;
 
