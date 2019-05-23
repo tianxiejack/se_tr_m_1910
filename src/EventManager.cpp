@@ -392,10 +392,16 @@ void CEventManager::MSG_Com_SetPlatSpeed(void* p)
 
 void CEventManager::MSG_Com_SetPlatAngle(void* p)
 {
+	int pan, til;
 	ComParams_t *tmp = (ComParams_t *)p;
 	unsigned short platPan = tmp->platPan;
 	unsigned short platTilt = tmp->platTilt;
 	printf("platangle x,y=(%d,%d)\n",platPan, platTilt);
+
+
+	pThis->_StateManager->_state->_ptz->queryPos();
+	pThis->_StateManager->_state->_ptz->getpos(pan, til);
+	pThis->signalFeedBack(4, tmp->comtype, ACK_CtrlPos, pan, til);
 }
 
 
@@ -409,9 +415,14 @@ void CEventManager::MSG_Com_PreposHandle(void* p)
 
 void CEventManager::MSG_Com_SetZoom(void* p)
 {
+	int zoom;
 	ComParams_t *tmp = (ComParams_t *)p;
 	unsigned short setzoom = tmp->setzoom;
 	pThis->_StateManager->_state->_ptz->setZoomPos(setzoom);
+
+	pThis->_StateManager->_state->_ptz->queryZoom();
+	pThis->_StateManager->_state->_ptz->getzoom(zoom);
+	pThis->signalFeedBack(3, tmp->comtype, ACK_SetZoom, zoom);
 	return ;
 }
 
@@ -865,6 +876,13 @@ void CEventManager::signalFeedBack(int argnum ...)
 		case ACK_SectrkStat:
 			ACK_ComParams.sectrkctrl = va_arg(ap, int);
 			printf("[%s]sectrkctrl=%d\n", __FUNCTION__, ACK_ComParams.sectrkctrl);
+			break;
+		case ACK_CtrlPos:
+			ACK_ComParams.ctrlpan = va_arg(ap, int);
+			ACK_ComParams.ctrltil = va_arg(ap, int);
+			break;
+		case ACK_SetZoom:
+			ACK_ComParams.setzoom = va_arg(ap, int);
 			break;
 		case ACK_QueryPos:
 			ACK_ComParams.querypan = va_arg(ap, int);
