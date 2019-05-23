@@ -67,6 +67,7 @@ typedef enum
 	CFGID_OUTPUT_BKID = 50,
 	CFGID_SYS_BKID = 51,
 	CFGID_MTD_BKID = 53,	// 2block
+	CFGID_PREPOS_BKID = 54,	// 1block
 	CFGID_INPUT2_BKID = 55,	// 7block
 	CFGID_INPUT3_BKID = 62,	// 7block
 	CFGID_INPUT4_BKID = 69,	// 7block
@@ -157,6 +158,17 @@ typedef enum
 	CFGID_MTD_priority = CFGID_BUILD( CFGID_MTD_BKID, 8 ),
 }CFGID_MTD;
 
+
+typedef enum 
+{
+	CFGID_PREPOS_BASE = CFGID_BUILD( CFGID_PREPOS_BKID, 0 ),
+	CFGID_PREPOS_preposx = CFGID_BUILD( CFGID_PREPOS_BKID, 0 ),
+	CFGID_PREPOS_preposy = CFGID_BUILD( CFGID_PREPOS_BKID, 1 ),
+	CFGID_PREPOS_prezoom = CFGID_BUILD( CFGID_PREPOS_BKID,2 ),
+}CFGID_POS;
+
+
+
 typedef enum 
 {
 	CFGID_PID_BASE = CFGID_BUILD( CFGID_PID_BKID, 0 ),
@@ -232,12 +244,12 @@ typedef enum
 //input_fov1x     
 static inline int CFGID_INPUT_FOVX(int BKID , int NUM)
 {
-	int a;
+	int ret;
 	if(NUM <= 7)
-		a = CFGID_BUILD( BKID+1, NUM*2 );
+		ret = CFGID_BUILD( BKID+1, NUM*2 );
 	else
-		a = CFGID_BUILD( BKID+2, (NUM-8)*2 );
-	return a;
+		ret = CFGID_BUILD( BKID+2, (NUM-8)*2 );
+	return ret;
 }
 //input_fov1y
 static inline int CFGID_INPUT_FOVY(int BKID , int NUM)

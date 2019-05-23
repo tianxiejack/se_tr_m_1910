@@ -765,13 +765,14 @@ void CPTZControl::test_stop()
 }
 
 
-void CPTZControl::setPrepos()
+void CPTZControl::setPrepos(int& preposx,int& preposy)
 {
 	Preset(0x03, 20);
 	queryPos();
 	m_Mtd_Moitor_X = m_iPanPos;
 	m_Mtd_Moitor_Y = m_iTiltPos;
-	printf(" m_Mtd_Moitor_X = %d, Y =%d \n",m_Mtd_Moitor_X,m_Mtd_Moitor_Y);
+	preposx = m_Mtd_Moitor_X;
+	preposy = m_Mtd_Moitor_Y;
 	return ;
 }
 

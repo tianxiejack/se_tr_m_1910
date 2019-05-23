@@ -392,9 +392,8 @@ void CEventManager::MSG_Com_FocusCtrl(void* p)
 void CEventManager::MSG_Com_SetPlatSpeed(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
-	short platspeedx = tmp->platspeedx;
-	short platspeedy = tmp->platspeedy;
-	printf("platspeed x,y=(%d,%d)\n",platspeedx, platspeedy);
+	pThis->_StateManager->_state->virtualAxisMove(tmp->platspeedx,tmp->platspeedy);
+	return ;
 }
 
 
@@ -403,14 +402,22 @@ void CEventManager::MSG_Com_SetPlatAngle(void* p)
 	ComParams_t *tmp = (ComParams_t *)p;
 	unsigned short platPan = tmp->platPan;
 	unsigned short platTilt = tmp->platTilt;
-	printf("platangle x,y=(%d,%d)\n",platPan, platTilt);
+	pThis->_StateManager->_state->_ptz->ptzSetPos(platPan, platTilt);
+	return ;
 }
 
 
 void CEventManager::MSG_Com_PreposHandle(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;	
+printf("111 get the pos   : %d , %d  \n",pThis->cfg_value[CFGID_PREPOS_preposx],pThis->cfg_value[CFGID_PREPOS_preposy]);
+
 	pThis->_StateManager->_state->PreposHandle(tmp->prepos);
+	if(2 == tmp->prepos)
+	{
+printf("222 save the pos   : %d , %d  \n",pThis->cfg_value[CFGID_PREPOS_preposx],pThis->cfg_value[CFGID_PREPOS_preposy]);
+		pThis->SaveConfig(tmp->comtype);
+	}
 	return ;
 }
 

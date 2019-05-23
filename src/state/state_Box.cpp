@@ -11,6 +11,7 @@ BoxCapture::~BoxCapture()
 
 }
 
+
 void BoxCapture::OperationChangeState(StateManger* con)
 {
 	ipcParam.intPrm[0] = 5;
@@ -18,12 +19,14 @@ void BoxCapture::OperationChangeState(StateManger* con)
 	OperationInterface(con);
 }
 
+
 int BoxCapture::curStateInterface()
 {
 	if(curState != STATE_BOX)
 		curState = STATE_BOX;
 	return curState;
 }
+
 
 void BoxCapture::axisMove(int x, int y)
 {

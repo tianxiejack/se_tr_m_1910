@@ -66,7 +66,7 @@ void ManualMtdCapture::axisMove(int x, int y)
 	{
 		if(mtdStatus)
 			openCloseMtd(false);
-		axisMove_interface(x,y);
+		State::axisMove(x,y);
 	}
 	
 	return ;
@@ -76,12 +76,6 @@ void ManualMtdCapture::switchSensor(char chid)
 {
 
 }
-
-void ManualMtdCapture::ZoomCtrl(char type)
-{
-
-}
-
 
 void ManualMtdCapture::openCloseMtd(bool flag)
 {

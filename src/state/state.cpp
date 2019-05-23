@@ -92,6 +92,11 @@ void State::StateInit()
 	if(m_st5 == NULL)
 		m_st5 = new ManualMtdCapture();
 	platformCreate();
+
+	_ptz->m_Mtd_Moitor_X = cfg_value[CFGID_PREPOS_preposx];	
+	_ptz->m_Mtd_Moitor_Y = cfg_value[CFGID_PREPOS_preposy];
+	_ptz->m_Mtd_Moitor_Zoom = cfg_value[CFGID_PREPOS_prezoom];
+	return ;
 }
 
 int State::ChangeState(StateManger* con, char nextState)
@@ -156,9 +161,26 @@ void State::ZoomCtrl(char type)
 		_ptz->m_iSetZoomSpeed = 0;
 }
 
+
+void State::virtualAxisMove(int x, int y)
+{
+	float fx,fy;
+	fx = (float)x/32767;
+	fy = (float)y/32767;
+	axisMove_interface(fx , fy);
+	return ;
+}
+
+
 void State::axisMove(int x, int y)
 {
-	axisMove_interface(x, y);
+	float fx,fy;
+	x -= (JOS_VALUE_MAX>>1);
+	y -= (JOS_VALUE_MAX>>1);
+	fx = (float)x/(JOS_VALUE_MAX>>1);
+	fy = (float)y/(JOS_VALUE_MAX>>1);
+	axisMove_interface(fx , fy);
+	return ;
 }
 
 void State::trkSearch(int type, int x, int y)
@@ -261,13 +283,10 @@ void State::switchSensor_interface(int chid)
 	curValidChid = selectch.idx;
 }
 
-void State::axisMove_interface(int x, int y)
-{
-	x -= (JOS_VALUE_MAX>>1);
-	y -= (JOS_VALUE_MAX>>1);
-	
-	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickXInput, (float)x/(JOS_VALUE_MAX>>1));
-	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickYInput, (float)y/(JOS_VALUE_MAX>>1));
+void State::axisMove_interface(float x, float y)
+{	
+	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickXInput, x);
+	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickYInput, y);
 
 	m_pltInput.iTrkAlgState= 0;
 	m_Platform->PlatformCtrl_TrackerInput(m_plt, &m_pltInput);
@@ -371,6 +390,7 @@ void State::pov_move(int x,int y)
 	ipcParam.intPrm[0] = x;
 	ipcParam.intPrm[1] = y;	
 	m_ipc->IPCSendMsg(posmove,ipcParam.intPrm,4*2);
+	
 	return ;
 }
 
@@ -379,7 +399,7 @@ void State::PreposHandle(int arg)
 	if(1 == arg )
 		_ptz->runToPrepos();
 	else if (2  == arg)
-		_ptz->setPrepos();
+		_ptz->setPrepos(cfg_value[CFGID_PREPOS_preposx] , cfg_value[CFGID_PREPOS_preposy]);
 	return ;
 }
 

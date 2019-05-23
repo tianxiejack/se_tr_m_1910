@@ -62,14 +62,20 @@ void StateAuto_Mtd::autoMtdMainloop()
 	struct timeval tmp;
 	_ptz->runToPrepos();
 	_ptz->ptzStop();
+
 	tmp.tv_sec = 0;
 	tmp.tv_usec = 300*1000;
 	select(0, NULL, NULL, NULL, &tmp);	
 	ipcParam.intPrm[0] = 1;
 	m_ipc->IPCSendMsg(mtd, ipcParam.intPrm, 4);
-
+	
 	while(curState == STATE_AUTOMTD)
 	{
+if(curState == STATE_AUTOMTD)
+	printf("curState STATE_AUTOMTD \n");
+else
+	printf(" have changed the state \n");
+printf("m_haveobj  = %d \n",m_haveobj);
 		tmp.tv_sec = 0;
 		tmp.tv_usec = 100*1000;
 		select(0, NULL, NULL, NULL, &tmp);	

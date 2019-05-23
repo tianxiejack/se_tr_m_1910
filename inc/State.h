@@ -67,6 +67,7 @@ public:
 	virtual void switchSensor(char chid);
 	virtual void ZoomCtrl(char type);
 	virtual void axisMove(int x, int y);
+	virtual void virtualAxisMove(int x, int y);
 	virtual void trkSearch(int type, int x, int y);
 	virtual void Iris_FocusCtrl(int type, int dir);
 	virtual void pov_move(int x,int y);
@@ -75,7 +76,7 @@ public:
 
 public:
 	void switchSensor_interface(int chid);
-	void axisMove_interface(int x, int y);
+	void axisMove_interface(float x, float y);
 	void Ctrl_Iris(int dir);
 	void Ctrl_Focus(int dir);
 	void init_sigaction();
@@ -137,10 +138,11 @@ class StateSceneSelect:public State
 public:
 	StateSceneSelect();
 	virtual ~StateSceneSelect();
-	virtual  void OperationChangeState(StateManger* con);
-	virtual int curStateInterface();
-	virtual void TrkCtrl(char Enable);
-	virtual void trkSearch(int type, int x, int y){};
+	void OperationChangeState(StateManger* con);
+	int curStateInterface();
+	void TrkCtrl(char Enable);
+	void trkSearch(int type, int x, int y){};
+	void virtualAxisMove(int x, int y){};
 
 private:
 	bool m_sceneflag;
@@ -156,8 +158,10 @@ public:
 	PlatFormCapture();
 	virtual ~PlatFormCapture();
 private:
-	virtual  void OperationChangeState(StateManger* con);
-	virtual int curStateInterface();
+	void OperationChangeState(StateManger* con);
+	int curStateInterface();
+	void virtualAxisMove(int x, int y){};
+
 };
 
 
@@ -171,6 +175,7 @@ private:
 	void OperationChangeState(StateManger* con);
 	int curStateInterface();
 	void axisMove(int x, int y);
+	void virtualAxisMove(int x, int y){};
 	void TrkCtrl(char Enable);
 
 private:
@@ -190,9 +195,10 @@ private:
 	void TrkCtrl(char Enable);
 	void axisMove(int x, int y);
 	void switchSensor(char chid);
-	void ZoomCtrl(char type);
 	void trkSearch(int type, int x, int y){};
 	void pov_move(int x,int y);
+	void virtualAxisMove(int x, int y){};
+
 	
 private:
 	void openCloseMtd(bool flag);

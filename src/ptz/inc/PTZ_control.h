@@ -160,7 +160,7 @@ public:
 	bool m_stateChange;
 
 public:
-	void setPrepos();
+	void setPrepos(int& preposx,int& preposy);
 	void runToPrepos();
 	void queryPos();
 	bool judgePanTilpos();

@@ -2,7 +2,7 @@
 
 StateManger::StateManger()
 {
-
+	
 }
 
 StateManger::StateManger(State* state)
