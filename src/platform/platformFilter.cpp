@@ -66,29 +66,44 @@ void CPlatformFilter::PlatformFilter_Reset(HPLTFILTER hFilter)
 
 
 
-void CPlatformFilter::PlatformFilter_updatePidParams(PlatformFilter_CreateParams *pPrm,PlatformFilter_CreateParams *pPrm2,float* m_Prm)
+void CPlatformFilter::PlatformFilter_updatePidParams(PlatformFilter_CreateParams *pPrm,PlatformFilter_CreateParams *pPrm2,int* m_Prm)
 {
+	float value;
 	if(pPrm == NULL || pPrm2 == NULL)
 		return;
 	
 	//int i = 1441;
-	if(pPrm->Kp  != m_Prm[CFGID_PID_KPX])
-		pPrm->Kp  = m_Prm[CFGID_PID_KPX];
-	if(pPrm->Ki != m_Prm[CFGID_PID_KIX])
-		pPrm->Ki = m_Prm[CFGID_PID_KIX];
-	if(pPrm->Kd != m_Prm[CFGID_PID_KDX])
-		pPrm->Kd = m_Prm[CFGID_PID_KDX];
-	if(pPrm->K != m_Prm[CFGID_PID_KX])
-		pPrm->K = m_Prm[CFGID_PID_KX];
+	memcpy(&value, m_Prm + CFGID_PID_KPX, 4);
+	if(pPrm->Kp  != value)
+		pPrm->Kp  = value;
 
-	if(pPrm2->Kp  != m_Prm[CFGID_PID_KPY])
-		pPrm2->Kp  = m_Prm[CFGID_PID_KPY];
-	if(pPrm2->Ki != m_Prm[CFGID_PID_KIY])
-		pPrm2->Ki = m_Prm[CFGID_PID_KIY];
-	if(pPrm2->Kd != m_Prm[CFGID_PID_KDY])
-		pPrm2->Kd = m_Prm[CFGID_PID_KDY];
-	if(pPrm2->K != m_Prm[CFGID_PID_KY])
-		pPrm2->K = m_Prm[CFGID_PID_KY];
+	memcpy(&value, m_Prm + CFGID_PID_KIX, 4);
+	if(pPrm->Ki != value)
+		pPrm->Ki = value;
+
+	memcpy(&value, m_Prm + CFGID_PID_KDX, 4);
+	if(pPrm->Kd != value)
+		pPrm->Kd = value;
+
+	memcpy(&value, m_Prm + CFGID_PID_KX, 4);
+	if(pPrm->K != value)
+		pPrm->K = value;
+
+	memcpy(&value, m_Prm + CFGID_PID_KPY, 4);
+	if(pPrm2->Kp  != value)
+		pPrm2->Kp  = value;
+
+	memcpy(&value, m_Prm + CFGID_PID_KIY, 4);
+	if(pPrm2->Ki != value)
+		pPrm2->Ki = value;
+
+	memcpy(&value, m_Prm + CFGID_PID_KDY, 4);
+	if(pPrm2->Kd != value)
+		pPrm2->Kd = value;
+
+	memcpy(&value, m_Prm + CFGID_PID_KY, 4);
+	if(pPrm2->K != value)
+		pPrm2->K = value;
 
 	return ;
 }

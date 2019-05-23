@@ -139,7 +139,7 @@ typedef struct{
 typedef struct{
 	int block;
 	int field;
-	float value;
+	int value;
 }Set_config_t;
 
 typedef struct{

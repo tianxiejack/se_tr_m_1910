@@ -91,7 +91,7 @@ public:
 	static AgreeMentBaseFormat* _agreement;
 	static CPlatformInterface* m_Platform;
 	static CPTZSpeedTransfer*  m_ptzSpeed;
-	static float* cfg_value;
+	static int* cfg_value;
 	char curValidChid;
 	selectCh_t selectch;
 

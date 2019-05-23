@@ -11,8 +11,8 @@ public:
 	~CplatFormControl();
 
 	View* sensorParams();
-	void PlatformCtrl_sensor_Init(float* data);
-	void PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams *pPrm, float* m_Prm, View* m_Sensor);
+	void PlatformCtrl_sensor_Init(int* data);
+	void PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams *pPrm, int* m_Prm, View* m_Sensor);
 	HPLTCTRL PlatformCtrl_Create(PlatformCtrl_CreateParams *pPrm);
 
 	void PlatformCtrl_Delete(HPLTCTRL handle);

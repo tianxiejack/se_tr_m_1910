@@ -21,7 +21,7 @@ void* StateManger::returnIpc()
 	return _state->m_ipc;
 }
 
-void StateManger::GetParams(float* p)
+void StateManger::GetParams(int* p)
 {
 	_state->cfg_value = p;
 }

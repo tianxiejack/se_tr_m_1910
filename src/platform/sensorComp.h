@@ -131,8 +131,8 @@ public:
 
 
 	View* backParams();
-	BoresightPos_s updateParam( float* data , PlatformCtrl_Obj* pObj ,int curChid);
-	void updateParam( float* data , PlatformCtrl_Obj* pObj = NULL);
+	BoresightPos_s updateParam( int* data , PlatformCtrl_Obj* pObj ,int curChid);
+	void updateParam( int* data , PlatformCtrl_Obj* pObj = NULL);
 
 	void SensorComp_CreateParams_Init(SensorComp_CreateParams *pPrm, int i, View* Pserson,int width ,int height);
 	
@@ -144,9 +144,9 @@ public:
 	
 private:
 	BoresightPos_s getTheNewestBoresight(int curChid );
-	void updateContinueFovParam( float* data , PlatformCtrl_Obj* pObj );
-	void updateSwitchFovParam( float* data , PlatformCtrl_Obj* pObj );
-	void updateFixFovParam( float* data , PlatformCtrl_Obj* pObj );
+	void updateContinueFovParam( int* data , PlatformCtrl_Obj* pObj );
+	void updateSwitchFovParam( int* data , PlatformCtrl_Obj* pObj );
+	void updateFixFovParam( int* data , PlatformCtrl_Obj* pObj );
 	
 	float linear_interpolation(float x0, float x1, float y0, float y1, float x);
 

@@ -13,8 +13,8 @@ public:
 	virtual ~CPlatformInterface(){};
 
 	virtual View* sensorParams() = 0;
-	virtual void PlatformCtrl_sensor_Init(float* data) = 0;
-	virtual void PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams *pPrm, float* m_Prm, View* m_Sensor) = 0;
+	virtual void PlatformCtrl_sensor_Init(int* data) = 0;
+	virtual void PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams *pPrm, int* m_Prm, View* m_Sensor) = 0;
 	virtual HPLTCTRL PlatformCtrl_Create(PlatformCtrl_CreateParams *pPrm) = 0;
 
 	virtual int PlatformCtrl_VirtualInput(HPLTCTRL handle, int iIndex, float fValue) = 0;

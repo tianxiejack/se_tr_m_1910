@@ -32,7 +32,7 @@ View* CSensorComp::backParams()
 }
 
 
-void CSensorComp::updateFixFovParam( float* data , PlatformCtrl_Obj* pObj )
+void CSensorComp::updateFixFovParam( int* data , PlatformCtrl_Obj* pObj )
 {
 	float value ;
 	int base;
@@ -44,18 +44,22 @@ void CSensorComp::updateFixFovParam( float* data , PlatformCtrl_Obj* pObj )
 		else
 			base = CFGID_INPUT2_BKID + (i-1)*7 ;
 
-		m_viewParam.level_Fov_fix[i] = data[CFGID_INPUT_FOVX(base , 1)] * (PI / 180) * 1000;
-		m_viewParam.vertical_Fov_fix[i] = data[CFGID_INPUT_FOVY(base , 1)] * (PI / 180) * 1000;
+		memcpy(&value, data + CFGID_INPUT_FOVX(base , 1), 4);
+		m_viewParam.level_Fov_fix[i] = value * (PI / 180) * 1000;
+		memcpy(&value, data + CFGID_INPUT_FOVY(base , 1), 4);
+		m_viewParam.vertical_Fov_fix[i] = value * (PI / 180) * 1000;
 
-		m_viewParam.Boresightpos_fix_x[i] = data[CFGID_INPUT_boresightX(base , 1)];
-		m_viewParam.Boresightpos_fix_y[i] = data[CFGID_INPUT_boresightY(base , 1)];
+		memcpy(&value, data + CFGID_INPUT_boresightX(base , 1), 4);
+		m_viewParam.Boresightpos_fix_x[i] = value;
+		memcpy(&value, data + CFGID_INPUT_boresightY(base , 1), 4);
+		m_viewParam.Boresightpos_fix_y[i] = value;
 	}
 	return ;
 }
 
 
 
-void CSensorComp::updateSwitchFovParam( float* data , PlatformCtrl_Obj* pObj )
+void CSensorComp::updateSwitchFovParam( int* data , PlatformCtrl_Obj* pObj )
 {
 	float value ;
 	int base;
@@ -72,10 +76,14 @@ void CSensorComp::updateSwitchFovParam( float* data , PlatformCtrl_Obj* pObj )
 		
 		for(int i=0 ; i<13 ;i++)
 		{
-			*(ptr + 0*chid_camera + i*4*chid_camera) = data[CFGID_INPUT_FOVX(base , i+1)] * (PI / 180) * 1000;		
-			*(ptr + 1*chid_camera + i*4*chid_camera) = data[CFGID_INPUT_FOVY(base , i+1)] * (PI / 180) * 1000;		
-			*(ptr + 2*chid_camera + i*4*chid_camera) = data[CFGID_INPUT_boresightX(base , i+1)];
-			*(ptr + 3*chid_camera + i*4*chid_camera) = data[CFGID_INPUT_boresightY(base , i+1)];
+			memcpy(&value, data + CFGID_INPUT_FOVX(base , i+1), 4);
+			*(ptr + 0*chid_camera + i*4*chid_camera) = value * (PI / 180) * 1000;
+			memcpy(&value, data + CFGID_INPUT_FOVY(base , i+1), 4);
+			*(ptr + 1*chid_camera + i*4*chid_camera) = value * (PI / 180) * 1000;
+			memcpy(&value, data + CFGID_INPUT_boresightX(base , i+1), 4);
+			*(ptr + 2*chid_camera + i*4*chid_camera) = value;
+			memcpy(&value, data + CFGID_INPUT_boresightY(base , i+1), 4);
+			*(ptr + 3*chid_camera + i*4*chid_camera) = value;
 		}
 	}	
 	return ;
@@ -83,7 +91,7 @@ void CSensorComp::updateSwitchFovParam( float* data , PlatformCtrl_Obj* pObj )
 
 
 
-void CSensorComp::updateContinueFovParam( float* data , PlatformCtrl_Obj* pObj )
+void CSensorComp::updateContinueFovParam( int* data , PlatformCtrl_Obj* pObj )
 {
 	float value ;
 	int base;
@@ -100,11 +108,16 @@ void CSensorComp::updateContinueFovParam( float* data , PlatformCtrl_Obj* pObj )
 		
 		for(int i=0 ; i<13 ;i++)
 		{
-			*(ptr + 0*chid_camera + i*5*chid_camera) = data[CFGID_INPUT_FOVX(base , i+1)] * (PI / 180) * 1000;		
-			*(ptr + 1*chid_camera + i*5*chid_camera) = data[CFGID_INPUT_FOVY(base , i+1)] * (PI / 180) * 1000;		
-			*(ptr + 2*chid_camera + i*5*chid_camera) = data[CFGID_INPUT_boresightX(base , i+1)];
-			*(ptr + 3*chid_camera + i*5*chid_camera) = data[CFGID_INPUT_boresightY(base , i+1)];
-			*(ptr + 4*chid_camera + i*5*chid_camera) = data[CFGID_INPUT_ZOOMFBS(base , i+1)];
+			memcpy(&value, data + CFGID_INPUT_FOVX(base , i+1), 4);
+			*(ptr + 0*chid_camera + i*5*chid_camera) = value * (PI / 180) * 1000;
+			memcpy(&value, data + CFGID_INPUT_FOVY(base , i+1), 4);
+			*(ptr + 1*chid_camera + i*5*chid_camera) = value * (PI / 180) * 1000;
+			memcpy(&value, data + CFGID_INPUT_boresightX(base , i+1), 4);
+			*(ptr + 2*chid_camera + i*5*chid_camera) = value;
+			memcpy(&value, data + CFGID_INPUT_boresightY(base , i+1), 4);
+			*(ptr + 3*chid_camera + i*5*chid_camera) = value;
+			memcpy(&value, data + CFGID_INPUT_ZOOMFBS(base , i+1), 4);
+			*(ptr + 4*chid_camera + i*5*chid_camera) = value;
 		}
 	}
 	return ;
@@ -140,7 +153,7 @@ BoresightPos_s CSensorComp::getTheNewestBoresight(int curChid )
 
 
 
-void CSensorComp::updateParam( float* data , PlatformCtrl_Obj* pObj )
+void CSensorComp::updateParam( int* data , PlatformCtrl_Obj* pObj )
 {
 	updateFixFovParam( data , pObj );
 	updateSwitchFovParam( data , pObj );
@@ -150,7 +163,7 @@ void CSensorComp::updateParam( float* data , PlatformCtrl_Obj* pObj )
 
 
 	
-BoresightPos_s CSensorComp::updateParam( float* data , PlatformCtrl_Obj* pObj ,int curChid  )
+BoresightPos_s CSensorComp::updateParam( int* data , PlatformCtrl_Obj* pObj ,int curChid  )
 {
 	updateParam( data , pObj );
 	getTheNewestBoresight(curChid);

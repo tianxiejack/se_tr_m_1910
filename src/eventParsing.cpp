@@ -609,13 +609,17 @@ int CEventParsing::parsingComEvent(comtype_t comtype)
 				_Msg->MSGDRIV_send(MSGID_COM_INPUT_TRKOUTPUT, &ComParams);
 				break;
 			case 0x51:
-				settmp.block= rcvBufQue.at(5);
-				settmp.field= rcvBufQue.at(6);
-				for(int m = 7; m < 11; m++)
-					tempbuf[m-7]  = rcvBufQue.at(m);
-				memcpy(&settmp.value, tempbuf, 4);
-				ComParams.setConfigQueue.push_back(settmp);
-				_Msg->MSGDRIV_send(MSGID_COM_INPUT_SETCFG, &ComParams);
+				{
+					settmp.block= rcvBufQue.at(5);
+					settmp.field= rcvBufQue.at(6);
+					for(int m = 7; m < 11; m++)
+						tempbuf[m-7]  = rcvBufQue.at(m);
+
+					memcpy(&settmp.value, tempbuf, 4);
+
+					ComParams.setConfigQueue.push_back(settmp);
+					_Msg->MSGDRIV_send(MSGID_COM_INPUT_SETCFG, &ComParams);
+				}
 				break;
 			case 0x52:
 				gettmp.block = rcvBufQue.at(5);

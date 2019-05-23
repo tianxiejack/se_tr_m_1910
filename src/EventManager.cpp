@@ -51,12 +51,14 @@ void CEventManager::IPC_Creat()
 		printf("[%s] %d ipc create error \n", __func__, __LINE__);
 		return;
 	}
-	cfg_value = (float *)ipc_getSharedMem(IPC_IMG_SHA);
+	cfg_value = (int *)ipc_getSharedMem(IPC_IMG_SHA);
 	usr_value = (char *)ipc_getSharedMem(IPC_USER_SHA);
 }
 
 void CEventManager::thread_ipcEvent()
 {
+	float value;
+	float errorx, errory;
 	int cfgid = -1;
 	while(!pThis->exit_ipcthread)
 	{
@@ -66,14 +68,19 @@ void CEventManager::thread_ipcEvent()
 			case CFGID_RTS_trkstat:
 
 				pThis->m_pixelErr.status = pThis->cfg_value[CFGID_RTS_trkstat];
-				pThis->m_pixelErr.errx = pThis->cfg_value[CFGID_RTS_trkerrx];
-				pThis->m_pixelErr.erry = pThis->cfg_value[CFGID_RTS_trkerry];
+				memcpy(&value, pThis->cfg_value + CFGID_RTS_trkerrx, 4);
+				pThis->m_pixelErr.errx = value;
+				memcpy(&value, pThis->cfg_value + CFGID_RTS_trkerry, 4);
+				pThis->m_pixelErr.erry = value;
 				
 				pThis->_Msg->MSGDRIV_send(MSGID_COM_INPUT_TRKCONTROL, 0);
 
 				if(1 == pThis->outtype)
-					pThis->signalFeedBack(6, pThis->outcomtype, ACK_output, (int)pThis->cfg_value[CFGID_RTS_trkstat], pThis->outtype, (int)pThis->cfg_value[CFGID_RTS_trkerrx], (int)pThis->cfg_value[CFGID_RTS_trkerry]);
-
+				{
+					memcpy(&errorx, pThis->cfg_value + CFGID_RTS_trkerrx, 4);
+					memcpy(&errory, pThis->cfg_value + CFGID_RTS_trkerry, 4);
+					pThis->signalFeedBack(6, pThis->outcomtype, ACK_output, (int)pThis->cfg_value[CFGID_RTS_trkstat], pThis->outtype, (int)errorx, (int)errory);
+				}
 				break;
 
 			case CFGID_RTS_mtddet:	
@@ -512,10 +519,24 @@ int  CEventManager::ReadConfigFile()
 						memset(usr_value + usrosdId * USEROSD_LENGTH, 0, USEROSD_LENGTH);
 						str.copy(usr_value+usrosdId*USEROSD_LENGTH, str.length()<USEROSD_LENGTH?str.length():USEROSD_LENGTH, 0);
 					}
+					else if(i == CFGID_PTZ_netip)
+					{
+						str = (string)fr[cfg_avt];
+						unsigned int intip = stringip2int(str);
+						memcpy(cfg_value + i, &intip, 4);
+					}
 					else
 					{
-						float value = fr[cfg_avt];
-						cfg_value[i] = value;
+						if(is_float(i))
+						{
+							float value = (float)(fr[cfg_avt]);
+							memcpy(cfg_value + i, &value, 4);
+						}
+						else
+						{
+							int value = (int)fr[cfg_avt];
+							memcpy(cfg_value + i, &value, 4);
+						}
 					}
 				}
 			}
@@ -535,7 +556,7 @@ int  CEventManager::ReadConfigFile()
 	return 0;
 }
 
-int CEventManager::SetConfig(int block, int field, float value,char *inBuf)
+int CEventManager::SetConfig(int block, int field, int value,char *inBuf)
 {
 	block -= 1;
 	int i = CFGID_BUILD(block, field);
@@ -550,7 +571,8 @@ int CEventManager::SetConfig(int block, int field, float value,char *inBuf)
 		return 0;
 	}
 	
-	cfg_value[i] = value;
+	//cfg_value[i] = value;
+	memcpy(cfg_value + i, &value, 4);
 	m_ipc->IPCSendMsg(read_shm_single, &i, 4);
 
 	if(((block >= CFGID_INPUT1_BKID) && (block <= CFGID_INPUT1_BKID + 6)) || ((block >= CFGID_INPUT2_BKID) && (block <= CFGID_INPUT5_BKID + 6)) )
@@ -579,7 +601,9 @@ int CEventManager::GetConfig(comtype_t comtype, int block, int field)
 	}
 	else
 	{
-		float value = cfg_value[i];
+		//float value = cfg_value[i];
+		int value;
+		memcpy(&value, cfg_value + i, 4);
 		Set_config_t tmp = {block, field, value};
 		ACK_ComParams.comtype = comtype;
 		ACK_ComParams.cmdid  = ACK_GetConfig;
@@ -637,9 +661,24 @@ int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
 								if(blockId != -1)
 									m_ipc->IPCSendMsg(read_shm_usrosd, &usrosdId, 4);
 							}
+							else if(i == CFGID_PTZ_netip)
+							{
+								str = (string)fr[cfg_avt];
+								unsigned int intip = stringip2int(str);
+								memcpy(cfg_value + i, &intip, 4);
+							}
 							else
 							{
-								cfg_value[i] = (float)fr[cfg_avt];
+								if(is_float(i))
+								{
+									float value = (float)(fr[cfg_avt]);
+									memcpy(cfg_value + i, &value, 4);
+								}
+								else
+								{
+									int value = (int)fr[cfg_avt];
+									memcpy(cfg_value + i, &value, 4);
+								}
 							}
 
 							if(((blkId >= CFGID_INPUT1_BKID) && (blkId <= CFGID_INPUT1_BKID + 6)) || ((blkId >= CFGID_INPUT2_BKID) && (blkId <= CFGID_INPUT5_BKID + 6)) )
@@ -715,10 +754,27 @@ int CEventManager::SaveConfig(comtype_t comtype)
 						
 						fr<< cfg_avt << str;
 					}
+					else if(i == CFGID_PTZ_netip)
+					{
+						unsigned int intip;
+						memcpy(&intip, cfg_value + i, 4);
+						string str = intip2string(intip);
+						fr<< cfg_avt << str;
+					}
 					else
 					{
-						float value = cfg_value[i];
-						fr<< cfg_avt << value;
+						if(is_float(i))
+						{
+							float value;
+							memcpy(&value, cfg_value + i, 4);
+							fr<< cfg_avt << value;
+						}
+						else
+						{
+							int value;
+							memcpy(&value, cfg_value + i, 4);
+							fr<< cfg_avt << value;
+						}
 					}
 				}
 				status  = 1;
@@ -804,3 +860,471 @@ void CEventManager::signalFeedBack(int argnum ...)
 		OSA_semSignal(&m_semHndl);
 	}
 }
+int CEventManager::is_float(int cfgid)
+{
+	int float_cfgid[profileNum] = {
+		CFGID_JOS_deadx,
+		CFGID_JOS_deady,
+		CFGID_JOS_inputgainx1,
+		CFGID_JOS_inputgainy1,
+		CFGID_JOS_inputgainx2,
+		CFGID_JOS_inputgainy2,
+		CFGID_JOS_cutpointx1,
+		CFGID_JOS_cutpointy1,
+		CFGID_JOS_cutpointx2,
+		CFGID_JOS_cutpointy2,
+		CFGID_PTZ_stopbit,
+
+		CFGID_TRK_BASE,
+		CFGID_TRK_BASE+1,
+		CFGID_TRK_BASE+2,
+		CFGID_TRK_BASE+3,
+		CFGID_TRK_BASE+4,
+		CFGID_TRK_BASE+5,
+		CFGID_TRK_BASE+6,
+		CFGID_TRK_BASE+7,
+		CFGID_TRK_BASE+8,
+		CFGID_TRK_BASE+9,
+		CFGID_TRK_BASE+10,
+		CFGID_TRK_BASE+11,
+		CFGID_TRK_BASE+12,
+		CFGID_TRK_BASE+13,
+		CFGID_TRK_BASE+14,
+		CFGID_TRK_BASE+15,
+
+		CFGID_TRK_BASE2,
+		CFGID_TRK_BASE2+1,
+		CFGID_TRK_BASE2+2,
+		CFGID_TRK_BASE2+3,
+		CFGID_TRK_BASE2+4,
+		CFGID_TRK_BASE2+5,
+		CFGID_TRK_BASE2+6,
+		CFGID_TRK_BASE2+7,
+		CFGID_TRK_BASE2+8,
+		CFGID_TRK_BASE2+9,
+		CFGID_TRK_BASE2+10,
+		CFGID_TRK_BASE2+11,
+		CFGID_TRK_BASE2+12,
+		CFGID_TRK_BASE2+13,
+		CFGID_TRK_BASE2+14,
+		CFGID_TRK_BASE2+15,
+		
+		CFGID_TRK_BASE3,
+		CFGID_TRK_BASE3+1,
+		CFGID_TRK_BASE3+2,
+		CFGID_TRK_BASE3+3,
+		CFGID_TRK_BASE3+4,
+		CFGID_TRK_BASE3+5,
+		CFGID_TRK_BASE3+6,
+		CFGID_TRK_BASE3+7,
+		CFGID_TRK_BASE3+8,
+		CFGID_TRK_BASE3+9,
+		CFGID_TRK_BASE3+10,
+		CFGID_TRK_BASE3+11,
+		CFGID_TRK_BASE3+12,
+		CFGID_TRK_BASE3+13,
+		CFGID_TRK_BASE3+14,
+		CFGID_TRK_BASE3+15,
+		
+		CFGID_INPUT_FOVX(CFGID_INPUT1_BKID , 1),
+		CFGID_INPUT_FOVY(CFGID_INPUT1_BKID , 1),
+		CFGID_INPUT_FOVX(CFGID_INPUT1_BKID , 2),
+		CFGID_INPUT_FOVY(CFGID_INPUT1_BKID , 2),
+		CFGID_INPUT_FOVX(CFGID_INPUT1_BKID , 3),
+		CFGID_INPUT_FOVY(CFGID_INPUT1_BKID , 3),
+		CFGID_INPUT_FOVX(CFGID_INPUT1_BKID , 4),
+		CFGID_INPUT_FOVY(CFGID_INPUT1_BKID , 4),
+		CFGID_INPUT_FOVX(CFGID_INPUT1_BKID , 5),
+		CFGID_INPUT_FOVY(CFGID_INPUT1_BKID , 5),
+		CFGID_INPUT_FOVX(CFGID_INPUT1_BKID , 6),
+		CFGID_INPUT_FOVY(CFGID_INPUT1_BKID , 6),
+		CFGID_INPUT_FOVX(CFGID_INPUT1_BKID , 7),
+		CFGID_INPUT_FOVY(CFGID_INPUT1_BKID , 7),
+		CFGID_INPUT_FOVX(CFGID_INPUT1_BKID , 8),
+		CFGID_INPUT_FOVY(CFGID_INPUT1_BKID , 8),
+		CFGID_INPUT_FOVX(CFGID_INPUT1_BKID , 9),
+		CFGID_INPUT_FOVY(CFGID_INPUT1_BKID , 9),
+		CFGID_INPUT_FOVX(CFGID_INPUT1_BKID , 10),
+		CFGID_INPUT_FOVY(CFGID_INPUT1_BKID , 10),
+		CFGID_INPUT_FOVX(CFGID_INPUT1_BKID , 11),
+		CFGID_INPUT_FOVY(CFGID_INPUT1_BKID , 11),
+		CFGID_INPUT_FOVX(CFGID_INPUT1_BKID , 12),
+		CFGID_INPUT_FOVY(CFGID_INPUT1_BKID , 12),
+		CFGID_INPUT_FOVX(CFGID_INPUT1_BKID , 13),
+		CFGID_INPUT_FOVY(CFGID_INPUT1_BKID , 13),
+		CFGID_INPUT_Feedback(CFGID_INPUT1_BKID, 1),
+		CFGID_INPUT_Feedback(CFGID_INPUT1_BKID, 2),
+		CFGID_INPUT_Feedback(CFGID_INPUT1_BKID, 3),
+		CFGID_INPUT_Feedback(CFGID_INPUT1_BKID, 4),
+		CFGID_INPUT_Feedback(CFGID_INPUT1_BKID, 5),
+		CFGID_INPUT_Feedback(CFGID_INPUT1_BKID, 6),
+		CFGID_INPUT_Feedback(CFGID_INPUT1_BKID, 7),
+		CFGID_INPUT_Feedback(CFGID_INPUT1_BKID, 8),
+		CFGID_INPUT_Feedback(CFGID_INPUT1_BKID, 9),
+		CFGID_INPUT_Feedback(CFGID_INPUT1_BKID, 10),
+		CFGID_INPUT_Feedback(CFGID_INPUT1_BKID, 11),
+		CFGID_INPUT_Feedback(CFGID_INPUT1_BKID, 12),
+		CFGID_INPUT_Feedback(CFGID_INPUT1_BKID, 13),
+		CFGID_INPUT_boresightX(CFGID_INPUT1_BKID, 1),
+		CFGID_INPUT_boresightY(CFGID_INPUT1_BKID, 1),
+		CFGID_INPUT_boresightX(CFGID_INPUT1_BKID, 2),
+		CFGID_INPUT_boresightY(CFGID_INPUT1_BKID, 2),
+		CFGID_INPUT_boresightX(CFGID_INPUT1_BKID, 3),
+		CFGID_INPUT_boresightY(CFGID_INPUT1_BKID, 3),
+		CFGID_INPUT_boresightX(CFGID_INPUT1_BKID, 4),
+		CFGID_INPUT_boresightY(CFGID_INPUT1_BKID, 4),
+		CFGID_INPUT_boresightX(CFGID_INPUT1_BKID, 5),
+		CFGID_INPUT_boresightY(CFGID_INPUT1_BKID, 5),
+		CFGID_INPUT_boresightX(CFGID_INPUT1_BKID, 6),
+		CFGID_INPUT_boresightY(CFGID_INPUT1_BKID, 6),
+		CFGID_INPUT_boresightX(CFGID_INPUT1_BKID, 7),
+		CFGID_INPUT_boresightY(CFGID_INPUT1_BKID, 7),
+		CFGID_INPUT_boresightX(CFGID_INPUT1_BKID, 8),
+		CFGID_INPUT_boresightY(CFGID_INPUT1_BKID, 8),
+		CFGID_INPUT_boresightX(CFGID_INPUT1_BKID, 9),
+		CFGID_INPUT_boresightY(CFGID_INPUT1_BKID, 9),
+		CFGID_INPUT_boresightX(CFGID_INPUT1_BKID, 10),
+		CFGID_INPUT_boresightY(CFGID_INPUT1_BKID, 10),
+		CFGID_INPUT_boresightX(CFGID_INPUT1_BKID, 11),
+		CFGID_INPUT_boresightY(CFGID_INPUT1_BKID, 11),
+		CFGID_INPUT_boresightX(CFGID_INPUT1_BKID, 12),
+		CFGID_INPUT_boresightY(CFGID_INPUT1_BKID, 12),
+		CFGID_INPUT_boresightX(CFGID_INPUT1_BKID, 13),
+		CFGID_INPUT_boresightY(CFGID_INPUT1_BKID, 13),
+
+		CFGID_INPUT_FOVX(CFGID_INPUT2_BKID , 1),
+		CFGID_INPUT_FOVY(CFGID_INPUT2_BKID , 1),
+		CFGID_INPUT_FOVX(CFGID_INPUT2_BKID , 2),
+		CFGID_INPUT_FOVY(CFGID_INPUT2_BKID , 2),
+		CFGID_INPUT_FOVX(CFGID_INPUT2_BKID , 3),
+		CFGID_INPUT_FOVY(CFGID_INPUT2_BKID , 3),
+		CFGID_INPUT_FOVX(CFGID_INPUT2_BKID , 4),
+		CFGID_INPUT_FOVY(CFGID_INPUT2_BKID , 4),
+		CFGID_INPUT_FOVX(CFGID_INPUT2_BKID , 5),
+		CFGID_INPUT_FOVY(CFGID_INPUT2_BKID , 5),
+		CFGID_INPUT_FOVX(CFGID_INPUT2_BKID , 6),
+		CFGID_INPUT_FOVY(CFGID_INPUT2_BKID , 6),
+		CFGID_INPUT_FOVX(CFGID_INPUT2_BKID , 7),
+		CFGID_INPUT_FOVY(CFGID_INPUT2_BKID , 7),
+		CFGID_INPUT_FOVX(CFGID_INPUT2_BKID , 8),
+		CFGID_INPUT_FOVY(CFGID_INPUT2_BKID , 8),
+		CFGID_INPUT_FOVX(CFGID_INPUT2_BKID , 9),
+		CFGID_INPUT_FOVY(CFGID_INPUT2_BKID , 9),
+		CFGID_INPUT_FOVX(CFGID_INPUT2_BKID , 10),
+		CFGID_INPUT_FOVY(CFGID_INPUT2_BKID , 10),
+		CFGID_INPUT_FOVX(CFGID_INPUT2_BKID , 11),
+		CFGID_INPUT_FOVY(CFGID_INPUT2_BKID , 11),
+		CFGID_INPUT_FOVX(CFGID_INPUT2_BKID , 12),
+		CFGID_INPUT_FOVY(CFGID_INPUT2_BKID , 12),
+		CFGID_INPUT_FOVX(CFGID_INPUT2_BKID , 13),
+		CFGID_INPUT_FOVY(CFGID_INPUT2_BKID , 13),
+		CFGID_INPUT_Feedback(CFGID_INPUT2_BKID, 1),
+		CFGID_INPUT_Feedback(CFGID_INPUT2_BKID, 2),
+		CFGID_INPUT_Feedback(CFGID_INPUT2_BKID, 3),
+		CFGID_INPUT_Feedback(CFGID_INPUT2_BKID, 4),
+		CFGID_INPUT_Feedback(CFGID_INPUT2_BKID, 5),
+		CFGID_INPUT_Feedback(CFGID_INPUT2_BKID, 6),
+		CFGID_INPUT_Feedback(CFGID_INPUT2_BKID, 7),
+		CFGID_INPUT_Feedback(CFGID_INPUT2_BKID, 8),
+		CFGID_INPUT_Feedback(CFGID_INPUT2_BKID, 9),
+		CFGID_INPUT_Feedback(CFGID_INPUT2_BKID, 10),
+		CFGID_INPUT_Feedback(CFGID_INPUT2_BKID, 11),
+		CFGID_INPUT_Feedback(CFGID_INPUT2_BKID, 12),
+		CFGID_INPUT_Feedback(CFGID_INPUT2_BKID, 13),
+		CFGID_INPUT_boresightX(CFGID_INPUT2_BKID, 1),
+		CFGID_INPUT_boresightY(CFGID_INPUT2_BKID, 1),
+		CFGID_INPUT_boresightX(CFGID_INPUT2_BKID, 2),
+		CFGID_INPUT_boresightY(CFGID_INPUT2_BKID, 2),
+		CFGID_INPUT_boresightX(CFGID_INPUT2_BKID, 3),
+		CFGID_INPUT_boresightY(CFGID_INPUT2_BKID, 3),
+		CFGID_INPUT_boresightX(CFGID_INPUT2_BKID, 4),
+		CFGID_INPUT_boresightY(CFGID_INPUT2_BKID, 4),
+		CFGID_INPUT_boresightX(CFGID_INPUT2_BKID, 5),
+		CFGID_INPUT_boresightY(CFGID_INPUT2_BKID, 5),
+		CFGID_INPUT_boresightX(CFGID_INPUT2_BKID, 6),
+		CFGID_INPUT_boresightY(CFGID_INPUT2_BKID, 6),
+		CFGID_INPUT_boresightX(CFGID_INPUT2_BKID, 7),
+		CFGID_INPUT_boresightY(CFGID_INPUT2_BKID, 7),
+		CFGID_INPUT_boresightX(CFGID_INPUT2_BKID, 8),
+		CFGID_INPUT_boresightY(CFGID_INPUT2_BKID, 8),
+		CFGID_INPUT_boresightX(CFGID_INPUT2_BKID, 9),
+		CFGID_INPUT_boresightY(CFGID_INPUT2_BKID, 9),
+		CFGID_INPUT_boresightX(CFGID_INPUT2_BKID, 10),
+		CFGID_INPUT_boresightY(CFGID_INPUT2_BKID, 10),
+		CFGID_INPUT_boresightX(CFGID_INPUT2_BKID, 11),
+		CFGID_INPUT_boresightY(CFGID_INPUT2_BKID, 11),
+		CFGID_INPUT_boresightX(CFGID_INPUT2_BKID, 12),
+		CFGID_INPUT_boresightY(CFGID_INPUT2_BKID, 12),
+		CFGID_INPUT_boresightX(CFGID_INPUT2_BKID, 13),
+		CFGID_INPUT_boresightY(CFGID_INPUT2_BKID, 13),
+
+		CFGID_INPUT_FOVX(CFGID_INPUT3_BKID , 1),
+		CFGID_INPUT_FOVY(CFGID_INPUT3_BKID , 1),
+		CFGID_INPUT_FOVX(CFGID_INPUT3_BKID , 2),
+		CFGID_INPUT_FOVY(CFGID_INPUT3_BKID , 2),
+		CFGID_INPUT_FOVX(CFGID_INPUT3_BKID , 3),
+		CFGID_INPUT_FOVY(CFGID_INPUT3_BKID , 3),
+		CFGID_INPUT_FOVX(CFGID_INPUT3_BKID , 4),
+		CFGID_INPUT_FOVY(CFGID_INPUT3_BKID , 4),
+		CFGID_INPUT_FOVX(CFGID_INPUT3_BKID , 5),
+		CFGID_INPUT_FOVY(CFGID_INPUT3_BKID , 5),
+		CFGID_INPUT_FOVX(CFGID_INPUT3_BKID , 6),
+		CFGID_INPUT_FOVY(CFGID_INPUT3_BKID , 6),
+		CFGID_INPUT_FOVX(CFGID_INPUT3_BKID , 7),
+		CFGID_INPUT_FOVY(CFGID_INPUT3_BKID , 7),
+		CFGID_INPUT_FOVX(CFGID_INPUT3_BKID , 8),
+		CFGID_INPUT_FOVY(CFGID_INPUT3_BKID , 8),
+		CFGID_INPUT_FOVX(CFGID_INPUT3_BKID , 9),
+		CFGID_INPUT_FOVY(CFGID_INPUT3_BKID , 9),
+		CFGID_INPUT_FOVX(CFGID_INPUT3_BKID , 10),
+		CFGID_INPUT_FOVY(CFGID_INPUT3_BKID , 10),
+		CFGID_INPUT_FOVX(CFGID_INPUT3_BKID , 11),
+		CFGID_INPUT_FOVY(CFGID_INPUT3_BKID , 11),
+		CFGID_INPUT_FOVX(CFGID_INPUT3_BKID , 12),
+		CFGID_INPUT_FOVY(CFGID_INPUT3_BKID , 12),
+		CFGID_INPUT_FOVX(CFGID_INPUT3_BKID , 13),
+		CFGID_INPUT_FOVY(CFGID_INPUT3_BKID , 13),
+		CFGID_INPUT_Feedback(CFGID_INPUT3_BKID, 1),
+		CFGID_INPUT_Feedback(CFGID_INPUT3_BKID, 2),
+		CFGID_INPUT_Feedback(CFGID_INPUT3_BKID, 3),
+		CFGID_INPUT_Feedback(CFGID_INPUT3_BKID, 4),
+		CFGID_INPUT_Feedback(CFGID_INPUT3_BKID, 5),
+		CFGID_INPUT_Feedback(CFGID_INPUT3_BKID, 6),
+		CFGID_INPUT_Feedback(CFGID_INPUT3_BKID, 7),
+		CFGID_INPUT_Feedback(CFGID_INPUT3_BKID, 8),
+		CFGID_INPUT_Feedback(CFGID_INPUT3_BKID, 9),
+		CFGID_INPUT_Feedback(CFGID_INPUT3_BKID, 10),
+		CFGID_INPUT_Feedback(CFGID_INPUT3_BKID, 11),
+		CFGID_INPUT_Feedback(CFGID_INPUT3_BKID, 12),
+		CFGID_INPUT_Feedback(CFGID_INPUT3_BKID, 13),
+		CFGID_INPUT_boresightX(CFGID_INPUT3_BKID, 1),
+		CFGID_INPUT_boresightY(CFGID_INPUT3_BKID, 1),
+		CFGID_INPUT_boresightX(CFGID_INPUT3_BKID, 2),
+		CFGID_INPUT_boresightY(CFGID_INPUT3_BKID, 2),
+		CFGID_INPUT_boresightX(CFGID_INPUT3_BKID, 3),
+		CFGID_INPUT_boresightY(CFGID_INPUT3_BKID, 3),
+		CFGID_INPUT_boresightX(CFGID_INPUT3_BKID, 4),
+		CFGID_INPUT_boresightY(CFGID_INPUT3_BKID, 4),
+		CFGID_INPUT_boresightX(CFGID_INPUT3_BKID, 5),
+		CFGID_INPUT_boresightY(CFGID_INPUT3_BKID, 5),
+		CFGID_INPUT_boresightX(CFGID_INPUT3_BKID, 6),
+		CFGID_INPUT_boresightY(CFGID_INPUT3_BKID, 6),
+		CFGID_INPUT_boresightX(CFGID_INPUT3_BKID, 7),
+		CFGID_INPUT_boresightY(CFGID_INPUT3_BKID, 7),
+		CFGID_INPUT_boresightX(CFGID_INPUT3_BKID, 8),
+		CFGID_INPUT_boresightY(CFGID_INPUT3_BKID, 8),
+		CFGID_INPUT_boresightX(CFGID_INPUT3_BKID, 9),
+		CFGID_INPUT_boresightY(CFGID_INPUT3_BKID, 9),
+		CFGID_INPUT_boresightX(CFGID_INPUT3_BKID, 10),
+		CFGID_INPUT_boresightY(CFGID_INPUT3_BKID, 10),
+		CFGID_INPUT_boresightX(CFGID_INPUT3_BKID, 11),
+		CFGID_INPUT_boresightY(CFGID_INPUT3_BKID, 11),
+		CFGID_INPUT_boresightX(CFGID_INPUT3_BKID, 12),
+		CFGID_INPUT_boresightY(CFGID_INPUT3_BKID, 12),
+		CFGID_INPUT_boresightX(CFGID_INPUT3_BKID, 13),
+		CFGID_INPUT_boresightY(CFGID_INPUT3_BKID, 13),
+
+		CFGID_INPUT_FOVX(CFGID_INPUT4_BKID , 1),
+		CFGID_INPUT_FOVY(CFGID_INPUT4_BKID , 1),
+		CFGID_INPUT_FOVX(CFGID_INPUT4_BKID , 2),
+		CFGID_INPUT_FOVY(CFGID_INPUT4_BKID , 2),
+		CFGID_INPUT_FOVX(CFGID_INPUT4_BKID , 3),
+		CFGID_INPUT_FOVY(CFGID_INPUT4_BKID , 3),
+		CFGID_INPUT_FOVX(CFGID_INPUT4_BKID , 4),
+		CFGID_INPUT_FOVY(CFGID_INPUT4_BKID , 4),
+		CFGID_INPUT_FOVX(CFGID_INPUT4_BKID , 5),
+		CFGID_INPUT_FOVY(CFGID_INPUT4_BKID , 5),
+		CFGID_INPUT_FOVX(CFGID_INPUT4_BKID , 6),
+		CFGID_INPUT_FOVY(CFGID_INPUT4_BKID , 6),
+		CFGID_INPUT_FOVX(CFGID_INPUT4_BKID , 7),
+		CFGID_INPUT_FOVY(CFGID_INPUT4_BKID , 7),
+		CFGID_INPUT_FOVX(CFGID_INPUT4_BKID , 8),
+		CFGID_INPUT_FOVY(CFGID_INPUT4_BKID , 8),
+		CFGID_INPUT_FOVX(CFGID_INPUT4_BKID , 9),
+		CFGID_INPUT_FOVY(CFGID_INPUT4_BKID , 9),
+		CFGID_INPUT_FOVX(CFGID_INPUT4_BKID , 10),
+		CFGID_INPUT_FOVY(CFGID_INPUT4_BKID , 10),
+		CFGID_INPUT_FOVX(CFGID_INPUT4_BKID , 11),
+		CFGID_INPUT_FOVY(CFGID_INPUT4_BKID , 11),
+		CFGID_INPUT_FOVX(CFGID_INPUT4_BKID , 12),
+		CFGID_INPUT_FOVY(CFGID_INPUT4_BKID , 12),
+		CFGID_INPUT_FOVX(CFGID_INPUT4_BKID , 13),
+		CFGID_INPUT_FOVY(CFGID_INPUT4_BKID , 13),
+		CFGID_INPUT_Feedback(CFGID_INPUT4_BKID, 1),
+		CFGID_INPUT_Feedback(CFGID_INPUT4_BKID, 2),
+		CFGID_INPUT_Feedback(CFGID_INPUT4_BKID, 3),
+		CFGID_INPUT_Feedback(CFGID_INPUT4_BKID, 4),
+		CFGID_INPUT_Feedback(CFGID_INPUT4_BKID, 5),
+		CFGID_INPUT_Feedback(CFGID_INPUT4_BKID, 6),
+		CFGID_INPUT_Feedback(CFGID_INPUT4_BKID, 7),
+		CFGID_INPUT_Feedback(CFGID_INPUT4_BKID, 8),
+		CFGID_INPUT_Feedback(CFGID_INPUT4_BKID, 9),
+		CFGID_INPUT_Feedback(CFGID_INPUT4_BKID, 10),
+		CFGID_INPUT_Feedback(CFGID_INPUT4_BKID, 11),
+		CFGID_INPUT_Feedback(CFGID_INPUT4_BKID, 12),
+		CFGID_INPUT_Feedback(CFGID_INPUT4_BKID, 13),
+		CFGID_INPUT_boresightX(CFGID_INPUT4_BKID, 1),
+		CFGID_INPUT_boresightY(CFGID_INPUT4_BKID, 1),
+		CFGID_INPUT_boresightX(CFGID_INPUT4_BKID, 2),
+		CFGID_INPUT_boresightY(CFGID_INPUT4_BKID, 2),
+		CFGID_INPUT_boresightX(CFGID_INPUT4_BKID, 3),
+		CFGID_INPUT_boresightY(CFGID_INPUT4_BKID, 3),
+		CFGID_INPUT_boresightX(CFGID_INPUT4_BKID, 4),
+		CFGID_INPUT_boresightY(CFGID_INPUT4_BKID, 4),
+		CFGID_INPUT_boresightX(CFGID_INPUT4_BKID, 5),
+		CFGID_INPUT_boresightY(CFGID_INPUT4_BKID, 5),
+		CFGID_INPUT_boresightX(CFGID_INPUT4_BKID, 6),
+		CFGID_INPUT_boresightY(CFGID_INPUT4_BKID, 6),
+		CFGID_INPUT_boresightX(CFGID_INPUT4_BKID, 7),
+		CFGID_INPUT_boresightY(CFGID_INPUT4_BKID, 7),
+		CFGID_INPUT_boresightX(CFGID_INPUT4_BKID, 8),
+		CFGID_INPUT_boresightY(CFGID_INPUT4_BKID, 8),
+		CFGID_INPUT_boresightX(CFGID_INPUT4_BKID, 9),
+		CFGID_INPUT_boresightY(CFGID_INPUT4_BKID, 9),
+		CFGID_INPUT_boresightX(CFGID_INPUT4_BKID, 10),
+		CFGID_INPUT_boresightY(CFGID_INPUT4_BKID, 10),
+		CFGID_INPUT_boresightX(CFGID_INPUT4_BKID, 11),
+		CFGID_INPUT_boresightY(CFGID_INPUT4_BKID, 11),
+		CFGID_INPUT_boresightX(CFGID_INPUT4_BKID, 12),
+		CFGID_INPUT_boresightY(CFGID_INPUT4_BKID, 12),
+		CFGID_INPUT_boresightX(CFGID_INPUT4_BKID, 13),
+		CFGID_INPUT_boresightY(CFGID_INPUT4_BKID, 13),
+
+		CFGID_INPUT_FOVX(CFGID_INPUT5_BKID , 1),
+		CFGID_INPUT_FOVY(CFGID_INPUT5_BKID , 1),
+		CFGID_INPUT_FOVX(CFGID_INPUT5_BKID , 2),
+		CFGID_INPUT_FOVY(CFGID_INPUT5_BKID , 2),
+		CFGID_INPUT_FOVX(CFGID_INPUT5_BKID , 3),
+		CFGID_INPUT_FOVY(CFGID_INPUT5_BKID , 3),
+		CFGID_INPUT_FOVX(CFGID_INPUT5_BKID , 4),
+		CFGID_INPUT_FOVY(CFGID_INPUT5_BKID , 4),
+		CFGID_INPUT_FOVX(CFGID_INPUT5_BKID , 5),
+		CFGID_INPUT_FOVY(CFGID_INPUT5_BKID , 5),
+		CFGID_INPUT_FOVX(CFGID_INPUT5_BKID , 6),
+		CFGID_INPUT_FOVY(CFGID_INPUT5_BKID , 6),
+		CFGID_INPUT_FOVX(CFGID_INPUT5_BKID , 7),
+		CFGID_INPUT_FOVY(CFGID_INPUT5_BKID , 7),
+		CFGID_INPUT_FOVX(CFGID_INPUT5_BKID , 8),
+		CFGID_INPUT_FOVY(CFGID_INPUT5_BKID , 8),
+		CFGID_INPUT_FOVX(CFGID_INPUT5_BKID , 9),
+		CFGID_INPUT_FOVY(CFGID_INPUT5_BKID , 9),
+		CFGID_INPUT_FOVX(CFGID_INPUT5_BKID , 10),
+		CFGID_INPUT_FOVY(CFGID_INPUT5_BKID , 10),
+		CFGID_INPUT_FOVX(CFGID_INPUT5_BKID , 11),
+		CFGID_INPUT_FOVY(CFGID_INPUT5_BKID , 11),
+		CFGID_INPUT_FOVX(CFGID_INPUT5_BKID , 12),
+		CFGID_INPUT_FOVY(CFGID_INPUT5_BKID , 12),
+		CFGID_INPUT_FOVX(CFGID_INPUT5_BKID , 13),
+		CFGID_INPUT_FOVY(CFGID_INPUT5_BKID , 13),
+		CFGID_INPUT_Feedback(CFGID_INPUT5_BKID, 1),
+		CFGID_INPUT_Feedback(CFGID_INPUT5_BKID, 2),
+		CFGID_INPUT_Feedback(CFGID_INPUT5_BKID, 3),
+		CFGID_INPUT_Feedback(CFGID_INPUT5_BKID, 4),
+		CFGID_INPUT_Feedback(CFGID_INPUT5_BKID, 5),
+		CFGID_INPUT_Feedback(CFGID_INPUT5_BKID, 6),
+		CFGID_INPUT_Feedback(CFGID_INPUT5_BKID, 7),
+		CFGID_INPUT_Feedback(CFGID_INPUT5_BKID, 8),
+		CFGID_INPUT_Feedback(CFGID_INPUT5_BKID, 9),
+		CFGID_INPUT_Feedback(CFGID_INPUT5_BKID, 10),
+		CFGID_INPUT_Feedback(CFGID_INPUT5_BKID, 11),
+		CFGID_INPUT_Feedback(CFGID_INPUT5_BKID, 12),
+		CFGID_INPUT_Feedback(CFGID_INPUT5_BKID, 13),
+		CFGID_INPUT_boresightX(CFGID_INPUT5_BKID, 1),
+		CFGID_INPUT_boresightY(CFGID_INPUT5_BKID, 1),
+		CFGID_INPUT_boresightX(CFGID_INPUT5_BKID, 2),
+		CFGID_INPUT_boresightY(CFGID_INPUT5_BKID, 2),
+		CFGID_INPUT_boresightX(CFGID_INPUT5_BKID, 3),
+		CFGID_INPUT_boresightY(CFGID_INPUT5_BKID, 3),
+		CFGID_INPUT_boresightX(CFGID_INPUT5_BKID, 4),
+		CFGID_INPUT_boresightY(CFGID_INPUT5_BKID, 4),
+		CFGID_INPUT_boresightX(CFGID_INPUT5_BKID, 5),
+		CFGID_INPUT_boresightY(CFGID_INPUT5_BKID, 5),
+		CFGID_INPUT_boresightX(CFGID_INPUT5_BKID, 6),
+		CFGID_INPUT_boresightY(CFGID_INPUT5_BKID, 6),
+		CFGID_INPUT_boresightX(CFGID_INPUT5_BKID, 7),
+		CFGID_INPUT_boresightY(CFGID_INPUT5_BKID, 7),
+		CFGID_INPUT_boresightX(CFGID_INPUT5_BKID, 8),
+		CFGID_INPUT_boresightY(CFGID_INPUT5_BKID, 8),
+		CFGID_INPUT_boresightX(CFGID_INPUT5_BKID, 9),
+		CFGID_INPUT_boresightY(CFGID_INPUT5_BKID, 9),
+		CFGID_INPUT_boresightX(CFGID_INPUT5_BKID, 10),
+		CFGID_INPUT_boresightY(CFGID_INPUT5_BKID, 10),
+		CFGID_INPUT_boresightX(CFGID_INPUT5_BKID, 11),
+		CFGID_INPUT_boresightY(CFGID_INPUT5_BKID, 11),
+		CFGID_INPUT_boresightX(CFGID_INPUT5_BKID, 12),
+		CFGID_INPUT_boresightY(CFGID_INPUT5_BKID, 12),
+		CFGID_INPUT_boresightX(CFGID_INPUT5_BKID, 13),
+		CFGID_INPUT_boresightY(CFGID_INPUT5_BKID, 13),
+
+		CFGID_PID_KPX,
+		CFGID_PID_KIX,
+		CFGID_PID_KDX,
+		CFGID_PID_KX,
+		CFGID_PID_KPY,
+		CFGID_PID_KIY,
+		CFGID_PID_KDY,
+		CFGID_PID_KY,
+
+		-1
+	};
+
+	for(int i = 0; i < profileNum; i++)
+	{
+		if(-1 == float_cfgid[i])
+			return 0;
+		
+		if(cfgid == float_cfgid[i])
+			return 1;
+	}
+
+	return 0;
+}
+
+string CEventManager::intip2string(unsigned int intip)
+{
+	int value0, value1, value2, value3;
+	value0 = ((intip >> 24) & 0xff);
+	value1 = ((intip >> 16) & 0xff);
+	value2 = ((intip >> 8) & 0xff);
+	value3 = intip & 0xff;
+
+	string str = to_string(value0) + "." + to_string(value1) + "." + to_string(value2) + "." + to_string(value3);
+	return str;
+}
+unsigned int CEventManager::stringip2int(string str)
+{
+	unsigned int intip = 0;
+	int value;
+	vector<string> AllStr = csplit(str, ".");
+	for(int i = 0; i < AllStr.size(); i++)
+	{
+		if(i > 3)
+			break;
+		
+		value = atoi(AllStr[i].c_str());
+		int offset = (3 - i) * 8;
+		intip |= ((value & 0xff) << offset);
+	}
+	return intip;
+}
+
+vector<string> CEventManager::csplit(const string& str, const string& delim) 
+{  
+	vector<string> res;  
+	if("" == str) return res;  
+
+	char strs[str.length() + 1] ;
+	strcpy(strs, str.c_str());   
+ 
+	char d[delim.length() + 1];  
+	strcpy(d, delim.c_str());  
+ 
+	char *p = strtok(strs, d);  
+	while(p) {  
+		string s = p;
+		res.push_back(s);
+		p = strtok(NULL, d);  
+	}  
+ 
+	return res;  
+} 
