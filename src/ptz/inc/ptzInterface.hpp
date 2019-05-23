@@ -10,7 +10,11 @@
 
 class CptzInterface
 {
-
+public:
+	virtual void queryPos()=0;
+	virtual void queryZoom()=0;
+	virtual void getpos(int& pan, int& til)=0;
+	virtual void getzoom(int& zoom)=0;
 };
 
 

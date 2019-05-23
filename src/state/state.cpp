@@ -129,7 +129,7 @@ void State::TrkCtrl(char Enable)
 	{
 		_ptz->ptzStop();
 		tmp.tv_sec = 0;
-		tmp.tv_usec = 300;
+		tmp.tv_usec = 100*1000;
 		select(0, NULL, NULL, NULL, &tmp);
 		_ptz->ptzStop();
 	}

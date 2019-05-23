@@ -84,7 +84,7 @@ void CEventManager::thread_ipcEvent()
 				break;
 
 			case CFGID_RTS_mtddet:	
-				pThis->_StateManager->_state->mtdhandle(pThis->cfg_value[CFGID_RTS_mtddet]);
+					pThis->_StateManager->_state->mtdhandle(pThis->cfg_value[CFGID_RTS_mtddet]);
 				break;
 
 			default:
@@ -406,14 +406,14 @@ void CEventManager::MSG_Com_SetZoom(void* p)
 
 void CEventManager::MSG_Com_QueryPtzPos(void* p)
 {
-	pThis->_StateManager->_state->_ptz->QueryPos();
+	pThis->_StateManager->_state->_ptz->simpleQueryPos();
 	return ;
 }
 
 
 void CEventManager::MSG_Com_GetZoom(void* p)
 {
-	pThis->_StateManager->_state->_ptz->QueryZoom();
+	pThis->_StateManager->_state->_ptz->queryZoom();
 	return ;
 }
 

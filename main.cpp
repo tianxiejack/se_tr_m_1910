@@ -20,7 +20,7 @@ int main()
 	struct timeval tmp;
 	while(1)
 	{
-		tmp.tv_sec = 1;
+		tmp.tv_sec = 100;
 		tmp.tv_usec = 0;
 		select(0, NULL, NULL, NULL, &tmp);
 	}

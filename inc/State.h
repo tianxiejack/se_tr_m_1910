@@ -118,6 +118,13 @@ private:
 	void switchSensor(char chid);
 	void TrkCtrl(char Enable);
 	void mtdhandle(int arg);
+	bool isReady4trk(){return m_ready4trk==true;}
+	void autoMtdMainloop();
+
+private:
+	bool m_ready4trk;
+	bool m_haveobj;
+
 };
 
 
@@ -188,7 +195,6 @@ private:
 	void openCloseMtd(bool flag);
 
 	bool mtdStatus;
-	
 };
 
 

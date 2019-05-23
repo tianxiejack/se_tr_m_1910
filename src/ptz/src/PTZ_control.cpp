@@ -158,7 +158,7 @@ void CPTZControl::dataInThrd()
         FD_SET(fd_ptz, &rd_set);
 #if 1
         timeout.tv_sec   = 0;
-        timeout.tv_usec = 200000;
+        timeout.tv_usec = 200*1000;
         result = select(fd_ptz+1, &rd_set, NULL, NULL, &timeout);
         if(result == -1 || exitDataInThread )
             break;
@@ -547,13 +547,13 @@ void CPTZControl::setZoomPos(Uint16 value)
 			ptzStop();
 			break;
 		}
-		QueryZoom();
+		queryZoom();
 	}
 	exitQueryzoom = false;
 
 }
 
-void CPTZControl::QueryPos()
+void CPTZControl::simpleQueryPos()
 {	
 	QueryPanPos();
 	struct timeval tmp;
@@ -566,7 +566,7 @@ void CPTZControl::QueryPos()
 	select(0, NULL, NULL, NULL, &tmp);
 }
 
-void CPTZControl::QueryZoom()
+void CPTZControl::queryZoom()
 {
 	_agreeMent->QueryZoomPos(m_pReq, m_byAddr);
 	sendCmd(m_pReq, PELCO_RESPONSE_Extended);
@@ -768,7 +768,7 @@ void CPTZControl::test_stop()
 void CPTZControl::setPrepos()
 {
 	Preset(0x03, 20);
-	getpos();
+	queryPos();
 	m_Mtd_Moitor_X = m_iPanPos;
 	m_Mtd_Moitor_Y = m_iTiltPos;
 	printf(" m_Mtd_Moitor_X = %d, Y =%d \n",m_Mtd_Moitor_X,m_Mtd_Moitor_Y);
@@ -783,11 +783,11 @@ void CPTZControl::runToPrepos()
 }
 
 
-void CPTZControl::getpos()
+void CPTZControl::queryPos()
 {
 	m_sync_pos = true;
 	while(m_sync_pos)
-		QueryPos();
+		simpleQueryPos();
 	return ;
 }
 
@@ -802,11 +802,26 @@ void CPTZControl::judgepos()
 {
 	while(1)
 	{
-		getpos();
+		queryPos();
 		if(judgePanTilpos())
 			break;
 	}
 
 	return ;
 }
-	
+
+
+void CPTZControl::getpos(int& pan, int& til)
+{
+	pan = m_iPanPos;
+	til = m_iTiltPos;
+	return;
+}
+
+
+void CPTZControl::getzoom(int& zoom)
+{
+	zoom = m_iZoomPos;
+	return ;
+}
+

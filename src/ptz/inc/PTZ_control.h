@@ -74,10 +74,9 @@ public:
 	int ptzStop();
 	void ptzSetPos(Uint16 posx, Uint16 posy);
 	void setZoomPos(Uint16 value);
-	void QueryZoom();
 	void QueryPanPos();
 	void QueryTiltPos();
-	void QueryPos();
+	void simpleQueryPos();
 
 	void shRunOutput();
 	void PanoramicMirror_Init();
@@ -163,11 +162,13 @@ public:
 public:
 	void setPrepos();
 	void runToPrepos();
-	void getpos();
+	void queryPos();
 	bool judgePanTilpos();
 	void judgepos();
+	void queryZoom();
 
-
+	void getpos(int& pan, int& til);
+	void getzoom(int& zoom);
 	
 
 };
