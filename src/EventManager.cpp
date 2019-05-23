@@ -407,6 +407,9 @@ void CEventManager::MSG_Com_SetZoom(void* p)
 void CEventManager::MSG_Com_QueryPtzPos(void* p)
 {
 	pThis->_StateManager->_state->_ptz->QueryPos();
+	
+	pThis->_StateManager->_state->_ptz->m_Mtd_Moitor_X;
+	pThis->_StateManager->_state->_ptz->m_Mtd_Moitor_Y;
 	return ;
 }
 
@@ -414,6 +417,8 @@ void CEventManager::MSG_Com_QueryPtzPos(void* p)
 void CEventManager::MSG_Com_GetZoom(void* p)
 {
 	pThis->_StateManager->_state->_ptz->QueryZoom();
+
+	pThis->_StateManager->_state->_ptz->m_rcv_zoomValue;
 	return ;
 }
 
@@ -435,7 +440,8 @@ void CEventManager::MSG_Com_SetCfg(void* p)
 	while(tmp->setConfigQueue.size()){
 		tmpcfg = tmp->setConfigQueue[0];
 		printf("setcfg block,field,value(%d,%d,%f)\n", tmpcfg.block,tmpcfg.field,tmpcfg.value);
-		pThis->SetConfig( tmpcfg.block, tmpcfg.field, tmpcfg.value, NULL);
+		OSA_semWait(&m_semHndl_s, OSA_TIMEOUT_FOREVER);
+		pThis->SetConfig(tmp->comtype, tmpcfg.block, tmpcfg.field, tmpcfg.value, NULL);
 		tmp->setConfigQueue.erase(tmp->setConfigQueue.begin());
 	}
 }
@@ -556,7 +562,7 @@ int  CEventManager::ReadConfigFile()
 	return 0;
 }
 
-int CEventManager::SetConfig(int block, int field, int value,char *inBuf)
+int CEventManager::SetConfig(comtype_t comtype, int block, int field, int value,char *inBuf)
 {
 	block -= 1;
 	int i = CFGID_BUILD(block, field);
@@ -571,12 +577,19 @@ int CEventManager::SetConfig(int block, int field, int value,char *inBuf)
 		return 0;
 	}
 	
-	//cfg_value[i] = value;
 	memcpy(cfg_value + i, &value, 4);
 	m_ipc->IPCSendMsg(read_shm_single, &i, 4);
 
 	if(((block >= CFGID_INPUT1_BKID) && (block <= CFGID_INPUT1_BKID + 6)) || ((block >= CFGID_INPUT2_BKID) && (block <= CFGID_INPUT5_BKID + 6)) )
 		_StateManager->_state->m_Platform->PlatformCtrl_sensor_Init(cfg_value);
+
+	int value2;
+	memcpy(&value2, cfg_value + i, 4);
+	Set_config_t tmp = {block+1, field, value2};
+	ACK_ComParams.comtype = comtype;
+	ACK_ComParams.cmdid  = ACK_SetConfig;
+	ACK_ComParams.setConfigQueue.push_back(tmp);
+	OSA_semSignal(&m_semHndl);
 
 	return 0;
 }
@@ -616,6 +629,8 @@ int CEventManager::GetConfig(comtype_t comtype, int block, int field)
 }
 int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
 {
+	printf("DefaultConfig blockId=%d\n", blockId);
+	int sendid;
 	blockId -= 1;
 	string str;
 	string cfgAvtFile;
@@ -659,7 +674,9 @@ int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
 								str.copy(usr_value+usrosdId*USEROSD_LENGTH, str.length()<USEROSD_LENGTH?str.length():USEROSD_LENGTH, 0);
 
 								if(blockId != -1)
+								{
 									m_ipc->IPCSendMsg(read_shm_usrosd, &usrosdId, 4);
+								}
 							}
 							else if(i == CFGID_PTZ_netip)
 							{

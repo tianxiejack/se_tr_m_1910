@@ -207,6 +207,7 @@ typedef struct{
 	int outtype;
 	short trkerrx;
 	short trkerry;
+	vector<Set_config_t>  setConfigQueue;
 	vector<Set_config_t>  getConfigQueue;
 	vector<Get_osd_t> getOsdQueue;
 	vector<int>  defConfigQueue;
@@ -252,6 +253,7 @@ private:
 	int  package_ACK_SecTrkStat(sendInfo *psendBuf);
 	int  package_ACK_Output(sendInfo *psendBuf);
 	int package_ACK_GetConfig(sendInfo *psendBuf);
+	int  package_ACK_SetConfig(sendInfo *psendBuf);
 	int  package_ACK_DefaultConfig(sendInfo *psendBuf);
 	int  package_ACK_SaveConfig(sendInfo *psendBuf);
 	int  package_ACK_GetOsd(sendInfo *psendBuf);

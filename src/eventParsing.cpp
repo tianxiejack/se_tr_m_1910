@@ -107,7 +107,7 @@ void CEventParsing::thread_comsendEvent()
 			OSA_mutexUnlock(&pThis->mutexConn);
 		}
 		
-		if((ACK_GetConfig == ACK_ComParams.cmdid) ||(ACK_GetOsd == ACK_ComParams.cmdid) ||(ACK_DefaultConfig == ACK_ComParams.cmdid))
+		if((ACK_GetConfig == ACK_ComParams.cmdid) ||(ACK_SetConfig == ACK_ComParams.cmdid) ||(ACK_GetOsd == ACK_ComParams.cmdid) ||(ACK_DefaultConfig == ACK_ComParams.cmdid))
 			OSA_semSignal(&m_semHndl_s);
 	}
 }
@@ -692,6 +692,9 @@ int  CEventParsing::getSendInfo(sendInfo * psendBuf)
 		case ACK_GetConfig:
 			package_ACK_GetConfig(psendBuf);
 			break;
+		case ACK_SetConfig:
+			package_ACK_SetConfig(psendBuf);
+			break;
 		case ACK_DefaultConfig:
 			package_ACK_DefaultConfig(psendBuf);
 			break;
@@ -770,6 +773,17 @@ int  CEventParsing::package_ACK_GetConfig(sendInfo *psendBuf)
 	psendBuf->sendBuff[6] = ACK_ComParams.getConfigQueue[0].field;
 	memcpy(psendBuf->sendBuff+7, &ACK_ComParams.getConfigQueue[0].value, 4);
 	ACK_ComParams.getConfigQueue.erase(ACK_ComParams.getConfigQueue.begin());
+	
+	package_ACK_commondata(psendBuf, bodylen);
+}
+int  CEventParsing::package_ACK_SetConfig(sendInfo *psendBuf)
+{
+	int bodylen = 7;
+	psendBuf->sendBuff[4] = ACK_SetConfig;
+	psendBuf->sendBuff[5] = ACK_ComParams.setConfigQueue[0].block;
+	psendBuf->sendBuff[6] = ACK_ComParams.setConfigQueue[0].field;
+	memcpy(psendBuf->sendBuff+7, &ACK_ComParams.setConfigQueue[0].value, 4);
+	ACK_ComParams.setConfigQueue.erase(ACK_ComParams.setConfigQueue.begin());
 	
 	package_ACK_commondata(psendBuf, bodylen);
 }
