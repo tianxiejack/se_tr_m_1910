@@ -83,7 +83,15 @@ int CIPCProc::IPCRecvMsg(void* prm)
 		break;
 	case read_shm_single:
 		{	
-			if(pIn->intPrm[0] == CFGID_RTS_trkstat)
+			if(pIn->intPrm[0] == CFGID_RTS_mainch)
+				return (CFGID_RTS_mainch);
+			else if(pIn->intPrm[0] == CFGID_RTS_mainch2)
+				return (CFGID_RTS_mainch2);
+			else if(pIn->intPrm[0] == CFGID_RTS_trken)
+				return (CFGID_RTS_trken);
+			else if(pIn->intPrm[0] == CFGID_RTS_sectrkstat)
+				return (CFGID_RTS_sectrkstat);
+			else if(pIn->intPrm[0] == CFGID_RTS_trkstat)
 				return (CFGID_RTS_trkstat);
 			else if(pIn->intPrm[0] == CFGID_RTS_mtddet)
 				return (CFGID_RTS_mtddet);

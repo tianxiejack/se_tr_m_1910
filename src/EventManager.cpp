@@ -65,6 +65,26 @@ void CEventManager::thread_ipcEvent()
 		cfgid = pThis->m_ipc->IPCRecvMsg(NULL);
 		switch(cfgid)
 		{
+			case CFGID_RTS_mainch:
+				pThis->signalFeedBack(4, pThis->outcomtype, ACK_Sensor, 1, (int)pThis->cfg_value[CFGID_RTS_mainch]);
+				break;
+			case CFGID_RTS_mainch2:
+				pThis->signalFeedBack(4, pThis->outcomtype, ACK_Sensor, 2, (int)pThis->cfg_value[CFGID_RTS_mainch]);
+				break;
+			case CFGID_RTS_trken:
+				pThis->signalFeedBack(3, pThis->outcomtype, ACK_TrkStat, (int)pThis->cfg_value[CFGID_RTS_trken]);
+				break;
+			case CFGID_RTS_sectrkstat:
+			{
+				int sectrkstat = pThis->cfg_value[CFGID_RTS_sectrkstat];
+				if((0 == sectrkstat) || (3 == sectrkstat))
+					pThis->signalFeedBack(3, pThis->outcomtype, ACK_SectrkStat, 3);
+				else if(1 == sectrkstat)
+					pThis->signalFeedBack(3, pThis->outcomtype, ACK_SectrkStat, 1);
+				else if(2 == sectrkstat)
+					pThis->signalFeedBack(3, pThis->outcomtype, ACK_SectrkStat, 2);
+			}
+				break;	
 			case CFGID_RTS_trkstat:
 
 				pThis->m_pixelErr.status = pThis->cfg_value[CFGID_RTS_trkstat];
@@ -140,8 +160,7 @@ void CEventManager::MSG_Trk(void* p)
 	if(tmp->trkctrl == 2)
 		tmp->trkctrl = 0;
 	pThis->_StateManager->inter_TrkCtrl(tmp->trkctrl);
-
-	pThis->signalFeedBack(3, tmp->comtype, ACK_TrkStat, (int)pThis->cfg_value[CFGID_RTS_trken]);
+	pThis->outcomtype = tmp->comtype;
 }
 void CEventManager::MSG_SwitchSensor(void* p)
 {
@@ -149,11 +168,7 @@ void CEventManager::MSG_SwitchSensor(void* p)
 	int displaychid = tmp->displaychid;
 	int capturechid = tmp->capturechid;
 	pThis->_StateManager->inter_SwitchSensor(capturechid);
-
-	if(1 == tmp->displaychid)
-		pThis->signalFeedBack(4, tmp->comtype, ACK_Sensor, tmp->displaychid, (int)pThis->cfg_value[CFGID_RTS_mainch]);
-	else if(2 == tmp->displaychid)
-		pThis->signalFeedBack(4, tmp->comtype, ACK_Sensor, tmp->displaychid, (int)pThis->cfg_value[CFGID_RTS_mainch]);
+	pThis->outcomtype = tmp->comtype;
 }
 void CEventManager::MSG_ZoomLong(void* p)
 {
@@ -175,16 +190,13 @@ void CEventManager::MSG_TrkSearch(void* p)
 		pThis->_StateManager->inter_TrkSearch(tmp->sectrkctrl, pThis->winPos[0], pThis->winPos[1]);
 	if(!pThis->cfg_value[CFGID_RTS_trken])
 		tmp->sectrkctrl = 0;
+	pThis->outcomtype = tmp->comtype;
 
 	int sectrkstat = pThis->cfg_value[CFGID_RTS_sectrkstat];
-	if((0 == sectrkstat) || (3 == sectrkstat))
-		pThis->signalFeedBack(3, tmp->comtype, ACK_SectrkStat, 3);
-	else if(1 == sectrkstat){
-		pThis->signalFeedBack(3, tmp->comtype, ACK_SectrkStat, 1);
+	if(1 == sectrkstat)
+	{
 		pThis->_StateManager->_state->m_Platform->PlatformCtrl_reset4trk(pThis->_StateManager->_state->m_plt);
 	}
-	else if(2 == sectrkstat)
-		pThis->signalFeedBack(3, tmp->comtype, ACK_SectrkStat, 2);
 }
 
 
@@ -406,16 +418,26 @@ void CEventManager::MSG_Com_SetZoom(void* p)
 
 void CEventManager::MSG_Com_QueryPtzPos(void* p)
 {
-
+	int pan, til;
+	ComParams_t *tmp = (ComParams_t *)p;
+	
 	pThis->_StateManager->_state->_ptz->queryPos();
+	pThis->_StateManager->_state->_ptz->getpos(pan, til);
 
+	pThis->signalFeedBack(4, tmp->comtype, ACK_QueryPos, pan, til);
 	return ;
 }
 
 
 void CEventManager::MSG_Com_GetZoom(void* p)
 {
+	int zoom;
+	ComParams_t *tmp = (ComParams_t *)p;
+	
 	pThis->_StateManager->_state->_ptz->queryZoom();
+	pThis->_StateManager->_state->_ptz->getzoom(zoom);
+	
+	pThis->signalFeedBack(3, tmp->comtype, ACK_QueryZoom, zoom);
 
 	return ;
 }
@@ -827,27 +849,29 @@ void CEventManager::signalFeedBack(int argnum ...)
 			ACK_ComParams.displaychid = va_arg(ap, int);
 			ACK_ComParams.capturechid = va_arg(ap, int);
 			printf("[%s]displaychid=%d,capturechid=%d\n", __FUNCTION__, ACK_ComParams.displaychid, ACK_ComParams.capturechid);
-			flag = 1;
 			break;
 		case ACK_Workmode:
 			ACK_ComParams.workmode = va_arg(ap, int);
 			printf("[%s]workmode=%d\n", __FUNCTION__, ACK_ComParams.workmode);
-			flag = 1;
 			break;
 		case ACK_CaptureMode:
 			ACK_ComParams.capturemode = va_arg(ap, int);
 			printf("[%s]capturemode=%d\n", __FUNCTION__, ACK_ComParams.capturemode);
-			flag = 1;
 			break;
 		case ACK_TrkStat:
 			ACK_ComParams.trkctrl = va_arg(ap, int);
 			printf("[%s]rkctrl=%d\n", __FUNCTION__,ACK_ComParams.trkctrl);
-			flag = 1;
 			break;
 		case ACK_SectrkStat:
 			ACK_ComParams.sectrkctrl = va_arg(ap, int);
 			printf("[%s]sectrkctrl=%d\n", __FUNCTION__, ACK_ComParams.sectrkctrl);
-			flag = 1;
+			break;
+		case ACK_QueryPos:
+			ACK_ComParams.querypan = va_arg(ap, int);
+			ACK_ComParams.querytil = va_arg(ap, int);
+			break;
+		case ACK_QueryZoom:
+			ACK_ComParams.queryzoom = va_arg(ap, int);
 			break;
 		case ACK_output:
 			ACK_ComParams.trkstat = va_arg(ap, int);
@@ -855,22 +879,20 @@ void CEventManager::signalFeedBack(int argnum ...)
 			ACK_ComParams.trkerrx = va_arg(ap, int);
 			ACK_ComParams.trkerry = va_arg(ap, int);
 			printf("[%s]trkstat=%d,outtype=%d,trkerrx=%d,trkerry=%d\n", __FUNCTION__, ACK_ComParams.trkstat, ACK_ComParams.outtype, ACK_ComParams.trkerrx, ACK_ComParams.trkerry);
-			flag = 1;
 			break;
 		case ACK_DefaultConfig:
 			ACK_ComParams.defConfigQueue.push_back(va_arg(ap, int));
 			printf("[%s], default block=%d\n", __FUNCTION__, ACK_ComParams.defConfigQueue[0]);
-			flag = 1;
 			break;
 		case ACK_saveconfig:
 			ACK_ComParams.saveconfig = va_arg(ap, int);
-			flag = 1;
 			break;
 		default:
+			flag = 1;
 			break;
 	}
 	va_end(ap);
-	if(flag)
+	if(!flag)
 	{
 		OSA_semSignal(&m_semHndl);
 	}
