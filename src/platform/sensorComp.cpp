@@ -262,7 +262,6 @@ float CSensorComp::dynamicSendBoresightPosX(unsigned short zoom , int chid)
 									 *(ptr - 2*chid_camera + i*chid_camera*5), 
 									 *(ptr1 - 2*chid_camera + i*chid_camera*5),
 									 zoom );
-
 	}
 	return bPosx;
 }

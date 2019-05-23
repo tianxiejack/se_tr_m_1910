@@ -52,11 +52,16 @@ void State::OperationInterface(StateManger* con)
 		ipcParam.intPrm[0] = 0;
 		m_ipc->IPCSendMsg(mtd, ipcParam.intPrm, 4);
 	}
-	if(cfg_value[CFGID_RTS_trkmode])
+
+	if(cfg_value[CFGID_RTS_trken])
 	{
 		ipcParam.intPrm[0] = 0;
-		m_ipc->IPCSendMsg(sceneTrk, ipcParam.intPrm, 4);
-	}
+		if(cfg_value[CFGID_RTS_trkmode])
+			m_ipc->IPCSendMsg(sceneTrk, ipcParam.intPrm, 4);
+		else
+			m_ipc->IPCSendMsg(trk, ipcParam.intPrm, 4);
+	}	
+	return ;
 }
 
 void State::platformCreate()
@@ -113,8 +118,21 @@ int State::ChangeState(StateManger* con, char nextState)
 
 void State::TrkCtrl(char Enable)
 {
+	struct timeval tmp;
 	ipcParam.intPrm[0] = Enable;
 	m_ipc->IPCSendMsg(trk, ipcParam.intPrm, 4);
+	if(Enable && m_plt != NULL)
+	{	
+		m_Platform->PlatformCtrl_reset4trk(m_plt);
+	}
+	if(!Enable)
+	{
+		_ptz->ptzStop();
+		tmp.tv_sec = 0;
+		tmp.tv_usec = 300;
+		select(0, NULL, NULL, NULL, &tmp);
+		_ptz->ptzStop();
+	}
 }
 
 void State::switchSensor(char chid)
@@ -141,6 +159,7 @@ void State::trkSearch(int type, int x, int y)
 {
 	if(!cfg_value[CFGID_RTS_trken])
 		return;
+	
 	if( x<0)
 		x =0;
 	else  if(x > 1920)
@@ -238,8 +257,11 @@ void State::switchSensor_interface(int chid)
 
 void State::axisMove_interface(int x, int y)
 {
-	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickXInput, (float)x/JOS_VALUE_MAX);
-	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickYInput, (float)y/JOS_VALUE_MAX);
+	x -= (JOS_VALUE_MAX>>1);
+	y -= (JOS_VALUE_MAX>>1);
+	
+	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickXInput, (float)x/(JOS_VALUE_MAX>>1));
+	m_Platform->PlatformCtrl_VirtualInput(m_plt, DevUsr_AcqJoystickYInput, (float)y/(JOS_VALUE_MAX>>1));
 
 	m_pltInput.iTrkAlgState= 0;
 	m_Platform->PlatformCtrl_TrackerInput(m_plt, &m_pltInput);
@@ -313,7 +335,36 @@ void State::detectionFunc (int sign)
 
 
 
+void State::trkMovControl(int status,int errx,int erry)
+{
+	if(m_plt == NULL)
+		return ;
+
+	m_pltInput.iTrkAlgState = status;
+	m_pltInput.fTargetBoresightErrorX = errx;
+	m_pltInput.fTargetBoresightErrorY = erry;
+	
+	m_Platform->PlatformCtrl_TrackerInput(m_plt, &m_pltInput);
+	m_Platform->PlatformCtrl_TrackerOutput(m_plt, &m_pltOutput);
+	
+	if(1)//(cfg_value[CFGID_PTZ_protype] == 1)
+	{
+		_ptz->m_iSetPanSpeed = m_ptzSpeed->GetPanSpeed((int)m_pltOutput.fPlatformDemandX);
+		_ptz->m_iSetTiltSpeed = m_ptzSpeed->GetTiltSpeed((int)m_pltOutput.fPlatformDemandY);
+
+		//printf("%s :    panSpeed :%d  , tilSpeed : %d  \n",__func__,_ptz->m_iSetPanSpeed,_ptz->m_iSetTiltSpeed);
+	}
+
+	
+	return ;
+}
 
 
-
+void State::pov_move(int x,int y)
+{
+	ipcParam.intPrm[0] = x;
+	ipcParam.intPrm[1] = y;	
+	m_ipc->IPCSendMsg(posmove,ipcParam.intPrm,4*2);
+	return ;
+}
 

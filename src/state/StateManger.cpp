@@ -51,6 +51,7 @@ int StateManger::CurStateInterface()
 void StateManger::ToStateAuto_Mtd()
 {
 	curState = _state->State::ChangeState(this, STATE_AUTOMTD);
+	printf("ToStateAuto_Mtd   to state : %x ,%p\n",_state,&_state);
 	_state->OperationChangeState(this);
 }
 

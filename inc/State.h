@@ -36,14 +36,14 @@ typedef enum{
 	STATE_BOX,
 	STATE_MANUALMTD,
 }state_st;
-const int JOS_VALUE_MAX = 0xFF;
+const int JOS_VALUE_MAX = (0xFF);
 class StateManger;
 
 class State
 {
 public:
 	State();
-	virtual void StateInit();
+	void StateInit();
 	void create();
 	virtual ~State();
 	virtual void OperationInterface(StateManger* con);
@@ -68,6 +68,9 @@ public:
 	virtual void axisMove(int x, int y);
 	virtual void trkSearch(int type, int x, int y);
 	virtual void Iris_FocusCtrl(int type, int dir);
+	virtual void pov_move(int x,int y);
+	virtual void mtdhandle(int arg){};
+
 
 public:
 	void switchSensor_interface(int chid);
@@ -78,10 +81,11 @@ public:
 	void init_time();
 	void uninit_time();
 	static void detectionFunc (int sign);
-
+	void trkMovControl(int status,int errx,int erry);
+	
 
 public:
-	static 	CIPCProc* m_ipc;
+	static CIPCProc* m_ipc;
 	static CPTZControl* _ptz;
 	static AgreeMentBaseFormat* _agreement;
 	static CPlatformInterface* m_Platform;
@@ -105,13 +109,14 @@ public:
 	StateAuto_Mtd();
 	virtual ~StateAuto_Mtd();
 private:
-	virtual  void OperationChangeState(StateManger* con);
-	virtual int curStateInterface();
-	virtual void TrkCtrl(char Enable){};
-	virtual void axisMove(int x, int y){};
-	virtual void ZoomCtrl(char type){};
-	virtual void trkSearch(int type, int x, int y){};
-	virtual void switchSensor(char chid);
+	void OperationChangeState(StateManger* con);
+	int curStateInterface();
+	void axisMove(int x, int y){};
+	void ZoomCtrl(char type){};
+	void trkSearch(int type, int x, int y){};
+	void switchSensor(char chid);
+	void TrkCtrl(char Enable);
+	void mtdhandle(int arg);
 };
 
 
@@ -125,6 +130,11 @@ public:
 	virtual int curStateInterface();
 	virtual void TrkCtrl(char Enable);
 	virtual void trkSearch(int type, int x, int y){};
+
+private:
+	bool m_sceneflag;
+
+	
 };
 
 
@@ -147,9 +157,13 @@ public:
 	BoxCapture();
 	virtual ~BoxCapture();
 private:
-	virtual  void OperationChangeState(StateManger* con);
-	virtual int curStateInterface();
-	virtual void axisMove(int x, int y);
+	void OperationChangeState(StateManger* con);
+	int curStateInterface();
+	void axisMove(int x, int y);
+	void TrkCtrl(char Enable);
+
+private:
+	int winx,winy;
 };
 
 
@@ -160,13 +174,20 @@ public:
 	ManualMtdCapture();
 	virtual ~ManualMtdCapture();
 private:
-	virtual  void OperationChangeState(StateManger* con);
-	virtual int curStateInterface();
-	virtual void TrkCtrl(char Enable);
-	virtual void axisMove(int x, int y);
-	virtual void switchSensor(char chid);
-	virtual void ZoomCtrl(char type);
-	virtual void trkSearch(int type, int x, int y){};
+	void OperationChangeState(StateManger* con);
+	int curStateInterface();
+	void TrkCtrl(char Enable);
+	void axisMove(int x, int y);
+	void switchSensor(char chid);
+	void ZoomCtrl(char type);
+	void trkSearch(int type, int x, int y){};
+	void pov_move(int x,int y);
+	
+private:
+	void openCloseMtd(bool flag);
+
+	bool mtdStatus;
+	
 };
 
 

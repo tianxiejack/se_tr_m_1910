@@ -9,6 +9,12 @@
 #include "eventParsing.hpp"
 #include "StateManger.h"
 
+typedef struct{
+	int status;
+	float errx;
+	float erry;
+}Trkerr_t;
+
 
 class CEventManager
 {
@@ -20,7 +26,6 @@ private:
 	MSGDRIV_Handle _Handle;
 	CMessage* _Msg;
 	StateManger* _StateManager;
-	State* _state;
 	CIPCProc* m_ipc;
 	static CEventManager* pThis;
 	int *cfg_value;
@@ -46,6 +51,7 @@ private:
 	static void MSG_PovPosY(void* p);
 
 	static void MSG_Com_SelfCheck(void* p);
+	static void MSG_Com_TrkMovControl(void* p);
 	static void MSG_Com_TrkMove(void* p);
 	static void MSG_Com_SecTrkPos(void* p);
 	static void MSG_Com_MtdSelect(void* p);
@@ -76,6 +82,9 @@ private:
 	unsigned int stringip2int(string str);
 	vector<string> csplit(const string& str, const string& delim);
 	
+
+public:
+	Trkerr_t m_pixelErr;
 };
 
 

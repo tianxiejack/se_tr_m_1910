@@ -22,22 +22,20 @@ CEventManager::CEventManager()
 	exit_ipcthread = false;
 	memset(winPos, 0, sizeof(winPos));
 	_Msg = CMessage::getInstance();
-	_state = new PlatFormCapture();
-	_StateManager = new StateManger(_state);
+	_StateManager = new StateManger(new PlatFormCapture());
 	_Handle = _Msg->MSGDRIV_create();
 	MSG_register();
 	m_ipc = (CIPCProc*)_StateManager->returnIpc();
 	IPC_Creat();
 	ReadConfigFile();
 	_StateManager->GetParams(cfg_value);
-	_state->StateInit();
+	_StateManager->_state->StateInit();
 }
 
 CEventManager::~CEventManager()
 {
 	exit_ipcthread = true;
 	delete pThis;
-	delete _state;
 	delete _StateManager;
 	delete m_ipc;
 	_Msg->MSGDRIV_destroy(_Handle);
@@ -59,6 +57,8 @@ void CEventManager::IPC_Creat()
 
 void CEventManager::thread_ipcEvent()
 {
+	float value;
+	float errorx, errory;
 	int cfgid = -1;
 	while(!pThis->exit_ipcthread)
 	{
@@ -66,10 +66,28 @@ void CEventManager::thread_ipcEvent()
 		switch(cfgid)
 		{
 			case CFGID_RTS_trkstat:
+
+				pThis->m_pixelErr.status = pThis->cfg_value[CFGID_RTS_trkstat];
+				memcpy(&value, pThis->cfg_value + CFGID_RTS_trkerrx, 4);
+				pThis->m_pixelErr.errx = value;
+				memcpy(&value, pThis->cfg_value + CFGID_RTS_trkerry, 4);
+				pThis->m_pixelErr.erry = value;
+				
+				pThis->_Msg->MSGDRIV_send(MSGID_COM_INPUT_TRKCONTROL, 0);
+
 				if(1 == pThis->outtype)
-					pThis->signalFeedBack(6, pThis->outcomtype, ACK_output, (int)pThis->cfg_value[CFGID_RTS_trkstat], pThis->outtype, (int)pThis->cfg_value[CFGID_RTS_trkerrx], (int)pThis->cfg_value[CFGID_RTS_trkerry]);
-				else if(2 == pThis->outtype)
-					;
+				{
+					memcpy(&errorx, pThis->cfg_value + CFGID_RTS_trkerrx, 4);
+					memcpy(&errory, pThis->cfg_value + CFGID_RTS_trkerry, 4);
+					pThis->signalFeedBack(6, pThis->outcomtype, ACK_output, (int)pThis->cfg_value[CFGID_RTS_trkstat], pThis->outtype, (int)errorx, (int)errory);
+				}
+				break;
+
+			case CFGID_RTS_mtddet:	
+				pThis->_StateManager->_state->mtdhandle(pThis->cfg_value[CFGID_RTS_mtddet]);
+				break;
+
+			default:
 				break;
 		}
 	}
@@ -90,6 +108,7 @@ void CEventManager::MSG_register()
 	_Msg->MSGDRIV_register(MSGID_EXT_INPUT_POVPOSY, MSG_PovPosY, NULL);
 
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SELFCHECK, MSG_Com_SelfCheck, NULL);
+	_Msg->MSGDRIV_register(MSGID_COM_INPUT_TRKCONTROL, MSG_Com_TrkMovControl, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_TRKMOVE, MSG_Com_TrkMove, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SECTRKPOS, MSG_Com_SecTrkPos, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_MTDSELECT, MSG_Com_MtdSelect, NULL);
@@ -110,6 +129,7 @@ void CEventManager::MSG_register()
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_DEFAULTCFG, MSG_Com_DefaultCfg, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SAVECFG, MSG_Com_SaveCfg, NULL);
 
+	return ;
 }
 
 void CEventManager::MSG_Trk(void* p)
@@ -145,6 +165,9 @@ void CEventManager::MSG_ZoomShort(void* p)
 	ComParams_t *tmp = (ComParams_t *)p;
 	pThis->_StateManager->inter_ZoomCtrl(tmp->zoomctrl);
 }
+
+
+
 void CEventManager::MSG_TrkSearch(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
@@ -156,11 +179,16 @@ void CEventManager::MSG_TrkSearch(void* p)
 	int sectrkstat = pThis->cfg_value[CFGID_RTS_sectrkstat];
 	if((0 == sectrkstat) || (3 == sectrkstat))
 		pThis->signalFeedBack(3, tmp->comtype, ACK_SectrkStat, 3);
-	else if(1 == sectrkstat)
+	else if(1 == sectrkstat){
 		pThis->signalFeedBack(3, tmp->comtype, ACK_SectrkStat, 1);
+		pThis->_StateManager->_state->m_Platform->PlatformCtrl_reset4trk(pThis->_StateManager->_state->m_plt);
+	}
 	else if(2 == sectrkstat)
 		pThis->signalFeedBack(3, tmp->comtype, ACK_SectrkStat, 2);
 }
+
+
+
 void CEventManager::MSG_CaptureMode(void* p)
 {
 	static int captureModeBack;
@@ -221,6 +249,9 @@ void CEventManager::MSG_WorkMode(void* p)
 	else if(STATE_SCENETRK == workmode)
 		pThis->signalFeedBack(3, tmp->comtype, ACK_Workmode, 3);
 }
+
+
+
 void CEventManager::MSG_JosPos(void* p)
 {
 	int dir;
@@ -265,18 +296,34 @@ void CEventManager::MSG_JosPos(void* p)
 }
 void CEventManager::MSG_PovPosX(void* p)
 {
-	MSG_Com_TrkMove(p);
-	MSG_Com_MtdSelect(p);
+	ComParams_t *tmp = (ComParams_t *)p;
+	pThis->_StateManager->_state->pov_move(	tmp->trkmove , 0);
+		
+	//MSG_Com_TrkMove(p);
+	//MSG_Com_MtdSelect(p);
+	return ;
 }
 void CEventManager::MSG_PovPosY(void* p)
 {
-	MSG_Com_TrkMove(p);
+	ComParams_t *tmp = (ComParams_t *)p;
+	pThis->_StateManager->_state->pov_move(	0, tmp->trkmove);
+	return ;
 }
 
 void CEventManager::MSG_Com_SelfCheck(void* p)
 {
 	printf("MSG_Com_SelfCheck start\n");
 }
+
+
+
+void CEventManager::MSG_Com_TrkMovControl(void* p)
+{	
+	pThis->_StateManager->_state->trkMovControl(pThis->m_pixelErr.status , pThis->m_pixelErr.errx , pThis->m_pixelErr.erry );
+	return ;
+}
+
+
 
 void CEventManager::MSG_Com_TrkMove(void* p)
 {
@@ -329,6 +376,8 @@ void CEventManager::MSG_Com_SetPlatSpeed(void* p)
 	short platspeedy = tmp->platspeedy;
 	printf("platspeed x,y=(%d,%d)\n",platspeedx, platspeedy);
 }
+
+
 void CEventManager::MSG_Com_SetPlatAngle(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
@@ -336,36 +385,44 @@ void CEventManager::MSG_Com_SetPlatAngle(void* p)
 	unsigned short platTilt = tmp->platTilt;
 	printf("platangle x,y=(%d,%d)\n",platPan, platTilt);
 }
+
+
 void CEventManager::MSG_Com_PrsetPos(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
 	unsigned short presetpos = tmp->presetpos;
 	printf("presetpos=%d\n", presetpos);
 }
+
+
 void CEventManager::MSG_Com_SetZoom(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
 	unsigned short setzoom = tmp->setzoom;
-	printf("setzoom=%d\n", setzoom);
+	pThis->_StateManager->_state->_ptz->setZoomPos(setzoom);
+	return ;
 }
+
+
 void CEventManager::MSG_Com_QueryPtzPos(void* p)
 {
-	printf("MSG_Com_GetPlatAngle start\n");
+	pThis->_StateManager->_state->_ptz->QueryPos();
+	return ;
 }
+
+
 void CEventManager::MSG_Com_GetZoom(void* p)
 {
-	printf("MSG_Com_GetZoom start\n");
+	pThis->_StateManager->_state->_ptz->QueryZoom();
+	return ;
 }
+
+
 void CEventManager::MSG_Com_TrkOutput(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
 	unsigned short trkoutput = tmp->trkoutput;
 	printf("trkoutput=%d\n", trkoutput);
-
-	//do{
-	//	int x = pThis->_state->_ptz->m_iSetPanSpeed;
-	//}
-	//while(tmp->trkoutput == 0x02);
 
 	pThis->outtype = tmp->trkoutput;
 	pThis->outcomtype = tmp->comtype;
@@ -519,7 +576,7 @@ int CEventManager::SetConfig(int block, int field, int value,char *inBuf)
 	m_ipc->IPCSendMsg(read_shm_single, &i, 4);
 
 	if(((block >= CFGID_INPUT1_BKID) && (block <= CFGID_INPUT1_BKID + 6)) || ((block >= CFGID_INPUT2_BKID) && (block <= CFGID_INPUT5_BKID + 6)) )
-		_state->m_Platform->PlatformCtrl_sensor_Init(cfg_value);
+		_StateManager->_state->m_Platform->PlatformCtrl_sensor_Init(cfg_value);
 
 	return 0;
 }
@@ -625,7 +682,7 @@ int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
 							}
 
 							if(((blkId >= CFGID_INPUT1_BKID) && (blkId <= CFGID_INPUT1_BKID + 6)) || ((blkId >= CFGID_INPUT2_BKID) && (blkId <= CFGID_INPUT5_BKID + 6)) )
-								_state->m_Platform->PlatformCtrl_sensor_Init(cfg_value);
+								_StateManager->_state->m_Platform->PlatformCtrl_sensor_Init(cfg_value);
 						}
 					}
 				}

@@ -227,7 +227,6 @@ void CPTZControl::RecvByte(unsigned char byRecv)
 				m_iPanPos = recvBuffer[4];
 				m_iPanPos <<= 8;
 				m_iPanPos += recvBuffer[5];
-			//	fprintf(stdout, "INFO: m_iPanPos is %d\n",m_iPanPos);
 				if(posx_bak == m_iPanPos)
 				{
 					exitQuery_X = true;
@@ -238,6 +237,7 @@ void CPTZControl::RecvByte(unsigned char byRecv)
 					_GlobalDate->Mtd_Moitor_X = m_iPanPos;
 					m_iPanPos = 0;
 				}
+				//fprintf(stdout, "INFO: m_iPanPos is %d\n",m_iPanPos);
 				sync_pan = 1;
 				break;
 			case 0x5B:
@@ -255,7 +255,7 @@ void CPTZControl::RecvByte(unsigned char byRecv)
 					m_iTiltPos = 0;
 				}
 				sync_Tilt = 1;
-			//	printf("INFO: m_iTiltPos is %d\n",m_iTiltPos);
+				//printf("INFO: m_iTiltPos is %d\n",m_iTiltPos);
 				break;
 			case 0x5D:
 				m_iZoomPos = recvBuffer[4];
@@ -275,13 +275,12 @@ void CPTZControl::RecvByte(unsigned char byRecv)
 				}
 				sync_zoom = 1;
 				//printf("INFO: zoompos is %d\n",m_iZoomPos);
-				//printf("_GlobalDate->Mtd_Moitor_Zoom = %d \n", _GlobalDate->Mtd_Moitor_Zoom);
 				break;
 			case 0x63:
 				m_iMagnification = recvBuffer[4];
 				m_iMagnification <<= 8;
 				m_iMagnification += recvBuffer[5];
-				printf("INFO: Magnification is %d\n",m_iMagnification);
+				//printf("INFO: Magnification is %d\n",m_iMagnification);
 				break;
 			}
 

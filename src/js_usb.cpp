@@ -1,9 +1,4 @@
-/*
- * js_usb.cpp
- *
- *  Created on: 2019年5月7日
- *      Author: yd
- */
+
 #include "js_usb.hpp"
 
 CjoyStick::CjoyStick()

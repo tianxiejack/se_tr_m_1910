@@ -1,12 +1,7 @@
-/*
- * state_Box.cpp
- *
- *  Created on: 2019年5月16日
- *      Author: d
- */
+
 #include "State.h"
 
-BoxCapture::BoxCapture()
+BoxCapture::BoxCapture():winx(1920>>1),winy(1080>>1)
 {
 
 }
@@ -32,6 +27,41 @@ int BoxCapture::curStateInterface()
 
 void BoxCapture::axisMove(int x, int y)
 {
-	printf("Box Move \n");
+	if( abs(x - (JOS_VALUE_MAX>>1)) <= 20 && abs(y - (JOS_VALUE_MAX>>1)) <= 20 )
+	{
+		winx = 1920>>1;
+		winy = 1080>>1;
+	}
+	else
+	{
+		winx = (unsigned int)(1920 * ((float)x / JOS_VALUE_MAX));
+		winy = (unsigned int)(1080 * ((float)y / JOS_VALUE_MAX));
+	}
+	ipcParam.intPrm[0] = 2;
+	ipcParam.intPrm[1] = winx;
+	ipcParam.intPrm[2] = winy;
+	m_ipc->IPCSendMsg(AcqPos, ipcParam.intPrm, 4*3);
+	
+	return ;
+}
+
+void BoxCapture::TrkCtrl(char Enable)
+{
+	if(Enable)
+	{
+		ipcParam.intPrm[0] = Enable;
+		ipcParam.intPrm[1] = winx;
+		ipcParam.intPrm[2] = winy;
+		m_ipc->IPCSendMsg(AcqPos, ipcParam.intPrm, 4*3);
+		if(m_plt != NULL)
+			m_Platform->PlatformCtrl_reset4trk(m_plt);
+		winx = 1920>>1;
+		winy = 1080>>1;
+	}
+	else
+	{
+		 State::TrkCtrl(Enable);	 
+	}
+	return ;
 }
 

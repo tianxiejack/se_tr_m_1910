@@ -250,21 +250,24 @@ void CEventParsing::buttonStopHandle(int index)
 			else
 				ComParams.zoomctrl = 0;
 			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_ZOOMLONGCTRL, &ComParams);
-			index = 3;
 			break;
+			
 		case 4:
 			if(ComParams.zoomctrl == 0)
 				ComParams.zoomctrl = 1;
 			else
 				ComParams.zoomctrl = 0;
 			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_ZOOMSHORTCTRL, &ComParams);
-			index = 4;
 			break;
-		
-		
-	}
 
-	
+		case 6:
+			ComParams.sectrkctrl = ComParams.sectrkctrl % 2 + 1;
+			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_TRACKSEARCHCTRL, &ComParams);
+			break;
+			
+		default:
+			break;
+	}
 	return ;
 }
 
@@ -279,7 +282,7 @@ void CEventParsing::parsingJostickPovData(unsigned char* jos_data)
 		switch(jos_data[POV_BUTTON])
 		{
 			case js_pov_up:
-				ComParams.trkmove = 0x04;
+				ComParams.trkmove = 0x01;
 				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSY, &ComParams);
 				break;
 			case js_pov_right:
@@ -287,7 +290,7 @@ void CEventParsing::parsingJostickPovData(unsigned char* jos_data)
 				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSX, &ComParams);
 				break;
 			case js_pov_down:
-				ComParams.trkmove = 0x08;
+				ComParams.trkmove = 0x02;
 				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSY, &ComParams);
 				break;
 			case js_pov_left:
@@ -336,50 +339,56 @@ void CEventParsing::parsingJostickButtonData(unsigned char* jos_data)
 {
 	static unsigned char butbak = 0;
 	static int Iris_Focus = 0;
+	static int index = 0;
 	if(jos_data[BUTTON] != butbak)
 	{
 		switch(jos_data[BUTTON])
 		{
-		case js_5:
-			//_Msg->MSGDRIV_send(, jos_data);
-			break;
-		case js_6:
-			ComParams.sectrkctrl = ComParams.sectrkctrl % 2 + 1;
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_TRACKSEARCHCTRL, &ComParams);
-			break;
-		case js_7:
-			//_Msg->MSGDRIV_send(, jos_data);
-			break;
-		case js_8:
-			ComParams.capturemode = (ComParams.capturemode + 1)%3;
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_captureMode, &ComParams);
-			break;
-		case js_9:
-			//_Msg->MSGDRIV_send(, jos_data);
-			break;
-		case js_10:
-			//_Msg->MSGDRIV_send(, jos_data);
-			break;
-		case js_11:
-			Iris_Focus= (Iris_Focus + 1)%3;
-			if(Iris_Focus == 1)
-			{
-				ComParams.irisctrl= 0x03;
-				ComParams.focusctrl = 0;
-			}
-			else if(Iris_Focus == 2)
-			{
-				ComParams.focusctrl = 0x03;
-				ComParams.irisctrl= 0;
-			}
-			else
-				ComParams.irisctrl = ComParams.focusctrl = 0;
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_IrisAndFocusAndExit, &ComParams);
-			break;
-		case js_12:
-			ComParams.workmode = (ComParams.workmode + 1)%3;
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_workMode, &ComParams);
-			break;
+			case js_5:
+				
+				break;
+			case js_6:
+				ComParams.sectrkctrl = ComParams.sectrkctrl % 2 + 1;
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_TRACKSEARCHCTRL, &ComParams);
+				index = 6;
+				break;
+			case js_7:
+				
+				break;
+			case js_8:
+				ComParams.capturemode = (ComParams.capturemode + 1)%3;
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_captureMode, &ComParams);
+				break;
+			case js_9:
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_QUERYPTZPOS, 0);
+				break;
+			case js_10:
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_GETZOOM, 0);
+				break;
+			case js_11:
+				Iris_Focus= (Iris_Focus + 1)%3;
+				if(Iris_Focus == 1)
+				{
+					ComParams.irisctrl= 0x03;
+					ComParams.focusctrl = 0;
+				}
+				else if(Iris_Focus == 2)
+				{
+					ComParams.focusctrl = 0x03;
+					ComParams.irisctrl= 0;
+				}
+				else
+					ComParams.irisctrl = ComParams.focusctrl = 0;
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_IrisAndFocusAndExit, &ComParams);
+				break;
+			case js_12:
+				ComParams.workmode = (ComParams.workmode + 1)%3;
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_workMode, &ComParams);
+				break;
+			default:
+				buttonStopHandle(index);
+				index = 0;
+				break;
 		}
 		butbak = jos_data[BUTTON];
 	}
@@ -395,14 +404,14 @@ void CEventParsing::parsingJostickAxisData(unsigned char* jos_data)
 	bool flag = false;
 	if(jos_data[AXIS_X] != xBak)
 	{
-		ComParams.platspeedx = jos_data[AXIS_X] - (0xff>>1);
+		ComParams.platspeedx = jos_data[AXIS_X];
 		xBak = jos_data[AXIS_X];
 		flag = true;
 	}
 
 	if(jos_data[AXIS_Y] != yBak)
 	{
-		ComParams.platspeedy = jos_data[AXIS_Y] - (0xff>>1);
+		ComParams.platspeedy = jos_data[AXIS_Y];
 		yBak = jos_data[AXIS_Y];
 		flag = true;
 	}
@@ -794,6 +803,7 @@ int  CEventParsing::package_ACK_GetOsd(sendInfo *psendBuf)
 	package_ACK_commondata(psendBuf, bodylen);
 }
 
+
 int  CEventParsing::package_ACK_commondata(sendInfo *psendBuf, int bodylen)
 {
 	psendBuf->sendBuff[0] = 0xEB;
@@ -806,6 +816,8 @@ int  CEventParsing::package_ACK_commondata(sendInfo *psendBuf, int bodylen)
 	psendBuf->byteSizeSend = bodylen + 5;
 	psendBuf->comtype = ACK_ComParams.comtype;
 }
+
+
 unsigned char CEventParsing::sendcheck_sum(unsigned char *tmpbuf, int len)
 {
 	unsigned char ckeSum=0;
