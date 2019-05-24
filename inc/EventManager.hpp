@@ -77,6 +77,7 @@ private:
 	int DefaultConfig(comtype_t comtype, int blockId);
 	int SaveConfig(comtype_t comtype);
 	void signalFeedBack(int argnum ...);
+	void signalFeedBack_output(comtype_t comtype, int trkstat, int outtype, float x, float y);
 	int is_float(int cfgid);
 	string intip2string(unsigned int intip);
 	unsigned int stringip2int(string str);
