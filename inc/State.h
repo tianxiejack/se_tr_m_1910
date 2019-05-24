@@ -72,7 +72,7 @@ public:
 	virtual void Iris_FocusCtrl(int type, int dir);
 	virtual void pov_move(int x,int y);
 	virtual void mtdhandle(int arg){};
-	virtual void recvTrkmsg(){};
+	virtual void recvTrkmsg(int arg){};
 	virtual void switchTarget(int arg){};
 	virtual void moveAcqrect(int dir,int stepx,int stepy){};
 
@@ -113,6 +113,7 @@ class StateAuto_Mtd:public State
 public:
 	StateAuto_Mtd();
 	virtual ~StateAuto_Mtd();
+	
 private:
 	static StateAuto_Mtd* pThis;
 	void OperationChangeState(StateManger* con);
@@ -125,8 +126,9 @@ private:
 	void mtdhandle(int arg);
 	void autoMtdMainloop();
 	void outTrk();
-	void recvTrkmsg(void* p);
+	void recvTrkmsg(int arg);
 	static void TimeCallback(void* p);
+	
 private:
 	bool m_haveobj;
 	int timeAutoMtd;

@@ -7,6 +7,7 @@ StateAuto_Mtd::StateAuto_Mtd():m_haveobj(false)
 {
 	timeAutoMtd = m_timer->createTimer();
 	m_timer->registerTimer(timeAutoMtd, TimeCallback, &timeAutoMtd);
+	pThis = this;
 }
 
 
@@ -61,7 +62,6 @@ void StateAuto_Mtd::autoMtdMainloop()
 	struct timeval tmp;
 	_ptz->runToPrepos();
 	_ptz->ptzStop();
-
 	tmp.tv_sec = 0;
 	tmp.tv_usec = 300*1000;
 	select(0, NULL, NULL, NULL, &tmp);	
@@ -69,23 +69,23 @@ void StateAuto_Mtd::autoMtdMainloop()
 	m_ipc->IPCSendMsg(mtd, ipcParam.intPrm, 4);
 	
 	while(curState == STATE_AUTOMTD)
-	{
-		if(curState != STATE_AUTOMTD)
-			printf(" have changed the state \n");
-		
+	{		
 		tmp.tv_sec = 0;
-		tmp.tv_usec = 100*1000;
+		tmp.tv_usec = 10*1000;
 		select(0, NULL, NULL, NULL, &tmp);	
 		if(m_haveobj){
 			if(!cfg_value[CFGID_RTS_trken])
 			{	
 				ipcParam.intPrm[0] = 3;
-				m_ipc->IPCSendMsg(mtdSelect, ipcParam.intPrm, 4);		
+				m_ipc->IPCSendMsg(mtdSelect, ipcParam.intPrm, 4);	
+				ipcParam.intPrm[0] = 0;
+				m_ipc->IPCSendMsg(mtd, ipcParam.intPrm, 4);
 			}
 			break;
 		}
 	}
-	
+	if(curState != STATE_AUTOMTD)
+		printf(" have changed the state \n");
 	return ;
 }
 
@@ -105,9 +105,9 @@ void StateAuto_Mtd::outTrk()
 void StateAuto_Mtd::TimeCallback(void* p)
 {
 	int tid = *(int *)p;
-
 	if(pThis->timeAutoMtd == tid)
 	{
+		printf("time call back \n");
 		pThis->m_timer->stopTimer(pThis->timeAutoMtd);
 		pThis->outTrk();
 	}
@@ -115,11 +115,16 @@ void StateAuto_Mtd::TimeCallback(void* p)
 }
 
 
-void StateAuto_Mtd::recvTrkmsg(void* p)
+void StateAuto_Mtd::recvTrkmsg(int arg)
 {
-	m_timer->registerTimer(timeAutoMtd, TimeCallback, &timeAutoMtd);
-
-	m_timer->startTimer(timeAutoMtd,5000);
+	if(1 == arg){
+		if(!m_timer->getTimerStat(timeAutoMtd))
+			m_timer->startTimer(timeAutoMtd,5000);
+	}
+	else if(3 == arg){
+		if(m_timer->getTimerStat(timeAutoMtd))
+			m_timer->stopTimer(timeAutoMtd);
+	}
 	
 	return;
 }
