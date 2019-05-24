@@ -282,20 +282,20 @@ void CEventParsing::parsingJostickPovData(unsigned char* jos_data)
 		switch(jos_data[POV_BUTTON])
 		{
 			case js_pov_up:
-				ComParams.trkmove = 0x01;
-				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSY, &ComParams);
+				ComParams.trkmove = 4;
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_TRKMOVE, &ComParams);
 				break;
 			case js_pov_right:
-				ComParams.trkmove = 0x02;
-				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSX, &ComParams);
+				ComParams.trkmove = 2;
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_TRKMOVE, &ComParams);
 				break;
 			case js_pov_down:
-				ComParams.trkmove = 0x02;
-				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSY, &ComParams);
+				ComParams.trkmove = 8;
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_TRKMOVE, &ComParams);
 				break;
 			case js_pov_left:
-				ComParams.trkmove = 0x01;
-				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_POVPOSX, &ComParams);
+				ComParams.trkmove = 1;
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_TRKMOVE, &ComParams);
 				break;
 			case js_1:
 				ComParams.trkctrl = 0x00;
@@ -547,7 +547,7 @@ int CEventParsing::parsingComEvent(comtype_t comtype)
 				break;
 			case 0x06:
 				ComParams.trkmove = rcvBufQue.at(5);
-				_Msg->MSGDRIV_send(MSGID_COM_INPUT_TRKMOVE, &ComParams);
+				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_TRKMOVE, &ComParams);
 				break;
 			case 0x07:
 				ComParams.sectrkctrl = rcvBufQue.at(5);

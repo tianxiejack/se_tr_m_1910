@@ -128,12 +128,10 @@ void CEventManager::MSG_register()
 	_Msg->MSGDRIV_register(MSGID_EXT_INPUT_IrisAndFocusAndExit, MSG_IrisAndFocus, NULL);
 	_Msg->MSGDRIV_register(MSGID_EXT_INPUT_workMode, MSG_WorkMode, NULL);
 	_Msg->MSGDRIV_register(MSGID_EXT_INPUT_JOSPOS, MSG_JosPos, NULL);
-	_Msg->MSGDRIV_register(MSGID_EXT_INPUT_POVPOSX, MSG_PovPosX, NULL);
-	_Msg->MSGDRIV_register(MSGID_EXT_INPUT_POVPOSY, MSG_PovPosY, NULL);
 
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SELFCHECK, MSG_Com_SelfCheck, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_TRKCONTROL, MSG_Com_TrkMovControl, NULL);
-	_Msg->MSGDRIV_register(MSGID_COM_INPUT_TRKMOVE, MSG_Com_TrkMove, NULL);
+	_Msg->MSGDRIV_register(MSGID_EXT_INPUT_TRKMOVE, MSG_Com_TrkMove, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SECTRKPOS, MSG_Com_SecTrkPos, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_MTDSELECT, MSG_Com_MtdSelect, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_GATEMOVE, MSG_Com_Gatemove, NULL);
@@ -305,23 +303,6 @@ void CEventManager::MSG_JosPos(void* p)
 	}
 	return ;
 }
-
-
-void CEventManager::MSG_PovPosX(void* p)
-{
-	ComParams_t *tmp = (ComParams_t *)p;
-	pThis->_StateManager->_state->pov_move( tmp->trkmove , 0 );
-	return ;
-}
-
-
-void CEventManager::MSG_PovPosY(void* p)
-{
-	ComParams_t *tmp = (ComParams_t *)p;
-	pThis->_StateManager->_state->pov_move( 0, tmp->trkmove);
-	return ;
-}
-
 
 void CEventManager::MSG_Com_SelfCheck(void* p)
 {
