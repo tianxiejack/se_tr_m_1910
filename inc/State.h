@@ -202,6 +202,7 @@ private:
 	void pov_move(int x,int y);
 	void virtualAxisMove(int x, int y){};
 	void switchTarget(int arg);
+	void mtdhandle(int arg);
 	
 private:
 	void openCloseMtd(bool flag);

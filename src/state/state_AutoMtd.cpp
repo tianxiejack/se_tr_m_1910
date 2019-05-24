@@ -46,7 +46,6 @@ void StateAuto_Mtd::TrkCtrl(char Enable)
 }
 
 
-
 void StateAuto_Mtd::mtdhandle(int arg)
 {
 	if(arg)

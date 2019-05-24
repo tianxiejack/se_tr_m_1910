@@ -33,7 +33,7 @@ int ManualMtdCapture::curStateInterface()
 }
 
 
-void StateAuto_Mtd::mtdhandle(int arg)
+void ManualMtdCapture::mtdhandle(int arg)
 {
 	if(arg)
 		m_haveobj = true;
