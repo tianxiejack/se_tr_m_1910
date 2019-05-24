@@ -42,13 +42,10 @@ State::State()
 	
 	selectch = {1, 1, 1, 1, 1, 0};
 	curValidChid = selectch.idx;
-	OSA_semCreate(&m_sem, 1, 0);
 }
 
 State::~State()
 {
-	OSA_semSignal(&m_sem);
-	OSA_semDelete(&m_sem);
 }
 
 void State::OperationInterface(StateManger* con)
@@ -124,6 +121,7 @@ int State::ChangeState(StateManger* con, char nextState)
 		con->ChangeState(m_st5);
 		break;
 	}
+	printf("change the state   = %d \n" , curState );
 	return curState;
 }
 

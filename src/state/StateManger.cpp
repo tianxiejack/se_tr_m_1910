@@ -48,35 +48,47 @@ int StateManger::CurStateInterface()
 	return curState;
 }
 
+
 void StateManger::ToStateAuto_Mtd()
 {
 	curState = _state->State::ChangeState(this, STATE_AUTOMTD);
+	_state->_ptz->ptzStop();
 	_state->OperationChangeState(this);
+	return;
 }
+
 
 void StateManger::ToStateSceneSelect()
 {
 	curState = _state->State::ChangeState(this, STATE_SCENETRK);
+	_state->_ptz->ptzStop();
 	_state->OperationChangeState(this);
+	return ;
 }
+
 
 void StateManger::ToPlatFormCapture()
 {
 	curState = _state->State::ChangeState(this, STATE_PTZ);
+	_state->_ptz->ptzStop();
 	_state->OperationChangeState(this);
 	return ;
 }
+
 
 void StateManger::ToBoxCapture()
 {
 	curState = _state->State::ChangeState(this, STATE_BOX);
+	_state->_ptz->ptzStop();
 	_state->OperationChangeState(this);
 	return ;
 }
 
+
 void StateManger::ToManualMtdCapture()
 {
 	curState = _state->State::ChangeState(this, STATE_MANUALMTD);
+	_state->_ptz->ptzStop();
 	_state->OperationChangeState(this);
 	return ;
 }
@@ -85,12 +97,16 @@ void StateManger::ToManualMtdCapture()
 void StateManger::inter_TrkCtrl(char Enable)
 {
 	_state->TrkCtrl(Enable);
+	return ;
 }
+
 
 void StateManger::inter_SwitchSensor(char chid)
 {
 	_state->switchSensor(chid);
+	return ;
 }
+
 
 void StateManger::inter_ZoomCtrl(char type)
 {
@@ -101,7 +117,6 @@ void StateManger::inter_ZoomCtrl(char type)
 
 void StateManger::inter_AxisPos(int x, int y)
 {
-
 }
 
 

@@ -242,6 +242,7 @@ void CEventManager::MSG_IrisAndFocus(void* p)
 
 void CEventManager::MSG_WorkMode(void* p)
 {
+printf("%s   enter ing   \n" , __func__ );
 	ComParams_t *tmp = (ComParams_t *)p;
 	if(tmp->workmode == ROUTINE_STATE)
 	{
@@ -258,6 +259,8 @@ void CEventManager::MSG_WorkMode(void* p)
 		pThis->_StateManager->ToStateSceneSelect();
 
 	int workmode = pThis->_StateManager->CurStateInterface();
+
+printf("workmode  = %d \n", workmode);
 	if((ROUTINE_STATE == workmode) || (STATE_PTZ == workmode) ||(STATE_BOX == workmode) || (STATE_MANUALMTD == workmode))
 		pThis->signalFeedBack(3, tmp->comtype, ACK_Workmode, 1);
 	else if(STATE_AUTOMTD == workmode)

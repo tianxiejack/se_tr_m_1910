@@ -53,7 +53,6 @@ public:
 	
 public:
 	static int curState;
-	OSA_SemHndl m_sem;
 	static View* viewParam;
 	IPC_PRM_INT ipcParam;
 	static HPLTCTRL  m_plt;
@@ -124,7 +123,7 @@ private:
 	void switchSensor(char chid);
 	void TrkCtrl(char Enable);
 	void mtdhandle(int arg);
-	void autoMtdMainloop();
+	static void* autoMtdMainloop(void * p);
 	void outTrk();
 	void recvTrkmsg(int arg);
 	static void TimeCallback(void* p);

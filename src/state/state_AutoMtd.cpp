@@ -22,7 +22,9 @@ void StateAuto_Mtd::OperationChangeState(StateManger* con)
 	ipcParam.intPrm[0] = 2;
 	m_ipc->IPCSendMsg(workmode, ipcParam.intPrm, 4);
 	OperationInterface(con);
-	autoMtdMainloop();
+
+	OSA_ThrHndl tmpHandle;
+	OSA_thrCreate(&tmpHandle, autoMtdMainloop, 0, 0, 0);
 	return ;
 }
 
@@ -57,40 +59,48 @@ void StateAuto_Mtd::mtdhandle(int arg)
 }
 
 
-void StateAuto_Mtd::autoMtdMainloop()
+void* StateAuto_Mtd::autoMtdMainloop(void* p)
 {
+	OSA_thrDetach();
+
+	static bool exist = false ;
+	if(exist)
+		return NULL;
+	
 	struct timeval tmp;
-	_ptz->runToPrepos();
+	pThis->_ptz->runToPrepos();
 	printf("reach at the prepos \n");
-	_ptz->ptzStop();
+	pThis->_ptz->ptzStop();
 	tmp.tv_sec = 0;
 	tmp.tv_usec = 300*1000;
 	select(0, NULL, NULL, NULL, &tmp);	
-	ipcParam.intPrm[0] = 1;
-	m_ipc->IPCSendMsg(mtd, ipcParam.intPrm, 4);
+	pThis->ipcParam.intPrm[0] = 1;
+	pThis->m_ipc->IPCSendMsg(mtd, pThis->ipcParam.intPrm, 4);
 	printf("into the while wait the target  \n");
-	while(curState == STATE_AUTOMTD)
+	while(pThis->curState == STATE_AUTOMTD)
 	{		
 		tmp.tv_sec = 0;
 		tmp.tv_usec = 10*1000;
 		select(0, NULL, NULL, NULL, &tmp);	
-		if(m_haveobj){
-			if(!cfg_value[CFGID_RTS_trken])
+		if(pThis->m_haveobj){
+			if(!pThis->cfg_value[CFGID_RTS_trken])
 			{	
-				ipcParam.intPrm[0] = 3;
-				m_ipc->IPCSendMsg(mtdSelect, ipcParam.intPrm, 4);	
-				m_Platform->PlatformCtrl_reset4trk(m_plt);
-				ipcParam.intPrm[0] = 0;
-				m_ipc->IPCSendMsg(mtd, ipcParam.intPrm, 4);
+				pThis->ipcParam.intPrm[0] = 3;
+				pThis->m_ipc->IPCSendMsg(mtdSelect, pThis->ipcParam.intPrm, 4);	
+				pThis->m_Platform->PlatformCtrl_reset4trk(pThis->m_plt);
+				pThis->ipcParam.intPrm[0] = 0;
+				pThis->m_ipc->IPCSendMsg(mtd, pThis->ipcParam.intPrm, 4);
 			}
 			break;
 		}
 	}
 	
 	printf("out of the while  \n");
-	if(curState != STATE_AUTOMTD)
-		printf(" have changed the state :%d \n" ,curState);
-	return ;
+	if(pThis->curState != STATE_AUTOMTD)
+		printf(" have changed the state :%d \n" ,pThis->curState);
+
+	exist = false;
+	return NULL;
 }
 
 
@@ -101,7 +111,8 @@ void StateAuto_Mtd::outTrk()
 		ipcParam.intPrm[0] = 0;
 		m_ipc->IPCSendMsg(trk, ipcParam.intPrm, 4);		
 	}
-	autoMtdMainloop();
+	OSA_ThrHndl tmpHandle;
+	OSA_thrCreate(&tmpHandle, autoMtdMainloop, 0, 0, 0);
 	return ;
 }
 

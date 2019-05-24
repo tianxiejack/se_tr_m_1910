@@ -384,8 +384,10 @@ void CEventParsing::parsingJostickButtonData(unsigned char* jos_data)
 				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_IrisAndFocusAndExit, &ComParams);
 				break;
 			case js_12:
+				printf("before   workmode = %d \n" , ComParams.workmode);
 				ComParams.workmode = (ComParams.workmode + 1)%3;
 				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_workMode, &ComParams);
+				printf(" sssssssssssend   MSGID_EXT_INPUT_workMode  : %d \n ", ComParams.workmode);
 				break;
 			default:
 				buttonStopHandle(index);
