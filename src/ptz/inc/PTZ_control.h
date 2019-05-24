@@ -151,7 +151,7 @@ protected:
 	int MoveSync();
 
 	OSA_MutexHndl m_mutex;
-	OSA_SemHndl m_sem;
+	SELF_SemHndl m_sem;
 
 
 public:
@@ -163,10 +163,10 @@ public:
 
 public:
 	void setPrepos(int& preposx,int& preposy);
-	void runToPrepos();
+	void runToPrepos(int arg = 0);
 	void queryPos();
 	bool judgePanTilpos();
-	void judgepos();
+	void judgepos(int arg=0);
 	void queryZoom();
 
 	void getpos(int& pan, int& til);

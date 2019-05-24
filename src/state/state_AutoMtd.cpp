@@ -68,7 +68,11 @@ void* StateAuto_Mtd::autoMtdMainloop(void* p)
 		return NULL;
 	
 	struct timeval tmp;
-	pThis->_ptz->runToPrepos();
+	pThis->_ptz->runToPrepos(1);
+	while(pThis->curState == STATE_AUTOMTD)
+	{
+		pThis->_ptz->runToPrepos(2);
+	}
 	printf("reach at the prepos \n");
 	pThis->_ptz->ptzStop();
 	tmp.tv_sec = 0;
@@ -77,6 +81,7 @@ void* StateAuto_Mtd::autoMtdMainloop(void* p)
 	pThis->ipcParam.intPrm[0] = 1;
 	pThis->m_ipc->IPCSendMsg(mtd, pThis->ipcParam.intPrm, 4);
 	printf("into the while wait the target  \n");
+	
 	while(pThis->curState == STATE_AUTOMTD)
 	{		
 		tmp.tv_sec = 0;

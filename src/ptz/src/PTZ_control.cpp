@@ -66,7 +66,7 @@ int CPTZControl::Create()
 	if(pCom != NULL)
 	{
 		OSA_mutexCreate(&m_mutex);
-		OSA_semCreate(&m_sem, 1, 0);
+		SELF_semCreate(&m_sem);
 		exitDataInThread = false;
 		OSA_thrCreate(&thrHandleDataIn, port_dataInFxn,  DATAIN_TSK_PRI, DATAIN_TSK_STACK_SIZE, this);
 		exitThreadMove = false;
@@ -133,8 +133,7 @@ void CPTZControl::Destroy()
 
 		OSA_mutexUnlock(&m_mutex);
 		OSA_mutexDelete(&m_mutex);
-		OSA_semSignal(&m_sem);
-		OSA_semDelete(&m_sem);
+		SELF_semDelete(&m_sem);
 	}
 
 }
@@ -290,7 +289,7 @@ void CPTZControl::RecvByte(unsigned char byRecv)
 			}
 
 			if(m_tResponse != PELCO_RESPONSE_Null)
-				OSA_semSignal(&m_sem);
+				SELF_semSignal(&m_sem);
 			uiCurRecvLen = 0;
 			m_nWait = 0;
 
@@ -326,7 +325,7 @@ int CPTZControl::sendCmd(LPPELCO_D_REQPKT pCmd, PELCO_RESPONSE_t tResp /* = PELC
 		return OSA_EFAIL;
 	}
 	if(tResp != PELCO_RESPONSE_Null)
-		iRet = OSA_semWait(&m_sem, 200);
+		iRet = SELF_semWait(&m_sem, 200);
 	
 	static int sign;
 	if( iRet != OSA_SOK ){
@@ -780,10 +779,23 @@ void CPTZControl::setPrepos(int& preposx,int& preposy)
 	return ;
 }
 
-void CPTZControl::runToPrepos()
+void CPTZControl::runToPrepos(int arg)
 {
-	Preset(0x07, 20);
-	judgepos();
+	switch(arg)
+	{
+		case 0:
+			Preset(0x07, 20);
+			judgepos(arg);
+			break;
+		case 1:
+			Preset(0x07, 20);
+			break;
+		case 2:
+			judgepos(arg);
+			break;
+		default:
+			break;
+	}
 	return ;
 }
 
@@ -803,14 +815,14 @@ bool CPTZControl::judgePanTilpos()
 	return false;
 }
 
-void CPTZControl::judgepos()
+void CPTZControl::judgepos(int arg)
 {
-	while(1)
+	do
 	{
 		queryPos();
 		if(judgePanTilpos())
 			break;
-	}
+	}while(!arg);
 
 	return ;
 }
