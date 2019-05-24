@@ -299,7 +299,9 @@ void State::axisMove_interface(float x, float y)
 //	printf("%s : LINE : %d   , x = %f , y = %f \n",__func__, __LINE__,  m_pltOutput.fPlatformDemandX, m_pltOutput.fPlatformDemandY);
 	_ptz->m_iSetPanSpeed = m_ptzSpeed->GetPanSpeed(m_pltOutput.fPlatformDemandX);
 	_ptz->m_iSetTiltSpeed = m_ptzSpeed->GetTiltSpeed(m_pltOutput.fPlatformDemandY);
+	return ;
 }
+
 
 void State::Ctrl_Iris(int dir)
 {

@@ -423,34 +423,73 @@ void CEventManager::MSG_Com_SetPlatSpeed(void* p)
 
 void CEventManager::MSG_Com_SetPlatAngle(void* p)
 {
+	OSA_ThrHndl tmpHandle;
+	OSA_thrCreate(&tmpHandle, setPlatAngle, 0, 0, p);
+	return ;
+}
+
+void* CEventManager::setPlatAngle(void* p)
+{
+	OSA_thrDetach();
+	static bool exist = false;
+	if(exist)
+		return NULL;
+	exist = true;
+	
 	int pan, til;
 	ComParams_t *tmp = (ComParams_t *)p;
-	unsigned short platPan = tmp->platPan;
-	unsigned short platTilt = tmp->platTilt;
-	
-	pThis->_StateManager->_state->_ptz->ptzSetPos(platPan, platTilt);
-	
+	pThis->_StateManager->_state->_ptz->ptzSetPos(tmp->platPan, tmp->platPan);
 	pThis->_StateManager->_state->_ptz->queryPos();
 	pThis->_StateManager->_state->_ptz->getpos(pan, til);
 	pThis->signalFeedBack(4, tmp->comtype, ACK_CtrlPos, pan, til);
-	return ;
+	
+	exist = false;
+	return NULL;
 }
 
 
 void CEventManager::MSG_Com_PreposHandle(void* p)
 {
-	ComParams_t *tmp = (ComParams_t *)p;	
+	OSA_ThrHndl tmpHandle;
+	OSA_thrCreate(&tmpHandle, preposHandle, 0, 0, p);
+	return ;
+}
 
+
+Void* CEventManager::preposHandle(void* p)
+{
+	OSA_thrDetach();
+	static bool exist = false;
+	if(exist)
+		return NULL;
+	exist = true;
+
+	ComParams_t *tmp = (ComParams_t *)p;	
 	pThis->_StateManager->_state->PreposHandle(tmp->prepos);
 	if(2 == tmp->prepos)
 		pThis->SaveConfig(tmp->comtype);
 
-	return ;
+	exist = false;
+	return NULL;
 }
 
 
 void CEventManager::MSG_Com_SetZoom(void* p)
 {
+	OSA_ThrHndl tmpHandle;
+	OSA_thrCreate(&tmpHandle, setZoom, 0, 0, p);
+	return ;
+}
+
+
+void* CEventManager::setZoom(void* p)
+{
+	OSA_thrDetach();
+	static bool exist = false;
+	if(exist)
+		return NULL;
+	exist = true;
+
 	int zoom;
 	ComParams_t *tmp = (ComParams_t *)p;
 	unsigned short setzoom = tmp->setzoom;
@@ -459,33 +498,24 @@ void CEventManager::MSG_Com_SetZoom(void* p)
 	pThis->_StateManager->_state->_ptz->queryZoom();
 	pThis->_StateManager->_state->_ptz->getzoom(zoom);
 	pThis->signalFeedBack(3, tmp->comtype, ACK_SetZoom, zoom);
-	return ;
+
+	exist = false;
+	return NULL;
 }
 
 
 void CEventManager::MSG_Com_QueryPtzPos(void* p)
 {
-	int pan, til;
-	ComParams_t *tmp = (ComParams_t *)p;
-
-
-	//pThis->_StateManager->_state->_ptz->queryPos();
-	//pThis->_StateManager->_state->_ptz->getpos(pan, til);
-	pThis->signalFeedBack(4, tmp->comtype, ACK_QueryPos, pan, til);
+	OSA_ThrHndl tmpHandle;
+	OSA_thrCreate(&tmpHandle, answerPos, 0, 0, p);
 	return ;
 }
 
 
 void CEventManager::MSG_Com_GetZoom(void* p)
 {
-	int zoom;
-	ComParams_t *tmp = (ComParams_t *)p;
-	
-	pThis->_StateManager->_state->_ptz->queryZoom();
-	pThis->_StateManager->_state->_ptz->getzoom(zoom);
-	
-	pThis->signalFeedBack(3, tmp->comtype, ACK_QueryZoom, zoom);
-
+	OSA_ThrHndl tmpHandle;
+	OSA_thrCreate(&tmpHandle, answerZoom, 0, 0, p);
 	return ;
 }
 
@@ -1440,3 +1470,43 @@ vector<string> CEventManager::csplit(const string& str, const string& delim)
  
 	return res;  
 } 
+
+
+void* CEventManager::answerPos(void *p)
+{	
+	OSA_thrDetach();
+	static bool exist = false;
+	if(exist)
+		return NULL;
+	exist = true;
+
+	ComParams_t *tmp = (ComParams_t *)p;
+	int pan ,til ;
+	pThis->_StateManager->_state->_ptz->queryPos();
+	pThis->_StateManager->_state->_ptz->getpos(pan, til);
+	pThis->signalFeedBack(4, tmp->comtype, ACK_QueryPos, pan, til);
+
+	exist = false;
+	return NULL;
+}
+
+
+void* CEventManager::answerZoom(void *p)
+{
+	OSA_thrDetach();
+	static bool exist = false;
+	if(exist)
+		return NULL;
+	exist = true;
+
+	ComParams_t *tmp = (ComParams_t *)p;
+	int zoom ;
+	pThis->_StateManager->_state->_ptz->queryZoom();
+	pThis->_StateManager->_state->_ptz->getzoom(zoom);
+	pThis->signalFeedBack(3, tmp->comtype, ACK_QueryZoom, zoom);
+	exist = false;
+	return NULL;
+}
+
+
+

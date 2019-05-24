@@ -25,6 +25,7 @@ int OSA_thrDelete(OSA_ThrHndl *hndl);
 int OSA_thrJoin(OSA_ThrHndl *hndl);
 int OSA_thrChangePri(OSA_ThrHndl *hndl, Uint32 pri);
 int OSA_thrExit(void *returnVal);
+void OSA_thrDetach(void);
 
 #endif /* _OSA_THR_H_ */
 

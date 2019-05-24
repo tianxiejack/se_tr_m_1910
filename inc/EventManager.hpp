@@ -69,6 +69,8 @@ private:
 	static void MSG_Com_SetOsd(void* p);
 	static void MSG_Com_DefaultCfg(void* p);
 	static void MSG_Com_SaveCfg(void* p);
+	
+
 	int  ReadConfigFile();
 	int SetConfig(comtype_t comtype, int block, int field, int value,char *inBuf);
 	int GetConfig(comtype_t comtype, int block, int field);
@@ -80,7 +82,13 @@ private:
 	string intip2string(unsigned int intip);
 	unsigned int stringip2int(string str);
 	vector<string> csplit(const string& str, const string& delim);
-	
+
+public:
+	static void* answerPos(void* p);
+	static void* answerZoom(void* p);
+	static void* setPlatAngle(void* p);
+	static void* preposHandle(void* p);
+	static void* setZoom(void* p);
 
 public:
 	Trkerr_t m_pixelErr;

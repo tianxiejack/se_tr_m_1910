@@ -51,18 +51,6 @@ class CPTZControl : CptzInterface
     	}
     	pThis->exitThreadMove = false;
     };
-
-    OSA_ThrHndl thrHandleCheckPos;
-    volatile Bool exitThreadCheckPos;
-	static Void * checkposzoom(Void * prm){
-    	CPTZControl *pThis = (CPTZControl*)prm;
-    	struct timeval tmp;
-    	for( ; pThis->exitThreadCheckPos==false; )
-    	{
-    		pThis->simpleQueryPos();
-		pThis->queryZoom();
-    	}
-    };
 	
 	
 public:
@@ -172,8 +160,6 @@ public:
 	bool m_sync_pos,m_sync_fovComp;
 	unsigned short m_rcv_zoomValue;
 	bool m_stateChange;
-
-	SELF_SemHndl m_sempos,m_semzoom;
 
 public:
 	void setPrepos(int& preposx,int& preposy);

@@ -103,3 +103,9 @@ int OSA_thrExit(void *returnVal)
   return OSA_SOK;
 }
 
+
+void OSA_thrDetach(void)
+{
+	pthread_detach(pthread_self());
+	return;
+}
