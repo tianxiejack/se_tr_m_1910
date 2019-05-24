@@ -172,7 +172,7 @@ int SELF_semWait(SELF_SemHndl *hndl, Uint32 timeout)
 			status = OSA_SOK;
 		}
 		pthread_mutex_unlock(&hndl->lock);
-		return status
+		return status;
 	}
 
 	struct timespec timer;

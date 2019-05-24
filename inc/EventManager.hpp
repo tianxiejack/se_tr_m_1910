@@ -84,6 +84,7 @@ private:
 
 public:
 	Trkerr_t m_pixelErr;
+	SELF_SemHndl m_semSendpos,m_semSendZoom;
 };
 
 
