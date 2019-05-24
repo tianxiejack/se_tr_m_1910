@@ -384,16 +384,26 @@ void CEventManager::MSG_Com_ZoomCtrl(void* p)
 
 void CEventManager::MSG_Com_IrisCtrl(void* p)
 {
+	int value = 0 ;
 	ComParams_t *tmp = (ComParams_t *)p;
-	pThis->_StateManager->inter_Iris_FocusCtrl(iris, tmp->irisctrl);
+	if(tmp->focusctrl == 0x2)
+		value = 1;
+	else if(tmp->focusctrl == 0x1)
+		value = -1;
+	pThis->_StateManager->inter_Iris_FocusCtrl(iris, value);
 	return ;
 }
 
 
 void CEventManager::MSG_Com_FocusCtrl(void* p)
 {
+	int value = 0;
 	ComParams_t *tmp = (ComParams_t *)p;
-	pThis->_StateManager->inter_Iris_FocusCtrl(Focus, tmp->focusctrl);
+	if(tmp->focusctrl == 0x2)
+		value = 1;
+	else if(tmp->focusctrl == 0x1)
+		value = -1;
+	pThis->_StateManager->inter_Iris_FocusCtrl(Focus, value);
 	return;
 }
 
