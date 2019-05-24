@@ -71,6 +71,8 @@ int CPTZControl::Create()
 		OSA_thrCreate(&thrHandleDataIn, port_dataInFxn,  DATAIN_TSK_PRI, DATAIN_TSK_STACK_SIZE, this);
 		exitThreadMove = false;
 		OSA_thrCreate(&thrHandleMove,MoveThrdFxn, DATAIN_TSK_PRI, DATAIN_TSK_STACK_SIZE, this);
+		exitThreadCheckPos = false;
+		OSA_thrCreate(&thrHandleCheckPos,checkposzoom, DATAIN_TSK_PRI, DATAIN_TSK_STACK_SIZE, this);
 		DXTimerCreat();
 	}
     if(_GlobalDate->outputMode == 0)
@@ -79,7 +81,10 @@ int CPTZControl::Create()
     	return 0;
     }
     outputMode = _GlobalDate->outputMode;
-
+	
+	SELF_semCreate(&m_sempos);
+	SELF_semCreate(&m_semzoom);
+	
 	return 0;
 }
 
@@ -115,6 +120,9 @@ void CPTZControl::Tcallback_QueryY(void* p)
 
 void CPTZControl::Destroy()
 {
+	SELF_semDelete(&m_semzoom);
+	SELF_semDelete(&m_sempos);
+
 	if(pCom != NULL){
 		OSA_mutexLock(&m_mutex);
 		exitDataInThread = true;
@@ -129,6 +137,12 @@ void CPTZControl::Destroy()
 		}while(exitThreadMove);
 		OSA_thrDelete(&thrHandleMove);
 
+		exitThreadCheckPos = true;
+		do{
+			OSA_waitMsecs(5);
+		}while(exitThreadCheckPos);
+		OSA_thrDelete(&thrHandleCheckPos);
+
 		delete pCom;
 
 		OSA_mutexUnlock(&m_mutex);
@@ -136,6 +150,7 @@ void CPTZControl::Destroy()
 		OSA_semSignal(&m_sem);
 		OSA_semDelete(&m_sem);
 	}
+
 }
 
 void CPTZControl::dataInThrd()
@@ -297,11 +312,13 @@ void CPTZControl::RecvByte(unsigned char byRecv)
 				m_sync_pos= false;
 				sync_pan = false;
 				sync_Tilt = false;
+				SELF_semSignal(&m_sempos);
 			}
 			
 			if(sync_zoom){
 				m_sync_fovComp = false;
 				sync_zoom = false;
+				SELF_semSignal(&m_semzoom);
 			}
 		}
 	}
@@ -575,7 +592,7 @@ void CPTZControl::queryZoom()
 	sendCmd(m_pReq, PELCO_RESPONSE_Extended);
 	struct timeval tmp;
 	tmp.tv_sec = 0;
-	tmp.tv_usec = 30000;
+	tmp.tv_usec = 30*1000;
 	select(0, NULL, NULL, NULL, &tmp);
 }
 

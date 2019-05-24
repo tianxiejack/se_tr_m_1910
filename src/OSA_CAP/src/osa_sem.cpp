@@ -3,6 +3,20 @@
 #include <sys/time.h>
 #include <osa_sem.h>
 #include <errno.h>
+
+void maketimeout(struct timespec *tsp,long msec)
+{
+	struct timeval now;
+
+	gettimeofday(&now, NULL);
+	tsp->tv_sec = now.tv_sec;
+	tsp->tv_nsec= now.tv_usec;
+	tsp->tv_nsec *= 1000u;
+	tsp->tv_sec += msec/1000;
+	tsp->tv_nsec+= (msec%1000) * 1000000u;
+}
+
+
 int OSA_semCreate(OSA_SemHndl *hndl, Uint32 maxCount, Uint32 initVal)
 {
   pthread_mutexattr_t mutex_attr;
@@ -33,17 +47,6 @@ int OSA_semCreate(OSA_SemHndl *hndl, Uint32 maxCount, Uint32 initVal)
   return status;
 }
 
-void maketimeout(struct timespec *tsp,long msec)
-{
-	struct timeval now;
-
-	gettimeofday(&now, NULL);
-	tsp->tv_sec = now.tv_sec;
-	tsp->tv_nsec= now.tv_usec;
-	tsp->tv_nsec *= 1000u;
-	tsp->tv_sec += msec/1000;
-	tsp->tv_nsec+= (msec%1000) * 1000000u;
-}
 
 int OSA_semWait(OSA_SemHndl *hndl, Uint32 timeout)
 {
@@ -123,6 +126,86 @@ int OSA_semSignal(OSA_SemHndl *hndl)
 }
 
 int OSA_semDelete(OSA_SemHndl *hndl)
+{
+  pthread_cond_destroy(&hndl->cond);
+  pthread_mutex_destroy(&hndl->lock);  
+
+  return OSA_SOK;
+}
+
+
+
+int SELF_semCreate(SELF_SemHndl *hndl)
+{
+	pthread_mutexattr_t mutex_attr;
+	pthread_condattr_t cond_attr;
+	int status=OSA_SOK;
+
+	status |= pthread_mutexattr_init(&mutex_attr);
+	status |= pthread_condattr_init(&cond_attr);  
+	pthread_condattr_setclock(&cond_attr, CLOCK_REALTIME);
+	status |= pthread_mutex_init(&hndl->lock, &mutex_attr);
+	status |= pthread_cond_init(&hndl->cond, &cond_attr);  
+
+	if(status!=OSA_SOK)
+		OSA_ERROR("OSA_semCreate() = %d \r\n", status);
+
+	pthread_condattr_destroy(&cond_attr);
+	pthread_mutexattr_destroy(&mutex_attr);
+	return status;
+}
+
+
+int SELF_semWait(SELF_SemHndl *hndl, Uint32 timeout)
+{
+	int ret;
+	int status = OSA_EFAIL;
+
+	if(timeout == OSA_TIMEOUT_FOREVER || timeout == OSA_TIMEOUT_NONE)
+	{
+		pthread_mutex_lock(&hndl->lock);
+
+		if(timeout==OSA_TIMEOUT_NONE)
+			;
+		else{
+			pthread_cond_wait(&hndl->cond, &hndl->lock);	
+			status = OSA_SOK;
+		}
+		pthread_mutex_unlock(&hndl->lock);
+		return status
+	}
+
+	struct timespec timer;
+	maketimeout(&timer,timeout);
+	
+	pthread_mutex_lock(&hndl->lock);
+
+	ret = pthread_cond_timedwait(&hndl->cond, &hndl->lock,&timer);
+	if(ret==ETIMEDOUT)
+	{
+		//OSA_printf(" %s time out !!!\r\n",__func__);
+	}else
+		status = OSA_SOK;
+	
+	pthread_mutex_unlock(&hndl->lock);
+
+	return status;
+}
+
+
+int SELF_semSignal(SELF_SemHndl *hndl)
+{
+	int status = OSA_SOK;
+	pthread_mutex_lock(&hndl->lock);
+	status |= pthread_cond_signal(&hndl->cond);
+	pthread_mutex_unlock(&hndl->lock);
+
+	return status;
+}
+
+
+
+int SELF_semDelete(SELF_SemHndl *hndl)
 {
   pthread_cond_destroy(&hndl->cond);
   pthread_mutex_destroy(&hndl->lock);  

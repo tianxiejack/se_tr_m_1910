@@ -463,10 +463,9 @@ void CEventManager::MSG_Com_QueryPtzPos(void* p)
 {
 	int pan, til;
 	ComParams_t *tmp = (ComParams_t *)p;
-	
-	pThis->_StateManager->_state->_ptz->queryPos();
-	pThis->_StateManager->_state->_ptz->getpos(pan, til);
 
+	//pThis->_StateManager->_state->_ptz->queryPos();
+	//pThis->_StateManager->_state->_ptz->getpos(pan, til);
 	pThis->signalFeedBack(4, tmp->comtype, ACK_QueryPos, pan, til);
 	return ;
 }
