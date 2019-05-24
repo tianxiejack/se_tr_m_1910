@@ -348,7 +348,9 @@ void CEventManager::MSG_Com_TrkMove(void* p)
 void CEventManager::MSG_Com_SecTrkPos(void* p)
 {
 	ComParams_t *tmp = (ComParams_t *)p;
-	pThis->_StateManager->inter_TrkSearch(tmp->sectrkctrl, tmp->sectrkx, tmp->sectrky);
+	pThis->winPos[0] = tmp->sectrkx;
+	pThis->winPos[1] = tmp->sectrky;
+	pThis->_StateManager->inter_TrkSearch(tmp->sectrkctrl, (int)pThis->winPos[0], (int)pThis->winPos[1]);
 	return ;
 }
 
