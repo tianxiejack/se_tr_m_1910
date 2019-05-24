@@ -40,8 +40,6 @@ private:
 private:
 	static void MSG_Trk(void* p);
 	static void MSG_SwitchSensor(void* p);
-	static void MSG_ZoomLong(void* p);
-	static void MSG_ZoomShort(void* p);
 	static void MSG_TrkSearch(void* p);
 	static void MSG_CaptureMode(void* p);
 	static void MSG_IrisAndFocus(void* p);

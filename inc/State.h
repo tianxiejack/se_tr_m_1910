@@ -73,6 +73,8 @@ public:
 	virtual void pov_move(int x,int y);
 	virtual void mtdhandle(int arg){};
 	virtual void recvTrkmsg(){};
+	virtual void switchTarget(int arg){};
+	virtual void moveAcqrect(int dir,int stepx,int stepy){};
 
 public:
 	void switchSensor_interface(int chid);
@@ -177,9 +179,10 @@ private:
 	void axisMove(int x, int y);
 	void virtualAxisMove(int x, int y){};
 	void TrkCtrl(char Enable);
+	void moveAcqrect(int dir,int stepx,int stepy);
 
 private:
-	int winx,winy;
+	int m_winx,m_winy;
 };
 
 
@@ -198,11 +201,11 @@ private:
 	void trkSearch(int type, int x, int y){};
 	void pov_move(int x,int y);
 	void virtualAxisMove(int x, int y){};
-
+	void switchTarget(int arg);
 	
 private:
 	void openCloseMtd(bool flag);
-
+	bool m_haveobj;
 	bool mtdStatus;
 };
 

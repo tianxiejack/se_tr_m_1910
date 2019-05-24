@@ -44,7 +44,7 @@ void StateManger::OperationChangState()
 
 int StateManger::CurStateInterface()
 {
-	printf("_state->curState  = %d  \n", curState);
+	//printf("_state->curState  = %d  \n", curState);
 	return curState;
 }
 
@@ -64,18 +64,21 @@ void StateManger::ToPlatFormCapture()
 {
 	curState = _state->State::ChangeState(this, STATE_PTZ);
 	_state->OperationChangeState(this);
+	return ;
 }
 
 void StateManger::ToBoxCapture()
 {
 	curState = _state->State::ChangeState(this, STATE_BOX);
 	_state->OperationChangeState(this);
+	return ;
 }
 
 void StateManger::ToManualMtdCapture()
 {
 	curState = _state->State::ChangeState(this, STATE_MANUALMTD);
 	_state->OperationChangeState(this);
+	return ;
 }
 
 
@@ -92,26 +95,34 @@ void StateManger::inter_SwitchSensor(char chid)
 void StateManger::inter_ZoomCtrl(char type)
 {
 	_state->ZoomCtrl(type);
+	return ;
 }
+
 
 void StateManger::inter_AxisPos(int x, int y)
 {
 
 }
 
+
 void StateManger::inter_AxisMove(int x, int y)
 {
 	_state->axisMove(x, y);
+	return ;
 }
+
 
 void StateManger::inter_TrkSearch(int type, int x, int y)
 {
 	_state->trkSearch(type, x, y);
+	return; 
 }
+
 
 void StateManger::inter_Iris_FocusCtrl(int type, int dir)
 {
 	_state->Iris_FocusCtrl(type, dir);
+	return ;
 }
 
 

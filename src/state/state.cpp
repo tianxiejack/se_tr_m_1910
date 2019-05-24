@@ -140,10 +140,11 @@ void State::TrkCtrl(char Enable)
 	{
 		_ptz->ptzStop();
 		tmp.tv_sec = 0;
-		tmp.tv_usec = 100*1000;
+		tmp.tv_usec = 30*1000;
 		select(0, NULL, NULL, NULL, &tmp);
 		_ptz->ptzStop();
 	}
+	return ;
 }
 
 void State::switchSensor(char chid)
@@ -159,6 +160,7 @@ void State::ZoomCtrl(char type)
 		_ptz->m_iSetZoomSpeed = 1;
 	else
 		_ptz->m_iSetZoomSpeed = 0;
+	return ;
 }
 
 
@@ -206,7 +208,9 @@ void State::trkSearch(int type, int x, int y)
 	ipcParam.intPrm[1] = x;
 	ipcParam.intPrm[2] = y;
 	m_ipc->IPCSendMsg(sectrk, ipcParam.intPrm, 3*4);
+	return ;
 }
+
 
 void State::Iris_FocusCtrl(int type, int dir)
 {
@@ -252,9 +256,8 @@ void State::Iris_FocusCtrl(int type, int dir)
 		default:
 			break;
 	}
+	return ;
 }
-
-
 
 
 void State::switchSensor_interface(int chid)
@@ -281,7 +284,9 @@ void State::switchSensor_interface(int chid)
 	}
 
 	curValidChid = selectch.idx;
+	return ;
 }
+
 
 void State::axisMove_interface(float x, float y)
 {	
@@ -359,7 +364,6 @@ void State::detectionFunc (int sign)
 }
 
 
-
 void State::trkMovControl(int status,int errx,int erry)
 {
 	if(m_plt == NULL)
@@ -379,8 +383,6 @@ void State::trkMovControl(int status,int errx,int erry)
 
 		//printf("%s :    panSpeed :%d  , tilSpeed : %d  \n",__func__,_ptz->m_iSetPanSpeed,_ptz->m_iSetTiltSpeed);
 	}
-
-	
 	return ;
 }
 
@@ -390,7 +392,6 @@ void State::pov_move(int x,int y)
 	ipcParam.intPrm[0] = x;
 	ipcParam.intPrm[1] = y;	
 	m_ipc->IPCSendMsg(posmove,ipcParam.intPrm,4*2);
-	
 	return ;
 }
 

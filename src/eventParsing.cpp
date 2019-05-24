@@ -249,7 +249,7 @@ void CEventParsing::buttonStopHandle(int index)
 				ComParams.zoomctrl = 2;
 			else
 				ComParams.zoomctrl = 0;
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_ZOOMLONGCTRL, &ComParams);
+			_Msg->MSGDRIV_send(MSGID_COM_INPUT_ZOOMCTRL, &ComParams);
 			break;
 			
 		case 4:
@@ -257,7 +257,7 @@ void CEventParsing::buttonStopHandle(int index)
 				ComParams.zoomctrl = 1;
 			else
 				ComParams.zoomctrl = 0;
-			_Msg->MSGDRIV_send(MSGID_EXT_INPUT_ZOOMSHORTCTRL, &ComParams);
+			_Msg->MSGDRIV_send(MSGID_COM_INPUT_ZOOMCTRL, &ComParams);
 			break;
 
 		case 6:
@@ -311,7 +311,7 @@ void CEventParsing::parsingJostickPovData(unsigned char* jos_data)
 					ComParams.zoomctrl = 2;
 				else
 					ComParams.zoomctrl = 0;
-				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_ZOOMLONGCTRL, &ComParams);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_ZOOMCTRL, &ComParams);
 				index = 3;
 				break;
 			case js_4:
@@ -319,7 +319,7 @@ void CEventParsing::parsingJostickPovData(unsigned char* jos_data)
 					ComParams.zoomctrl = 1;
 				else
 					ComParams.zoomctrl = 0;
-				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_ZOOMSHORTCTRL, &ComParams);
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_ZOOMCTRL, &ComParams);
 				index = 4;
 				break;
 			default:

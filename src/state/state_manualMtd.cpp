@@ -6,7 +6,7 @@
  */
 #include "State.h"
 
-ManualMtdCapture::ManualMtdCapture():mtdStatus(false)
+ManualMtdCapture::ManualMtdCapture():mtdStatus(false),m_haveobj(false)
 {
 
 }
@@ -22,6 +22,7 @@ void ManualMtdCapture::OperationChangeState(StateManger* con)
 	m_ipc->IPCSendMsg(workmode, ipcParam.intPrm, 4);
 	OperationInterface(con);
 	openCloseMtd(true);
+	m_haveobj = false;
 }
 
 int ManualMtdCapture::curStateInterface()
@@ -31,9 +32,20 @@ int ManualMtdCapture::curStateInterface()
 	return curState;
 }
 
+
+void StateAuto_Mtd::mtdhandle(int arg)
+{
+	if(arg)
+		m_haveobj = true;
+	else
+		m_haveobj = false;
+	return ;
+}
+
+
 void ManualMtdCapture::TrkCtrl(char Enable)
 {
-	if(Enable && cfg_value[CFGID_RTS_mtddet])
+	if( Enable && m_haveobj )
 	{	
 		ipcParam.intPrm[0] = 3;
 		m_ipc->IPCSendMsg(mtdSelect, ipcParam.intPrm, 4);
@@ -86,17 +98,24 @@ void ManualMtdCapture::openCloseMtd(bool flag)
 }
 
 
-
 void ManualMtdCapture::pov_move(int x,int y)
 {
 	if(cfg_value[CFGID_RTS_trken])
 		State::pov_move( x , y );
-	else
+	else if(cfg_value[CFGID_RTS_mtden])
 	{
-		ipcParam.intPrm[0] = x;
-		m_ipc->IPCSendMsg(mtdSelect, ipcParam.intPrm, 4);
+		if(x == 0x1)
+			switchTarget(0x81);
+		else if(x == 0x2)
+			switchTarget(0x80);
 	}
-
 	return ;
 }
 
+
+void ManualMtdCapture::switchTarget(int arg)
+{
+	ipcParam.intPrm[0] = arg;
+	m_ipc->IPCSendMsg(mtdSelect, ipcParam.intPrm, 4);
+	return ;
+}

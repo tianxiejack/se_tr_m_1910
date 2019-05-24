@@ -1,7 +1,7 @@
 
 #include "State.h"
 
-BoxCapture::BoxCapture():winx(1920>>1),winy(1080>>1)
+BoxCapture::BoxCapture():m_winx(1920>>1),m_winy(1080>>1)
 {
 
 }
@@ -28,38 +28,69 @@ int BoxCapture::curStateInterface()
 }
 
 
+void BoxCapture::moveAcqrect(int dir,int stepx,int stepy)
+{
+	switch(dir)
+	{
+		case 0:
+			m_winx -+ stepx;
+			if(m_winx < 20)
+				m_winx = 20;
+			break;
+		case 1:
+			m_winx += stepx;
+			if(m_winx > 1900)
+				m_winx = 1900;
+			break;
+		case 2:
+			m_winy -= stepy;
+			if(m_winy <20)
+				m_winy = 20;
+			break;
+		case 3:
+			m_winy += stepy;
+			if(m_winy > 1060)
+				m_winy = 1060;
+			break;
+		default:
+			break;
+	}
+	return ;
+}
+
+
 void BoxCapture::axisMove(int x, int y)
 {
 	if( abs(x - (JOS_VALUE_MAX>>1)) <= 20 && abs(y - (JOS_VALUE_MAX>>1)) <= 20 )
 	{
-		winx = 1920>>1;
-		winy = 1080>>1;
+		m_winx = 1920>>1;
+		m_winy = 1080>>1;
 	}
 	else
 	{
-		winx = (unsigned int)(1920 * ((float)x / JOS_VALUE_MAX));
-		winy = (unsigned int)(1080 * ((float)y / JOS_VALUE_MAX));
+		m_winx = (unsigned int)(1920 * ((float)x / JOS_VALUE_MAX));
+		m_winy = (unsigned int)(1080 * ((float)y / JOS_VALUE_MAX));
 	}
 	ipcParam.intPrm[0] = 2;
-	ipcParam.intPrm[1] = winx;
-	ipcParam.intPrm[2] = winy;
+	ipcParam.intPrm[1] = m_winx;
+	ipcParam.intPrm[2] = m_winy;
 	m_ipc->IPCSendMsg(AcqPos, ipcParam.intPrm, 4*3);
-	
 	return ;
 }
+
 
 void BoxCapture::TrkCtrl(char Enable)
 {
 	if(Enable)
 	{
 		ipcParam.intPrm[0] = Enable;
-		ipcParam.intPrm[1] = winx;
-		ipcParam.intPrm[2] = winy;
+		ipcParam.intPrm[1] = m_winx;
+		ipcParam.intPrm[2] = m_winy;
 		m_ipc->IPCSendMsg(AcqPos, ipcParam.intPrm, 4*3);
 		if(m_plt != NULL)
 			m_Platform->PlatformCtrl_reset4trk(m_plt);
-		winx = 1920>>1;
-		winy = 1080>>1;
+		m_winx = 1920>>1;
+		m_winy = 1080>>1;
 	}
 	else
 	{
