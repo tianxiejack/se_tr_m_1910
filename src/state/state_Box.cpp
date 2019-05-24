@@ -30,31 +30,26 @@ int BoxCapture::curStateInterface()
 
 void BoxCapture::moveAcqrect(int dir,int stepx,int stepy)
 {
-	switch(dir)
-	{
-		case 0:
-			m_winx -+ stepx;
-			if(m_winx < 20)
-				m_winx = 20;
-			break;
-		case 1:
-			m_winx += stepx;
-			if(m_winx > 1900)
-				m_winx = 1900;
-			break;
-		case 2:
-			m_winy -= stepy;
-			if(m_winy <20)
-				m_winy = 20;
-			break;
-		case 3:
-			m_winy += stepy;
-			if(m_winy > 1060)
-				m_winy = 1060;
-			break;
-		default:
-			break;
+	if(dir&(0x1<<0)){
+		m_winx -+ stepx;
+		if(m_winx < 20)
+			m_winx = 20;
+	}else if(dir & (0x1<<1)){
+		m_winx += stepx;
+		if(m_winx > 1900)
+			m_winx = 1900;
 	}
+
+	if(dir&(0x1<<2)){
+		m_winy -= stepy;
+		if(m_winy <20)
+			m_winy = 20;
+	}else if(dir&(0x1<<3)){
+		m_winy += stepy;
+		if(m_winy > 1060)
+			m_winy = 1060;
+	}
+
 	return ;
 }
 
