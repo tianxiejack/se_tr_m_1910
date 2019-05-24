@@ -62,25 +62,29 @@ void StateAuto_Mtd::mtdhandle(int arg)
 void* StateAuto_Mtd::autoMtdMainloop(void* p)
 {
 	OSA_thrDetach();
-
+	
 	static bool exist = false ;
 	if(exist)
 		return NULL;
-	
+
 	struct timeval tmp;
 	pThis->_ptz->runToPrepos(1);
 	while(pThis->curState == STATE_AUTOMTD)
 	{
 		pThis->_ptz->runToPrepos(2);
 	}
-	printf("reach at the prepos \n");
+	if(pThis->curState != STATE_AUTOMTD)
+	{
+		exist = false;
+		return NULL;
+	}
+	
 	pThis->_ptz->ptzStop();
 	tmp.tv_sec = 0;
 	tmp.tv_usec = 300*1000;
 	select(0, NULL, NULL, NULL, &tmp);	
 	pThis->ipcParam.intPrm[0] = 1;
 	pThis->m_ipc->IPCSendMsg(mtd, pThis->ipcParam.intPrm, 4);
-	printf("into the while wait the target  \n");
 	
 	while(pThis->curState == STATE_AUTOMTD)
 	{		
@@ -100,7 +104,6 @@ void* StateAuto_Mtd::autoMtdMainloop(void* p)
 		}
 	}
 	
-	printf("out of the while  \n");
 	if(pThis->curState != STATE_AUTOMTD)
 		printf(" have changed the state :%d \n" ,pThis->curState);
 
