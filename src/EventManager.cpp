@@ -31,10 +31,17 @@ CEventManager::CEventManager()
 	_StateManager->GetParams(cfg_value);
 	outtype = cfg_value[CFGID_PTZ_feedbacktype];
 	_StateManager->_state->StateInit();
+
+	SELF_semCreate(&m_semSendpos);
+	SELF_semCreate(&m_semSendZoom);
+
 }
 
 CEventManager::~CEventManager()
 {
+	SELF_semDelete(&m_semSendpos);
+	SELF_semDelete(&m_semSendZoom);
+
 	exit_ipcthread = true;
 	delete pThis;
 	delete _StateManager;
@@ -323,14 +330,14 @@ void CEventManager::MSG_Com_TrkMove(void* p)
 	ComParams_t *tmp = (ComParams_t *)p;
 	int trkmove = tmp->trkmove;
 	int x = 0, y =0;
-	if(trkmove&&(0x1<<0))
+	if(trkmove&(0x1<<0))
 		x = 0x1;
-	else if(trkmove && (0x1<<1))
+	else if(trkmove & (0x1<<1))
 		x = 0x2;
 
-	if(trkmove&&(0x1<<2))
+	if(trkmove&(0x1<<2))
 		y = 0x1;
-	else if(trkmove && (0x1<<3))
+	else if(trkmove & (0x1<<3))
 		y = 0x2;
 
 	pThis->_StateManager->_state->pov_move( x, y);
@@ -441,6 +448,7 @@ void CEventManager::MSG_Com_QueryPtzPos(void* p)
 {
 	int pan, til;
 	ComParams_t *tmp = (ComParams_t *)p;
+
 
 	//pThis->_StateManager->_state->_ptz->queryPos();
 	//pThis->_StateManager->_state->_ptz->getpos(pan, til);
