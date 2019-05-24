@@ -105,6 +105,7 @@ typedef enum
 	CFGID_PTZ_flowcon = CFGID_BUILD( CFGID_PTZ_BKID, 5 ),	
 	CFGID_PTZ_netip = CFGID_BUILD( CFGID_PTZ_BKID, 6 ),
 	CFGID_PTZ_protype = CFGID_BUILD( CFGID_PTZ_BKID, 8 ),
+	CFGID_PTZ_feedbacktype = CFGID_BUILD( CFGID_PTZ_BKID, 15 ),
 }CFGID_PTZ;
 
 typedef enum 

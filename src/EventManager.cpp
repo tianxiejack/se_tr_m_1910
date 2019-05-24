@@ -29,6 +29,7 @@ CEventManager::CEventManager()
 	IPC_Creat();
 	ReadConfigFile();
 	_StateManager->GetParams(cfg_value);
+	outtype = cfg_value[CFGID_PTZ_feedbacktype];
 	_StateManager->_state->StateInit();
 }
 
@@ -487,14 +488,21 @@ void CEventManager::MSG_Com_GetZoom(void* p)
 
 void CEventManager::MSG_Com_TrkOutput(void* p)
 {
+	Set_config_t settmp;
 	ComParams_t *tmp = (ComParams_t *)p;
 	unsigned short trkoutput = tmp->trkoutput;
-	printf("trkoutput=%d\n", trkoutput);
-
 	pThis->outtype = tmp->trkoutput;
-	pThis->outcomtype = tmp->comtype;
 	
+	settmp.block= CFGID_PTZ_BKID;
+	settmp.field= 15;
+	memcpy(&settmp.value, &tmp->trkoutput, 4);
+	tmp->setConfigQueue.push_back(settmp);
+	
+	pThis->_Msg->MSGDRIV_send(MSGID_COM_INPUT_SETCFG, p);
+	return ;
 }
+
+
 void CEventManager::MSG_Com_SetCfg(void* p)
 {
 	Set_config_t tmpcfg;
@@ -518,7 +526,10 @@ void CEventManager::MSG_Com_GetCfg(void* p)
 		pThis->GetConfig(tmp->comtype, tmpcfg.block, tmpcfg.field);
 		tmp->getConfigQueue.erase(tmp->getConfigQueue.begin());
 	}
+	return ;
 }
+
+
 void CEventManager::MSG_Com_SetOsd(void* p)
 {
 	osdbuffer_t tmpcfg;
@@ -531,7 +542,10 @@ void CEventManager::MSG_Com_SetOsd(void* p)
 	memcpy(pThis->usr_value + index * USEROSD_LENGTH, tmpcfg.buf, length<USEROSD_LENGTH?length:USEROSD_LENGTH);
 	printf("osdid:%d, type:%d, buf=%s\n",tmpcfg.osdID, tmpcfg.type, tmpcfg.buf);
 	pThis->m_ipc->IPCSendMsg(read_shm_usrosd, &index, 4);
+	return ;
 }
+
+
 void CEventManager::MSG_Com_DefaultCfg(void* p)
 {
 	int status , block;
@@ -544,12 +558,16 @@ void CEventManager::MSG_Com_DefaultCfg(void* p)
 		pThis->DefaultConfig(tmp->comtype, block);
 		tmp->defConfigQueue.erase(tmp->defConfigQueue.begin());
 	}
+	return ;
 }
+
+
 void CEventManager::MSG_Com_SaveCfg(void* p)
 {
 	printf("MSG_Com_SaveCfg start\n");
 	ComParams_t *tmp = (ComParams_t *)p;
 	pThis->SaveConfig(tmp->comtype);
+	return ;
 }
 
 int  CEventManager::ReadConfigFile()

@@ -63,7 +63,6 @@ void ManualMtdCapture::TrkCtrl(char Enable)
 }
 
 
-
 void ManualMtdCapture::axisMove(int x, int y)
 {
 

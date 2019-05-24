@@ -353,7 +353,7 @@ void CEventParsing::parsingJostickButtonData(unsigned char* jos_data)
 				index = 6;
 				break;
 			case js_7:
-				
+				_Msg->MSGDRIV_send(MSGID_COM_INPUT_QUERYPTZPOS, &ComParams);
 				break;
 			case js_8:
 				ComParams.capturemode = (ComParams.capturemode + 1)%3;
