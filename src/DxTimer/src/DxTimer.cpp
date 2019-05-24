@@ -81,15 +81,19 @@ int DxTimer::registerTimer(unsigned int timerId,void (*callback)(void *), void *
 *******************************************************************************/
 int DxTimer::startTimer(unsigned int timerId,unsigned int nMs)
 {
-    if(eTimer_Stat_unused == timerNum[timerId])
-    {
-        printf("timer %d has not been created!\n");
-        return -1;
-    }
-    Dx_setTimer(timerId, nMs);
-    pTimeArray[timerId].nStat = eTimer_Stat_Run;
+	if(eTimer_Stat_unused == timerNum[timerId])
+	{
+		printf("timer %d has not been created!\n");
+		return -1;
+	}
+	
+	if(pTimeArray[timerId].nStat == eTimer_Stat_Run)
+		return -1;
 
-    return 0;
+	Dx_setTimer(timerId, nMs);
+	pTimeArray[timerId].nStat = eTimer_Stat_Run;
+
+	return 0;
 }
 
 /*******************************************************************************

@@ -61,13 +61,14 @@ void StateAuto_Mtd::autoMtdMainloop()
 {
 	struct timeval tmp;
 	_ptz->runToPrepos();
+	printf("reach at the prepos \n");
 	_ptz->ptzStop();
 	tmp.tv_sec = 0;
 	tmp.tv_usec = 300*1000;
 	select(0, NULL, NULL, NULL, &tmp);	
 	ipcParam.intPrm[0] = 1;
 	m_ipc->IPCSendMsg(mtd, ipcParam.intPrm, 4);
-	
+	printf("into the while wait the target  \n");
 	while(curState == STATE_AUTOMTD)
 	{		
 		tmp.tv_sec = 0;
@@ -78,14 +79,17 @@ void StateAuto_Mtd::autoMtdMainloop()
 			{	
 				ipcParam.intPrm[0] = 3;
 				m_ipc->IPCSendMsg(mtdSelect, ipcParam.intPrm, 4);	
+				m_Platform->PlatformCtrl_reset4trk(m_plt);
 				ipcParam.intPrm[0] = 0;
 				m_ipc->IPCSendMsg(mtd, ipcParam.intPrm, 4);
 			}
 			break;
 		}
 	}
+	
+	printf("out of the while  \n");
 	if(curState != STATE_AUTOMTD)
-		printf(" have changed the state \n");
+		printf(" have changed the state :%d \n" ,curState);
 	return ;
 }
 
@@ -107,7 +111,6 @@ void StateAuto_Mtd::TimeCallback(void* p)
 	int tid = *(int *)p;
 	if(pThis->timeAutoMtd == tid)
 	{
-		printf("time call back \n");
 		pThis->m_timer->stopTimer(pThis->timeAutoMtd);
 		pThis->outTrk();
 	}
@@ -117,15 +120,10 @@ void StateAuto_Mtd::TimeCallback(void* p)
 
 void StateAuto_Mtd::recvTrkmsg(int arg)
 {
-	if(1 == arg){
-		if(!m_timer->getTimerStat(timeAutoMtd))
-			m_timer->startTimer(timeAutoMtd,5000);
-	}
-	else if(3 == arg){
-		if(m_timer->getTimerStat(timeAutoMtd))
-			m_timer->stopTimer(timeAutoMtd);
-	}
-	
+	if(1 == arg)
+		m_timer->startTimer(timeAutoMtd,5000);
+	else if(3 == arg)
+		m_timer->stopTimer(timeAutoMtd);
 	return;
 }
 

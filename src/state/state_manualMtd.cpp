@@ -51,6 +51,8 @@ void ManualMtdCapture::TrkCtrl(char Enable)
 		m_ipc->IPCSendMsg(mtdSelect, ipcParam.intPrm, 4);
 		if(m_plt != NULL)
 			m_Platform->PlatformCtrl_reset4trk(m_plt);
+		ipcParam.intPrm[0] = 0;
+		m_ipc->IPCSendMsg(mtd, ipcParam.intPrm, 4);
 		mtdStatus = false;
 	}
 	else if(!Enable)
