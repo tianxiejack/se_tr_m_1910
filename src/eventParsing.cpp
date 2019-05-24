@@ -808,14 +808,12 @@ int  CEventParsing::package_ACK_QueryZoom(sendInfo *psendBuf)
 int  CEventParsing::package_ACK_Output(sendInfo *psendBuf)
 {
 
-	int bodylen = 7;
+	int bodylen = 11;
 	psendBuf->sendBuff[4] = ACK_output;
 	psendBuf->sendBuff[5] = ACK_ComParams.trkstat;
 	psendBuf->sendBuff[6] = ACK_ComParams.outtype;
-	psendBuf->sendBuff[7] = ACK_ComParams.trkerrx & 0xff;
-	psendBuf->sendBuff[8] = (ACK_ComParams.trkerrx >> 8) & 0xff;
-	psendBuf->sendBuff[9] = ACK_ComParams.trkerry & 0xff;
-	psendBuf->sendBuff[10] = (ACK_ComParams.trkerry >> 8) & 0xff;
+	memcpy(psendBuf->sendBuff + 7, &ACK_ComParams.trkerrx, 4);
+	memcpy(psendBuf->sendBuff + 11, &ACK_ComParams.trkerry, 4);
 
 	package_ACK_commondata(psendBuf, bodylen);
 }

@@ -209,8 +209,8 @@ typedef struct{
 	unsigned short querytil;
 	unsigned short queryzoom;
 	int outtype;
-	short trkerrx;
-	short trkerry;
+	float trkerrx;
+	float trkerry;
 	vector<Set_config_t>  setConfigQueue;
 	vector<Set_config_t>  getConfigQueue;
 	vector<Get_osd_t> getOsdQueue;

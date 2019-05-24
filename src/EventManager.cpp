@@ -101,14 +101,11 @@ void CEventManager::thread_ipcEvent()
 				{
 					memcpy(&errorx, pThis->cfg_value + CFGID_RTS_trkerrx, 4);
 					memcpy(&errory, pThis->cfg_value + CFGID_RTS_trkerry, 4);
-					pThis->signalFeedBack(6, pThis->outcomtype, ACK_output, (int)pThis->cfg_value[CFGID_RTS_trkstat], pThis->outtype, (int)errorx, (int)errory);
+					pThis->signalFeedBack_output(pThis->outcomtype, (int)pThis->cfg_value[CFGID_RTS_trkstat], pThis->outtype, errorx, errory);
 				}else if(2 == pThis->outtype){
 					float x,y;
 					pThis->_StateManager->_state->getcurRate(x,y);
-					int intx,inty;
-					memcpy(&intx,&x,4);
-					memcpy(&inty,&y,4);
-					pThis->signalFeedBack(6, pThis->outcomtype, ACK_output, (int)pThis->cfg_value[CFGID_RTS_trkstat], pThis->outtype, intx, inty);
+					pThis->signalFeedBack_output(pThis->outcomtype, (int)pThis->cfg_value[CFGID_RTS_trkstat], pThis->outtype, x, y);
 				}
 				break;
 
@@ -939,13 +936,6 @@ void CEventManager::signalFeedBack(int argnum ...)
 		case ACK_QueryZoom:
 			ACK_ComParams.queryzoom = va_arg(ap, int);
 			break;
-		case ACK_output:
-			ACK_ComParams.trkstat = va_arg(ap, int);
-			ACK_ComParams.outtype = va_arg(ap, int);
-			ACK_ComParams.trkerrx = va_arg(ap, int);
-			ACK_ComParams.trkerry = va_arg(ap, int);
-			printf("[%s]trkstat=%d,outtype=%d,trkerrx=%d,trkerry=%d\n", __FUNCTION__, ACK_ComParams.trkstat, ACK_ComParams.outtype, ACK_ComParams.trkerrx, ACK_ComParams.trkerry);
-			break;
 		case ACK_DefaultConfig:
 			ACK_ComParams.defConfigQueue.push_back(va_arg(ap, int));
 			printf("[%s], default block=%d\n", __FUNCTION__, ACK_ComParams.defConfigQueue[0]);
@@ -962,6 +952,17 @@ void CEventManager::signalFeedBack(int argnum ...)
 	{
 		OSA_semSignal(&m_semHndl);
 	}
+}
+void CEventManager::signalFeedBack_output(comtype_t comtype, int trkstat, int outtype, float x, float y)
+{
+	ACK_ComParams.comtype = comtype;
+	ACK_ComParams.cmdid  = ACK_output;
+	ACK_ComParams.trkstat = trkstat;
+	ACK_ComParams.outtype = outtype;
+	ACK_ComParams.trkerrx = x;
+	ACK_ComParams.trkerry = y;
+	printf("[%s]trkstat=%d,outtype=%d,x,y=(%f,%f)\n", __FUNCTION__, ACK_ComParams.trkstat, ACK_ComParams.outtype, ACK_ComParams.trkerrx, ACK_ComParams.trkerry);
+	OSA_semSignal(&m_semHndl);
 }
 int CEventManager::is_float(int cfgid)
 {
