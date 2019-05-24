@@ -534,11 +534,11 @@ int CEventParsing::parsingComEvent(comtype_t comtype)
 				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_SwitchSensor, &ComParams);
 				break;
 			case 0x03:
-				ComParams.workmode = rcvBufQue.at(5);
+				ComParams.workmode = rcvBufQue.at(5) - 1;
 				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_workMode, &ComParams);
 				break;
 			case 0x04:
-				ComParams.capturemode = rcvBufQue.at(5);
+				ComParams.capturemode = rcvBufQue.at(5) - 1;
 				_Msg->MSGDRIV_send(MSGID_EXT_INPUT_captureMode, &ComParams);
 				break;
 			case 0x05:
