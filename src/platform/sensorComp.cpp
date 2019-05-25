@@ -348,15 +348,6 @@ BoresightPos_s CSensorComp::calcBoresightContinue(int* data , int zoom)
 	return ret;
 }
 
-
-float CSensorComp::calcBoresightContinue(int* data , int zoom)
-{
-	BoresightPos_s ret;
-	ret.x = (int)dynamicSendBoresightPosX(zoom , data[CFGID_RTS_mainch]);
-	ret.y = (int)dynamicSendBoresightPosY(zoom , data[CFGID_RTS_mainch]);
-	return ret;
-}
-
 	
 BoresightPos_s CSensorComp::getBoresight(int* data , int zoom)
 {	
@@ -374,7 +365,7 @@ BoresightPos_s CSensorComp::getBoresight(int* data , int zoom)
 			tmp.y = data[CFGID_INPUT_boresightY(base,  CFGID_INPUT_FOVCLASS(base))];
 			break;
 		case 2:
-			tmp = calcBoresightContinue(data);
+			tmp = calcBoresightContinue(data , zoom);
 			break;
 		default:
 			break;

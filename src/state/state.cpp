@@ -30,7 +30,7 @@ State::State()
 	if(_agreement == NULL)
 		_agreement = new IPelcoDFormat();
 	if(_ptz == NULL)
-		_ptz = new CPTZControl(_agreement,notifyZoom);
+		_ptz = new CPTZControl(_agreement,notifyzoomchange);
 	if(m_Platform == NULL)
 		m_Platform = new CplatFormControl();
 	if(m_ptzSpeed == NULL)
@@ -416,7 +416,7 @@ void State::getcurRate(float& curx , float& cury)
 }
 
 
-void State::notifyZoom(int zoom)
+void State::notifyzoomchange(int zoom)
 {	
 	BoresightPos_s pos = pThis->m_Platform->getBoresight(cfg_value , zoom);
 	//send ipc	

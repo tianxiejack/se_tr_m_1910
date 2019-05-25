@@ -55,7 +55,7 @@ class CPTZControl : CptzInterface
 	
 	
 public:
-	CPTZControl(AgreeMentBaseFormat* _imp);
+	CPTZControl(AgreeMentBaseFormat* _imp , notifyZoom ptr);
 	~CPTZControl();
 
 	int Create();

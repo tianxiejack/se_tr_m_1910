@@ -87,7 +87,7 @@ public:
 	void trkMovControl(int status,int errx,int erry);
 	void PreposHandle(int arg);
 	void getcurRate(float& curx , float& cury);
-	static void notifyZoom(int zoom); 
+	static void notifyzoomchange(int zoom);
 
 public:
 	static CIPCProc* m_ipc;

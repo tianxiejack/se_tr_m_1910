@@ -141,6 +141,8 @@ public:
 	float dynamicSendBoresightPosX(unsigned short zoom , int chid);
 	float dynamicSendBoresightPosY(unsigned short zoom , int chid);
 
+	void getCameraResolution(int* data);
+	BoresightPos_s calcBoresightContinue(int* data , int zoom);
 
 	int getBaseAddress(int* data);
 	BoresightPos_s getBoresight(int* data , int zoom);
@@ -155,7 +157,6 @@ private:
 	float linear_interpolation(float x0, float x1, float y0, float y1, float x);
 
 	
-	void getCameraResolution(int* data);
 	void updateBoresight(int* data);
 	
 	
