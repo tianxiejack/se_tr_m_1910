@@ -171,7 +171,7 @@ public:
 
 	void getpos(int& pan, int& til);
 	void getzoom(int& zoom);
-	
+	void resetPtz();
 	
 };
 

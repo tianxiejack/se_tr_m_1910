@@ -462,8 +462,19 @@ int CPTZControl::ptzMove(INT32 iDirection, UINT8 bySpeed)
 	return sendCmd(m_pReq, PELCO_RESPONSE_Null);
 }
 
+
+void CPTZControl::resetPtz()
+{	
+	m_iSetPanSpeed = m_iSetTiltSpeed = 0;
+	m_iSetZoomSpeed = m_iSetIrisSpeed = 0;
+	m_iSetFocusNearSpeed = m_iSetFocusFarSpeed = 0;
+	return ;
+}
+
+
 int CPTZControl::ptzStop()
 {
+	resetPtz();
 	_agreeMent->PktFormat(m_pReq, 0, 0, 0, 0, m_byAddr);
 	sendCmd(m_pReq, PELCO_RESPONSE_Null);
 }

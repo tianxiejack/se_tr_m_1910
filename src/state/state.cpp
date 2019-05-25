@@ -164,7 +164,7 @@ void State::ZoomCtrl(char type)
 
 void State::virtualAxisMove(int x, int y)
 {
-	printf("x , y (%d  , %d) \n" , x, y);
+	printf("x , y  = (%d  , %d) \n" , x, y);
 	float fx,fy;
 	fx = (float)x/32767;
 	fy = (float)y/32767;

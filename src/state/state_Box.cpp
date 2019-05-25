@@ -63,8 +63,10 @@ void BoxCapture::virtualAxisMove(int x, int y)
 	}
 	else
 	{
-		m_winx = (unsigned int)(1920 * ((float)x / 32767));
-		m_winy = (unsigned int)(1080 * ((float)y / 32767));
+		x += 32767;
+		y += 32767;
+		m_winx = (unsigned int)(1920 * ((float)x / 65535));
+		m_winy = (unsigned int)(1080 * ((float)y / 65535));
 	}
 	ipcParam.intPrm[0] = 2;
 	ipcParam.intPrm[1] = m_winx;

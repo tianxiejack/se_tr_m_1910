@@ -78,7 +78,7 @@ void ManualMtdCapture::virtualAxisMove(int x, int y)
 	{
 		if(mtdStatus)
 			openCloseMtd(false);
-		State::axisMove(x,y);
+		State::virtualAxisMove(x,y);
 	}
 	
 	return ;
