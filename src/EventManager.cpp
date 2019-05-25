@@ -673,24 +673,24 @@ int  CEventManager::ReadConfigFile()
 
 int CEventManager::SetConfig(comtype_t comtype, int block, int field, int value,char *inBuf)
 {
+	int usrosdId = -1;
 	block -= 1;
 	int i = CFGID_BUILD(block, field);
-	int usrosdId = -1;
-	
+
 	if((block >= CFGID_OSD_BKID) && (block <= CFGID_OSD_BKID + 15))
 		usrosdId = block - CFGID_OSD_BKID;
 	else if((block >= CFGID_OSD2_BKID) && (block <= CFGID_OSD2_BKID + 15))
 		usrosdId = block - CFGID_OSD2_BKID + 16;
-	if((usrosdId >= 0) && (i == CFGID_OSD_CONTENT(usrosdId) || i == CFGID_OSD2_CONTENT(usrosdId)))
-	{
-		return 0;
-	}
 	
-	memcpy(cfg_value + i, &value, 4);
-	m_ipc->IPCSendMsg(read_shm_single, &i, 4);
-
-	if(((block >= CFGID_INPUT1_BKID) && (block <= CFGID_INPUT1_BKID + 6)) || ((block >= CFGID_INPUT2_BKID) && (block <= CFGID_INPUT5_BKID + 6)) )
-		_StateManager->_state->m_Platform->PlatformCtrl_sensor_Init(cfg_value);
+	if((usrosdId >= 0) && (i == CFGID_OSD_CONTENT(usrosdId) || i == CFGID_OSD2_CONTENT(usrosdId)))
+		return 0;
+	
+	if(!IgnoreConfig(block, field))
+	{
+		memcpy(cfg_value + i, &value, 4);
+		m_ipc->IPCSendMsg(read_shm_single, &i, 4);
+		updateparams(block, cfg_value);
+	}
 
 	int value2;
 	memcpy(&value2, cfg_value + i, 4);
@@ -807,8 +807,7 @@ int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
 								}
 							}
 
-							if(((blkId >= CFGID_INPUT1_BKID) && (blkId <= CFGID_INPUT1_BKID + 6)) || ((blkId >= CFGID_INPUT2_BKID) && (blkId <= CFGID_INPUT5_BKID + 6)) )
-								_StateManager->_state->m_Platform->PlatformCtrl_sensor_Init(cfg_value);
+							updateparams(blockId, cfg_value);
 						}
 					}
 				}
@@ -920,6 +919,25 @@ int CEventManager::SaveConfig(comtype_t comtype)
 
 	signalFeedBack(3, comtype, ACK_saveconfig, status);
 		
+}
+
+int CEventManager::IgnoreConfig(int block, int field)
+{
+	int i = CFGID_BUILD(block, field);
+
+	if((CFGID_PREPOS_preposx == i) || (CFGID_PREPOS_preposy == i))
+		return 1;
+
+	return 0;
+}
+
+int CEventManager::updateparams(int block, int *cfg_value)
+{
+	if(-1 == block)
+		;
+	
+	if(((block >= CFGID_INPUT1_BKID) && (block <= CFGID_INPUT1_BKID + 6)) || ((block >= CFGID_INPUT2_BKID) && (block <= CFGID_INPUT5_BKID + 6)) )
+		_StateManager->_state->m_Platform->PlatformCtrl_sensor_Init(cfg_value);
 }
 
 void CEventManager::signalFeedBack(int argnum ...)
@@ -1502,6 +1520,4 @@ void* CEventManager::answerZoom(void *p)
 	exist = false;
 	return NULL;
 }
-
-
 
