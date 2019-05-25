@@ -13,6 +13,7 @@
 #include "pelcoPformat.h"
 #include "ExtensionFormat.h"
 #include "PortFactory.hpp"
+#include "configtable.h"
 
 #define balladdress 1
 
@@ -94,7 +95,7 @@ public:
 	int m_iSetPanSpeed, m_iSetTiltSpeed, m_iSetZoomSpeed,m_iSetIrisSpeed,m_iSetFocusNearSpeed, m_iSetFocusFarSpeed, m_iSetPreset;
 	int m_isetZoom;
 	int m_iCurTiltSpeed, m_iCurZoomSpeed;
-	int	m_iPanPos, m_iTiltPos , m_iZoomPos;
+	int	m_iPanPos, m_iTiltPos , m_iZoomPos , m_iZoomPosBk;
 	bool m_bChangeZoomSpeed;
 	bool exitQuery_X, exitQuery_Y, exitQueryzoom;
 	int fd_ptz;
@@ -172,7 +173,8 @@ public:
 	void getpos(int& pan, int& til);
 	void getzoom(int& zoom);
 	void resetPtz();
-	
+	static notifyZoom notifyUpdateZoom;
+
 };
 
 #endif

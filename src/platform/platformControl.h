@@ -24,6 +24,8 @@ public:
 	int PlatformCtrl_sensorCompensation(HPLTCTRL handle, int chid,unsigned int zoom);
 	void PlatformCtrl_UpdateParams(HPLTCTRL handle, float* data, int block);
 
+	BoresightPos_s getBoresight(int* data , int zoom);
+
 private:
 	void PlatformCtrl_ClassInit();
 	int PlatformCtrl_AcqRateDemand(PlatformCtrl_Obj *pObj);
@@ -33,6 +35,7 @@ private:
 	void joyYHandle(PlatformCtrl_Obj *pObj);
 	void joyXHandle(PlatformCtrl_Obj *pObj);
 	void joyParamProcHandle(PlatformCtrl_Obj *pObj);
+
 	
 private:
 	CPlatformFilter* _Fiter;

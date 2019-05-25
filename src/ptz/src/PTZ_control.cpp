@@ -10,11 +10,13 @@
 #define DATAIN_TSK_STACK_SIZE       (0)
 unsigned char trackBuf[10];
 CPTZControl* CPTZControl::pThis = 0;
+notifyZoom CPTZControl::notifyUpdateZoom = NULL;
 
-CPTZControl::CPTZControl(AgreeMentBaseFormat* _imp):pCom(NULL), 
+
+CPTZControl::CPTZControl(AgreeMentBaseFormat* _imp , notifyZoom ptr):pCom(NULL), 
 	exitQuery_X(false), exitQuery_Y(false), exitQueryzoom(false),
 	m_Mtd_Moitor(0),m_Mtd_Moitor_X(0),m_Mtd_Moitor_Y(0),	m_rcv_zoomValue(2849),
-	m_sync_pos(false),m_sync_fovComp(false),m_stateChange(false)
+	m_sync_pos(false),m_sync_fovComp(false),m_stateChange(false),m_iZoomPosBk(0)
 {
 
 	m_bStopZoom = false;
@@ -46,6 +48,7 @@ CPTZControl::CPTZControl(AgreeMentBaseFormat* _imp):pCom(NULL),
 	memset(&recvBuffer, 0, sizeof(recvBuffer));
 	memset(&sendBuffer, 0, sizeof(sendBuffer));
 	Create();
+	notifyUpdateZoom = ptr;
 }
 
 CPTZControl::~CPTZControl()
@@ -199,7 +202,6 @@ void CPTZControl::dataInThrd()
 void CPTZControl::RecvByte(unsigned char byRecv)
 {
 	static bool sync_pan = false, sync_Tilt = false, sync_zoom= false;
-
 	if(uiCurRecvLen == 0){
 
 		if(byRecv == 0xFF){
@@ -266,7 +268,7 @@ void CPTZControl::RecvByte(unsigned char byRecv)
 				m_iZoomPos <<= 8;
 				m_iZoomPos += recvBuffer[5];
 				m_rcv_zoomValue = (unsigned short)m_iZoomPos;
-				diffValue = zoom_bak - m_iZoomPos;
+				diffValue = zoom_bak - m_iZoomPos;					
 				if(abs(diffValue) < 700)
 				{
 					exitQueryzoom = true;
@@ -276,6 +278,12 @@ void CPTZControl::RecvByte(unsigned char byRecv)
 				{
 					m_Mtd_Moitor_Zoom  = m_iZoomPos;
 					m_iZoomPos =m_Mtd_Moitor = 0;
+				}
+				if(m_iZoomPos != m_iZoomPosBk)
+				{
+					if(notifyUpdateZoom != NULL)
+						notifyUpdateZoom(m_iZoomPos);
+					m_iZoomPosBk = m_iZoomPos;
 				}
 				sync_zoom = true;
 				//printf("INFO: zoompos is %d\n",m_iZoomPos);
@@ -302,6 +310,7 @@ void CPTZControl::RecvByte(unsigned char byRecv)
 			if(sync_zoom){
 				m_sync_fovComp = false;
 				sync_zoom = false;
+				
 			}
 		}
 	}

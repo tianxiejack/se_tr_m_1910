@@ -26,6 +26,9 @@ public:
 	virtual int PlatformCtrl_TrackerOutput(HPLTCTRL handle, PLATFORMCTRL_Output *pOutput) = 0;
 
 	virtual void PlatformCtrl_reset4trk(HPLTCTRL handle)=0;
+	virtual BoresightPos_s getBoresight(int* data , int zoom)=0;
+
+	
 
 };
 

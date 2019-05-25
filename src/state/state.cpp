@@ -30,7 +30,7 @@ State::State()
 	if(_agreement == NULL)
 		_agreement = new IPelcoDFormat();
 	if(_ptz == NULL)
-		_ptz = new CPTZControl(_agreement);
+		_ptz = new CPTZControl(_agreement,notifyZoom);
 	if(m_Platform == NULL)
 		m_Platform = new CplatFormControl();
 	if(m_ptzSpeed == NULL)
@@ -71,6 +71,8 @@ void State::platformCreate()
 {
 	viewParam = m_Platform->sensorParams();
 	m_Platform->PlatformCtrl_sensor_Init(cfg_value);
+	
+	
 	m_Platform->PlatformCtrl_CreateParams_Init(&m_cfgPlatParam, cfg_value, viewParam);
 	OSA_assert(m_plt == NULL);
 	m_plt = m_Platform->PlatformCtrl_Create(&m_cfgPlatParam);
@@ -413,4 +415,10 @@ void State::getcurRate(float& curx , float& cury)
 	return ;
 }
 
-	
+
+void State::notifyZoom(int zoom)
+{	
+	BoresightPos_s pos = pThis->m_Platform->getBoresight(cfg_value , zoom);
+	//send ipc	
+	return;
+}

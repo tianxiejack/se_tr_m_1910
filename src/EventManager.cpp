@@ -31,10 +31,10 @@ CEventManager::CEventManager()
 	_StateManager->GetParams(cfg_value);
 	outtype = cfg_value[CFGID_PTZ_feedbacktype];
 	_StateManager->_state->StateInit();
-
+	
 	SELF_semCreate(&m_semSendpos);
 	SELF_semCreate(&m_semSendZoom);
-
+	
 }
 
 CEventManager::~CEventManager()
@@ -1502,6 +1502,5 @@ void* CEventManager::answerZoom(void *p)
 	exist = false;
 	return NULL;
 }
-
 
 
