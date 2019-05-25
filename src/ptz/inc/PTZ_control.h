@@ -163,10 +163,10 @@ public:
 
 public:
 	void setPrepos(int& preposx,int& preposy);
-	void runToPrepos(int arg = 0);
+	int runToPrepos(int arg = 0);
 	void queryPos();
 	bool judgePanTilpos();
-	void judgepos(int arg=0);
+	int judgepos(int arg=0);
 	void queryZoom();
 
 	void getpos(int& pan, int& til);

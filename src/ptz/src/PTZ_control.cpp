@@ -779,8 +779,9 @@ void CPTZControl::setPrepos(int& preposx,int& preposy)
 	return ;
 }
 
-void CPTZControl::runToPrepos(int arg)
+int CPTZControl::runToPrepos(int arg)
 {
+	int ret = 0;
 	switch(arg)
 	{
 		case 0:
@@ -791,12 +792,12 @@ void CPTZControl::runToPrepos(int arg)
 			Preset(0x07, 20);
 			break;
 		case 2:
-			judgepos(arg);
+			ret = judgepos(arg);
 			break;
 		default:
 			break;
 	}
-	return ;
+	return ret;
 }
 
 
@@ -815,16 +816,20 @@ bool CPTZControl::judgePanTilpos()
 	return false;
 }
 
-void CPTZControl::judgepos(int arg)
+int CPTZControl::judgepos(int arg)
 {
+	int ret = 0;
 	do
 	{
 		queryPos();
 		if(judgePanTilpos())
+		{	
+			ret = 1;
 			break;
+		}
 	}while(!arg);
-
-	return ;
+	
+	return ret;
 }
 
 
