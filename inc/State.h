@@ -118,6 +118,7 @@ private:
 	void OperationChangeState(StateManger* con);
 	int curStateInterface();
 	void axisMove(int x, int y){};
+	void virtualAxisMove(int x, int y){};
 	void ZoomCtrl(char type){};
 	void trkSearch(int type, int x, int y){};
 	void switchSensor(char chid);
@@ -145,7 +146,6 @@ public:
 	int curStateInterface();
 	void TrkCtrl(char Enable);
 	void trkSearch(int type, int x, int y){};
-	void virtualAxisMove(int x, int y){};
 
 private:
 	bool m_sceneflag;
@@ -163,7 +163,6 @@ public:
 private:
 	void OperationChangeState(StateManger* con);
 	int curStateInterface();
-	void virtualAxisMove(int x, int y){};
 
 };
 
@@ -177,8 +176,8 @@ public:
 private:
 	void OperationChangeState(StateManger* con);
 	int curStateInterface();
+	void virtualAxisMove(int x, int y);
 	void axisMove(int x, int y);
-	void virtualAxisMove(int x, int y){};
 	void TrkCtrl(char Enable);
 	void moveAcqrect(int dir,int stepx,int stepy);
 
@@ -197,11 +196,11 @@ private:
 	void OperationChangeState(StateManger* con);
 	int curStateInterface();
 	void TrkCtrl(char Enable);
+	void virtualAxisMove(int x, int y) ;
 	void axisMove(int x, int y);
 	void switchSensor(char chid);
 	void trkSearch(int type, int x, int y){};
 	void pov_move(int x,int y);
-	void virtualAxisMove(int x, int y){};
 	void switchTarget(int arg);
 	void mtdhandle(int arg);
 	

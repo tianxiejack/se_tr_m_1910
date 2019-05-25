@@ -65,9 +65,28 @@ void ManualMtdCapture::TrkCtrl(char Enable)
 }
 
 
+void ManualMtdCapture::virtualAxisMove(int x, int y)
+{
+	if( x == 0 && y == 0 )
+	{
+		_ptz->ptzStop();
+		if(!mtdStatus){
+			openCloseMtd(true);
+		}
+	}
+	else
+	{
+		if(mtdStatus)
+			openCloseMtd(false);
+		State::axisMove(x,y);
+	}
+	
+	return ;
+}
+
+
 void ManualMtdCapture::axisMove(int x, int y)
 {
-
 	if( abs(x - (0xff>>1)) <= 20 && abs(y - (0xff>>1)) <= 20 )
 	{
 		_ptz->ptzStop();

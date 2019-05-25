@@ -54,6 +54,26 @@ void BoxCapture::moveAcqrect(int dir,int stepx,int stepy)
 }
 
 
+void BoxCapture::virtualAxisMove(int x, int y)
+{
+	if( x == 0 && y == 0)
+	{
+		m_winx = 1920>>1;
+		m_winy = 1080>>1;
+	}
+	else
+	{
+		m_winx = (unsigned int)(1920 * ((float)x / 32767));
+		m_winy = (unsigned int)(1080 * ((float)y / 32767));
+	}
+	ipcParam.intPrm[0] = 2;
+	ipcParam.intPrm[1] = m_winx;
+	ipcParam.intPrm[2] = m_winy;
+	m_ipc->IPCSendMsg(AcqPos, ipcParam.intPrm, 4*3);
+	return ;
+}
+
+
 void BoxCapture::axisMove(int x, int y)
 {
 	if( abs(x - (JOS_VALUE_MAX>>1)) <= 20 && abs(y - (JOS_VALUE_MAX>>1)) <= 20 )
