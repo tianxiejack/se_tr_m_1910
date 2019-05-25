@@ -89,6 +89,7 @@ public:
 	static void* setPlatAngle(void* p);
 	static void* preposHandle(void* p);
 	static void* setZoom(void* p);
+	
 
 public:
 	Trkerr_t m_pixelErr;

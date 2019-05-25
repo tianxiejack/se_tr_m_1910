@@ -23,6 +23,7 @@ PLATFORMCTRL_TrackerInput State::m_pltInput = {0};
 PLATFORMCTRL_Output State::m_pltOutput; 
 DxTimer* State::m_timer = NULL;
 
+
 State::State()
 {
 	if(pThis == NULL)
@@ -30,7 +31,7 @@ State::State()
 	if(_agreement == NULL)
 		_agreement = new IPelcoDFormat();
 	if(_ptz == NULL)
-		_ptz = new CPTZControl(_agreement);
+		_ptz = new CPTZControl(_agreement,notifyzoomchange);
 	if(m_Platform == NULL)
 		m_Platform = new CplatFormControl();
 	if(m_ptzSpeed == NULL)
@@ -71,6 +72,8 @@ void State::platformCreate()
 {
 	viewParam = m_Platform->sensorParams();
 	m_Platform->PlatformCtrl_sensor_Init(cfg_value);
+	
+	
 	m_Platform->PlatformCtrl_CreateParams_Init(&m_cfgPlatParam, cfg_value, viewParam);
 	OSA_assert(m_plt == NULL);
 	m_plt = m_Platform->PlatformCtrl_Create(&m_cfgPlatParam);
@@ -413,4 +416,12 @@ void State::getcurRate(float& curx , float& cury)
 	return ;
 }
 
-	
+
+void State::notifyzoomchange(int zoom)
+{	
+	BoresightPos_s pos = pThis->m_Platform->getBoresight(cfg_value , zoom);
+	pThis->ipcParam.intPrm[0] = pos.x;
+	pThis->ipcParam.intPrm[1] = pos.y;
+	pThis->m_ipc->IPCSendMsg(BoresightPos, pThis->ipcParam.intPrm, 4*2);
+	return;
+}

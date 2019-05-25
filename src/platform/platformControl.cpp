@@ -44,7 +44,8 @@ View* CplatFormControl::sensorParams()
 
 void CplatFormControl::PlatformCtrl_sensor_Init(int* data)
 {
-	_Sensor->updateParam(data);
+	_Sensor->updateFovParam(data);
+	_Sensor->getCameraResolution(data);
 	return ;
 }
 
@@ -87,19 +88,31 @@ HPLTCTRL CplatFormControl::PlatformCtrl_Create(PlatformCtrl_CreateParams *pPrm)
 
 void CplatFormControl::PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams *pPrm, int* m_Prm, View* m_Sensor)
 {
-	int i;
+	int i , base;
 	if(pPrm == NULL || m_Sensor == NULL)
 	return;
 	memset(pPrm, 0, sizeof(PlatformCtrl_CreateParams));
 
-	i = 1;
-	_Sensor->SensorComp_CreateParams_Init(&pPrm->sensorParams[i], i, m_Sensor,1920,1080);
-	pPrm->sensorParams[i].iIndex = i;
-	pPrm->fFovx[i] = pPrm->sensorParams[i].fFovMax;
-	pPrm->fFovy[i] = pPrm->sensorParams[i].fFovY;
-
+	for(int i=0;i<5;i++)
+	{
+		if(i == 0)
+			base = CFGID_INPUT1_BKID ; 
+		else if(i == 1)
+			base = CFGID_INPUT2_BKID ; 
+		else
+			base = CFGID_INPUT2_BKID + (i-1)*16;
+		
+		_Sensor->SensorComp_CreateParams_Init(&pPrm->sensorParams[i], i, m_Sensor,m_Prm[CFGID_INPUT_RESX(base)],m_Prm[CFGID_INPUT_RESY(base)]);
+		pPrm->sensorParams[i].iIndex = i;
+		pPrm->fFovx[i] = pPrm->sensorParams[i].fFovMax;
+		pPrm->fFovy[i] = pPrm->sensorParams[i].fFovY;
+	}
 	
-	pPrm->iSensorInit = 1;
+	if( m_Prm[CFGID_RTS_mainch] >=0 &&  m_Prm[CFGID_RTS_mainch] <= 5)
+		pPrm->iSensorInit =m_Prm[CFGID_RTS_mainch];
+	else
+		pPrm->iSensorInit = 1;
+	
 	for(i=0; i<DevUsr_MAX; i++){
 		_DeviceUser->DeviceUser_CreateParams_Init(&pPrm->deviceUsrParam[i]);
 		pPrm->deviceUsrParam[i].iIndex = i;
@@ -664,3 +677,12 @@ void CplatFormControl::PlatformCtrl_reset4trk(HPLTCTRL handle)
 
 	return ;
 }
+
+
+BoresightPos_s CplatFormControl::getBoresight(int* data , int zoom)
+{
+	BoresightPos_s pos;
+	pos = _Sensor->getBoresight(data, zoom);
+	return pos;
+}
+

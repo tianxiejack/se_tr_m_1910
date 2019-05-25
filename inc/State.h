@@ -87,7 +87,8 @@ public:
 	void trkMovControl(int status,int errx,int erry);
 	void PreposHandle(int arg);
 	void getcurRate(float& curx , float& cury);
-	
+	static void notifyzoomchange(int zoom);
+
 public:
 	static CIPCProc* m_ipc;
 	static CPTZControl* _ptz;
@@ -100,7 +101,6 @@ public:
 
 private:
 	void platformCreate();
-
 	static State *m_st1, *m_st2, *m_st3, *m_st4, *m_st5;
 
 };

@@ -132,7 +132,7 @@ public:
 
 	View* backParams();
 	BoresightPos_s updateParam( int* data , PlatformCtrl_Obj* pObj ,int curChid);
-	void updateParam( int* data , PlatformCtrl_Obj* pObj = NULL);
+	void updateFovParam( int* data , PlatformCtrl_Obj* pObj = NULL);
 
 	void SensorComp_CreateParams_Init(SensorComp_CreateParams *pPrm, int i, View* Pserson,int width ,int height);
 	
@@ -140,6 +140,12 @@ public:
 	float ZoomVerticalFovCompensation(unsigned short zoom, int chid);
 	float dynamicSendBoresightPosX(unsigned short zoom , int chid);
 	float dynamicSendBoresightPosY(unsigned short zoom , int chid);
+
+	void getCameraResolution(int* data);
+	BoresightPos_s calcBoresightContinue(int* data , int zoom);
+
+	int getBaseAddress(int* data);
+	BoresightPos_s getBoresight(int* data , int zoom);
 
 	
 private:
@@ -150,7 +156,10 @@ private:
 	
 	float linear_interpolation(float x0, float x1, float y0, float y1, float x);
 
-
+	
+	void updateBoresight(int* data);
+	
+	
 private:
 	View m_viewParam , m_viewParamBK;
 	BoresightPos_s Bpos;

@@ -1521,5 +1521,7 @@ void* CEventManager::answerZoom(void *p)
 	return NULL;
 }
 
+<<<<<<< HEAD
+=======
 
-
+>>>>>>> d9bd428bc75bbabca413e28b0e2b873c72e23c17
