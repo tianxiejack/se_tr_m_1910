@@ -936,38 +936,64 @@ int CEventManager::IgnoreConfig(int block, int field)
 	return 0;
 }
 
+int CEventManager::getBaseAddress(int* data)
+{
+	int base;
+	switch(data[CFGID_RTS_mainch])
+	{
+		case 0:
+			base = CFGID_INPUT1_BKID;
+			break;
+		case 1:
+			base = CFGID_INPUT2_BKID;
+			break;
+		case 2:
+			base = CFGID_INPUT3_BKID;
+			break;
+		case 3:
+			base = CFGID_INPUT4_BKID;
+			break;
+		case 4:
+			base = CFGID_INPUT5_BKID;
+			break;
+		default:
+			base = CFGID_INPUT4_BKID;
+			break;
+	}
+	return base;
+}
 
-inline bool isRelation2fov(int block , int field)
+inline bool CEventManager::isRelation2fov(int block , int field)
 {
 	bool ret = false;
 	int num = block*16 + field;
-
-	if( num == CFGID_INPUT_FOVTYPE(CFGID_INPUT2_BKID)  
-		|| num == CFGID_INPUT_FOVCLASS(CFGID_INPUT2_BKID))
+	int base = getBaseAddress(cfg_value);
+	if( num == CFGID_INPUT_FOVTYPE(base)  
+		|| num == CFGID_INPUT_FOVCLASS(base))
 		ret = true;
-	else if( num >= CFGID_INPUT_FOVX(CFGID_INPUT2_BKID,1) 
-			&&  num <= CFGID_INPUT_FOVY(CFGID_INPUT2_BKID,13) )
+	else if( num >= CFGID_INPUT_FOVX(base,1) 
+			&&  num <= CFGID_INPUT_FOVY(base,13) )
 		ret = true;
-	else if( num >= CFGID_INPUT_Feedback(CFGID_INPUT2_BKID,1)
-			&& num <= CFGID_INPUT_Feedback(CFGID_INPUT2_BKID,13))
+	else if( num >= CFGID_INPUT_Feedback(base,1)
+			&& num <= CFGID_INPUT_Feedback(base,13))
 		ret = true;
 	return ret;
 }
 
 
-inline bool isRelation2boresight(int block , int field)
+inline bool CEventManager::isRelation2boresight(int block , int field)
 {
 	bool ret = false;
 	int num = block*16 + field;
-
-	if( num == CFGID_INPUT_FOVTYPE(CFGID_INPUT2_BKID)  
-		|| num == CFGID_INPUT_FOVCLASS(CFGID_INPUT2_BKID))
+	int base = getBaseAddress(cfg_value);
+	if( num == CFGID_INPUT_FOVTYPE(base)  
+		|| num == CFGID_INPUT_FOVCLASS(base))
 		ret = true;
-	else if( num >= CFGID_INPUT_boresightX(CFGID_INPUT2_BKID,1) 
-			&&  num <= CFGID_INPUT_boresightY(CFGID_INPUT2_BKID,13) )
+	else if( num >= CFGID_INPUT_boresightX(base,1) 
+			&&  num <= CFGID_INPUT_boresightY(base,13) )
 		ret = true;
-	else if( num >= CFGID_INPUT_Feedback(CFGID_INPUT2_BKID,1)
-			&& num >= CFGID_INPUT_Feedback(CFGID_INPUT2_BKID,13))
+	else if( num >= CFGID_INPUT_Feedback(base,1)
+			&& num >= CFGID_INPUT_Feedback(base,13))
 		ret = true;
 	return ret;
 }

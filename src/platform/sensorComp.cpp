@@ -157,7 +157,9 @@ void CSensorComp::updateFov( int* data ,PlatformCtrl_Obj* pObj ,int zoom)
 {
 	int level ;
 	float *pfovx, *pfovy;
- 	switch(data[CFGID_INPUT_FOVTYPE(CFGID_INPUT2_BKID)])
+	int base = getBaseAddress(data);
+	int chid = data[CFGID_RTS_mainch];
+ 	switch(data[CFGID_INPUT_FOVTYPE(base)])
  	{
 		case 0:
 			updateFixFovParam( data );
@@ -174,24 +176,24 @@ void CSensorComp::updateFov( int* data ,PlatformCtrl_Obj* pObj ,int zoom)
 
 	if(pObj != NULL)
 	{
- 		switch(data[CFGID_INPUT_FOVTYPE(CFGID_INPUT2_BKID)])
+ 		switch(data[CFGID_INPUT_FOVTYPE(base)])
 		{
 			case 0:
-				pObj->privates.fovX = m_viewParam.level_Fov_fix[1];
-				pObj->privates.fovY = m_viewParam.vertical_Fov_fix[1];
+				pObj->privates.fovX = m_viewParam.level_Fov_fix[chid];
+				pObj->privates.fovY = m_viewParam.vertical_Fov_fix[chid];
 				break;
 			case 1:
-				level = data[CFGID_INPUT_FOVCLASS(CFGID_INPUT2_BKID)];
-				pfovx = &m_viewParam.level_Fov_switch1[1];
-				pfovy = &m_viewParam.vertical_Fov_switch1[1];
+				level = data[CFGID_INPUT_FOVCLASS(base)];
+				pfovx = &m_viewParam.level_Fov_switch1[chid];
+				pfovy = &m_viewParam.vertical_Fov_switch1[chid];
 				pfovx += (level-1)*chid_camera*4;
 				pfovy += (level-1)*chid_camera*4;	
 				pObj->privates.fovX =  *pfovx;
 				pObj->privates.fovY =  *pfovy;
 				break;
 			case 2:
-				pObj->privates.fovX = ZoomLevelFovCompensation(zoom, 1);
-				pObj->privates.fovY = ZoomVerticalFovCompensation(zoom, 1);
+				pObj->privates.fovX = ZoomLevelFovCompensation(zoom, chid);
+				pObj->privates.fovY = ZoomVerticalFovCompensation(zoom, chid);
 				break;
 			default:
 				break;

@@ -90,7 +90,10 @@ public:
 	static void* setPlatAngle(void* p);
 	static void* preposHandle(void* p);
 	static void* setZoom(void* p);
-	
+	int getBaseAddress(int* data);
+	bool isRelation2fov(int block , int field);
+	bool isRelation2boresight(int block , int field);
+
 
 public:
 	Trkerr_t m_pixelErr;
