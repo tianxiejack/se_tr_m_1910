@@ -386,8 +386,8 @@ void CSensorComp::getCameraResolution(int* data)
 BoresightPos_s CSensorComp::calcBoresightContinue(int* data , int zoom)
 {
 	BoresightPos_s ret;
-	ret.x = (int)dynamicSendBoresightPosX(zoom , data[CFGID_RTS_mainch]);
-	ret.y = (int)dynamicSendBoresightPosY(zoom , data[CFGID_RTS_mainch]);
+	ret.x = dynamicSendBoresightPosX(zoom , data[CFGID_RTS_mainch]);
+	ret.y = dynamicSendBoresightPosY(zoom , data[CFGID_RTS_mainch]);
 	return ret;
 }
 
@@ -395,17 +395,17 @@ BoresightPos_s CSensorComp::calcBoresightContinue(int* data , int zoom)
 BoresightPos_s CSensorComp::getBoresight(int* data , int zoom)
 {	
 	BoresightPos_s tmp;
+	int tmpdata;
 	int base = getBaseAddress(data);
-	
 	switch(data[CFGID_INPUT_FOVTYPE(base)])
 	{
-		case 0:
-			tmp.x = data[CFGID_INPUT_boresightX(base,0)];
-			tmp.y = data[CFGID_INPUT_boresightY(base,0)];
+		case 0:
+			memcpy(&tmp.x, &data[CFGID_INPUT_boresightX(base,1)] , 4);
+			memcpy(&tmp.y, &data[CFGID_INPUT_boresightY(base,1)] , 4);
 			break;
 		case 1:
-			tmp.x = data[CFGID_INPUT_boresightX(base,  CFGID_INPUT_FOVCLASS(base))];
-			tmp.y = data[CFGID_INPUT_boresightY(base,  CFGID_INPUT_FOVCLASS(base))];
+			memcpy(&tmp.x, &data[CFGID_INPUT_boresightX(base,  CFGID_INPUT_FOVCLASS(base))] , 4);
+			memcpy(&tmp.y, &data[CFGID_INPUT_boresightY(base,  CFGID_INPUT_FOVCLASS(base))] , 4);	
 			break;
 		case 2:
 			tmp = calcBoresightContinue(data , zoom);
@@ -413,10 +413,10 @@ BoresightPos_s CSensorComp::getBoresight(int* data , int zoom)
 		default:
 			break;
 	}		
-
-	data[CFGID_INPUT_CURBOREX(base)] = tmp.x ; 
-	data[CFGID_INPUT_CURBOREY(base)] = tmp.y ; 
-	
+	tmpdata = (int)tmp.x;	
+	memcpy(&data[CFGID_INPUT_CURBOREX(base)] ,&tmpdata,  4);
+	tmpdata = (int)tmp.y;	
+	memcpy(&data[CFGID_INPUT_CURBOREY(base)] ,&tmpdata,  4);
 	return tmp;
 }
 

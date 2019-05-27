@@ -692,11 +692,8 @@ int CEventManager::SetConfig(comtype_t comtype, int block, int field, int value,
 	if(!IgnoreConfig(block, field))
 	{
 		memcpy(cfg_value + i, &value, 4);
-
-		float tmp ;
-		memcpy(&tmp ,&cfg_value[CFGID_INPUT_boresightX(CFGID_INPUT2_BKID, 1)] ,4);
 		m_ipc->IPCSendMsg(read_shm_single, &i, 4);
-		updateparams(block, cfg_value);
+		updateparams(cfg_value ,block, field);
 	}
 
 	int value2;
@@ -814,7 +811,7 @@ int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
 								}
 							}
 
-							updateparams(blockId, cfg_value);
+							updateparams(cfg_value , blockId );
 						}
 					}
 				}
@@ -938,13 +935,67 @@ int CEventManager::IgnoreConfig(int block, int field)
 	return 0;
 }
 
-int CEventManager::updateparams(int block, int *cfg_value)
+
+inline bool isRelation2fov(int block , int field)
 {
+	bool ret = false;
+	int num = block*16 + field;
+
+	if( num == CFGID_INPUT_FOVTYPE(CFGID_INPUT2_BKID)  
+		|| num == CFGID_INPUT_FOVCLASS(CFGID_INPUT2_BKID))
+		ret = true;
+	else if( num >= CFGID_INPUT_FOVX(CFGID_INPUT2_BKID,1) 
+			&&  num <= CFGID_INPUT_FOVY(CFGID_INPUT2_BKID,13) )
+		ret = true;
+	else if( num >= CFGID_INPUT_Feedback(CFGID_INPUT2_BKID,1)
+			&& num <= CFGID_INPUT_Feedback(CFGID_INPUT2_BKID,13))
+		ret = true;
+	return ret;
+}
+
+
+inline bool isRelation2boresight(int block , int field)
+{
+	bool ret = false;
+	int num = block*16 + field;
+
+	if( num == CFGID_INPUT_FOVTYPE(CFGID_INPUT2_BKID)  
+		|| num == CFGID_INPUT_FOVCLASS(CFGID_INPUT2_BKID))
+		ret = true;
+	else if( num >= CFGID_INPUT_boresightX(CFGID_INPUT2_BKID,1) 
+			&&  num <= CFGID_INPUT_boresightY(CFGID_INPUT2_BKID,13) )
+		ret = true;
+	else if( num >= CFGID_INPUT_Feedback(CFGID_INPUT2_BKID,1)
+			&& num >= CFGID_INPUT_Feedback(CFGID_INPUT2_BKID,13))
+		ret = true;
+	return ret;
+}
+
+
+int CEventManager::updateparams(int *cfg_value ,int block, int field )
+{
+	BoresightPos_s tmppos;
 	if(-1 == block)
 		return -1;
-	
-	if(((block >= CFGID_INPUT1_BKID) && (block <= CFGID_INPUT1_BKID + 6)) || ((block >= CFGID_INPUT2_BKID) && (block <= CFGID_INPUT5_BKID + 6)) )
-		_StateManager->_state->m_Platform->updateFov(cfg_value,_StateManager->_state->m_plt,_StateManager->_state->_ptz->m_iZoomPos);
+
+	if(-1 == field)
+	{
+		if(((block >= CFGID_INPUT1_BKID) && (block <= CFGID_INPUT1_BKID + 6))
+			|| ((block >= CFGID_INPUT2_BKID) && (block <= CFGID_INPUT5_BKID + 6)) )
+			_StateManager->_state->m_Platform->updateFov(cfg_value,_StateManager->_state->m_plt,_StateManager->_state->_ptz->m_iZoomPos);
+			tmppos = _StateManager->_state->m_Platform->getBoresight(cfg_value,_StateManager->_state->_ptz->m_iZoomPos);
+	}
+	else
+	{
+		if(isRelation2fov(block,field))
+			_StateManager->_state->m_Platform->updateFov(cfg_value,_StateManager->_state->m_plt,_StateManager->_state->_ptz->m_iZoomPos);
+		if(isRelation2boresight(block,field))
+			tmppos = _StateManager->_state->m_Platform->getBoresight(cfg_value,_StateManager->_state->_ptz->m_iZoomPos);
+	}
+	_StateManager->_state->ipcParam.intPrm[0] = tmppos.x;
+	_StateManager->_state->ipcParam.intPrm[1] = tmppos.y;
+	_StateManager->_state->m_ipc->IPCSendMsg(BoresightPos, _StateManager->_state->ipcParam.intPrm, 4*2);
+
 	return 0;
 }
 

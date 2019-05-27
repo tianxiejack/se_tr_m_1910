@@ -61,8 +61,8 @@ typedef enum{
 #pragma pack (4)
 
 typedef struct{
-	int x;
-	int y;
+	float x;
+	float y;
 }BoresightPos_s;
 
 typedef struct
