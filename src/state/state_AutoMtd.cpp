@@ -142,7 +142,7 @@ void StateAuto_Mtd::TimeCallback(void* p)
 void StateAuto_Mtd::recvTrkmsg(int arg)
 {
 	if(1 == arg)
-		m_timer->startTimer(timeAutoMtd,5000);
+		m_timer->startTimer(timeAutoMtd,cfg_value[CFGID_MTD_trktime]*1000);
 	else if(3 == arg)
 		m_timer->stopTimer(timeAutoMtd);
 	return;

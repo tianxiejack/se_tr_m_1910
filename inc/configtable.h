@@ -159,6 +159,7 @@ typedef enum
 	CFGID_MTD_maxpixel = CFGID_BUILD( CFGID_MTD_BKID, 3 ),
 	CFGID_MTD_minpixel = CFGID_BUILD( CFGID_MTD_BKID, 4 ),
 	CFGID_MTD_detspd = CFGID_BUILD( CFGID_MTD_BKID, 6 ),		// detectSpeed
+	CFGID_MTD_trktime = CFGID_BUILD( CFGID_MTD_BKID, 7 ),
 	CFGID_MTD_priority = CFGID_BUILD( CFGID_MTD_BKID, 8 ),
 }CFGID_MTD;
 

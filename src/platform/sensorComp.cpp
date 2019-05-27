@@ -404,15 +404,16 @@ BoresightPos_s CSensorComp::getBoresight(int* data , int zoom)
 			memcpy(&tmp.y, &data[CFGID_INPUT_boresightY(base,1)] , 4);
 			break;
 		case 1:
-			memcpy(&tmp.x, &data[CFGID_INPUT_boresightX(base,  CFGID_INPUT_FOVCLASS(base))] , 4);
-			memcpy(&tmp.y, &data[CFGID_INPUT_boresightY(base,  CFGID_INPUT_FOVCLASS(base))] , 4);	
+			memcpy(&tmp.x, &data[CFGID_INPUT_boresightX(base,  data[CFGID_INPUT_FOVCLASS(base)])] , 4);
+			memcpy(&tmp.y, &data[CFGID_INPUT_boresightY(base,  data[CFGID_INPUT_FOVCLASS(base)])] , 4);	
 			break;
 		case 2:
 			tmp = calcBoresightContinue(data , zoom);
 			break;
 		default:
 			break;
-	}		
+	}	
+	//printf(" xx  yy = (%f  , %f ) \n" , tmp.x , tmp.y);
 	tmpdata = (int)tmp.x;	
 	memcpy(&data[CFGID_INPUT_CURBOREX(base)] ,&tmpdata,  4);
 	tmpdata = (int)tmp.y;	

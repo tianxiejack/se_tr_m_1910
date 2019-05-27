@@ -345,6 +345,7 @@ void CEventParsing::parsingJostickButtonData(unsigned char* jos_data)
 		switch(jos_data[BUTTON])
 		{
 			case js_5:
+				_Msg->MSGDRIV_send(MSGID_INPUT_TEST, 0);
 				break;
 			case js_6:
 				ComParams.sectrkctrl = ComParams.sectrkctrl % 2 + 1;

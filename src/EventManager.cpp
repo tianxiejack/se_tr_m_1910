@@ -694,10 +694,6 @@ int CEventManager::SetConfig(comtype_t comtype, int block, int field, int value,
 	{
 		memcpy(cfg_value + i, &value, 4);
 		m_ipc->IPCSendMsg(read_shm_single, &i, 4);		
-
-		//float ftmpx;
-		//memcpy(&ftmpx, cfg_value+i , 4);
-		//printf("111 xxx = (%f) , i = %d \n" , ftmpx , i);
 		updateparams(cfg_value ,block, field);
 	}
 
@@ -992,7 +988,6 @@ int CEventManager::updateparams(int *cfg_value ,int block, int field )
 			_StateManager->_state->ipcParam.intPrm[0] = tmppos.x;
 			_StateManager->_state->ipcParam.intPrm[1] = tmppos.y;
 			_StateManager->_state->m_ipc->IPCSendMsg(BoresightPos, _StateManager->_state->ipcParam.intPrm, 4*2);
-
 	}
 	else
 	{
@@ -1591,9 +1586,6 @@ void* CEventManager::answerZoom(void *p)
 
 void CEventManager::MSG_4test(void* p)
 {
-	float dat;
-
-
 
 	return ;
 }
