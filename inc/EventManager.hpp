@@ -32,7 +32,7 @@ private:
 	char *usr_value;
 	bool exit_ipcthread;
 	float winPos[2];
-	int outtype;
+	int outtype = 0;
 	comtype_t outcomtype;
 	void IPC_Creat();
 	void MSG_register();
