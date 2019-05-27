@@ -116,7 +116,7 @@ void CSensorComp::updateContinueFovParam( int* data )
 			*(ptr + 2*chid_camera + i*5*chid_camera) = value;
 			memcpy(&value, data + CFGID_INPUT_boresightY(base , i+1), 4);
 			*(ptr + 3*chid_camera + i*5*chid_camera) = value;
-			memcpy(&value, data + CFGID_INPUT_ZOOMFBS(base , i+1), 4);
+			memcpy(&value, data + CFGID_INPUT_ZOOMFBS(base , i), 4);
 			*(ptr + 4*chid_camera + i*5*chid_camera) = value;
 		}
 	}
@@ -134,10 +134,10 @@ BoresightPos_s CSensorComp::getTheNewestBoresight(int curChid )
 	}
 
 	float*  ptrx , *ptrxBk, *ptry , *ptryBk;
-	ptrx = &m_viewParam.Boresightpos_continue_x1[0];
-	ptrxBk = &m_viewParamBK.Boresightpos_continue_x1[0];
-	ptry = &m_viewParam.Boresightpos_continue_y1[0];
-	ptryBk = &m_viewParamBK.Boresightpos_continue_y1[0];
+	ptrx = &m_viewParam.Boresightpos_continue_x1[curChid];
+	ptrxBk = &m_viewParamBK.Boresightpos_continue_x1[curChid];
+	ptry = &m_viewParam.Boresightpos_continue_y1[curChid];
+	ptryBk = &m_viewParamBK.Boresightpos_continue_y1[curChid];
 
 	for(int i=0 ; i<13;i++)
 	{	
@@ -239,7 +239,7 @@ float CSensorComp::ZoomVerticalFovCompensation(unsigned short zoom, int chid)
 	float levelFov;
 	float *ptr,*ptr1;
 
-	ptr = &m_viewParam.zoombak1[0];
+	ptr = &m_viewParam.zoombak1[chid];
 	ptr1 = ptr + chid_camera*5;
 
 	for(int i=0 ; i< 12 ; i++)
@@ -290,13 +290,12 @@ float CSensorComp::dynamicSendBoresightPosX(unsigned short zoom , int chid)
 	float bPosx;
 	
 	float* ptr,*ptr1 ;
-
-	ptr = &m_viewParam.zoombak1[0];
-	ptr1 = ptr + chid_camera*5;
+	ptr = &m_viewParam.zoombak1[chid];
+	ptr1 = &m_viewParam.zoombak2[chid];
 
 	for(int i=0 ; i< 12 ; i++)
 	{
-		if( (zoom> *(ptr+i*chid_camera*5))  && (zoom < *(ptr1+i*chid_camera*5)) ) 
+		if( (zoom>= *(ptr+i*chid_camera*5))  && (zoom <= *(ptr1+i*chid_camera*5)) ) 
 			bPosx = linear_interpolation( *(ptr+i*chid_camera*5) , 
 									 *(ptr1+i*chid_camera*5) ,
 									 *(ptr - 2*chid_camera + i*chid_camera*5), 
@@ -311,7 +310,7 @@ float CSensorComp::dynamicSendBoresightPosY(unsigned short zoom , int chid)
 {
 	float bPosy;
 	float* ptr,*ptr1 ;
-	ptr = &m_viewParam.zoombak1[0];
+	ptr = &m_viewParam.zoombak1[chid];
 	ptr1 = ptr + chid_camera*5;
 	float a,b,c,d;
 	for(int i=0 ; i< 12 ; i++)
