@@ -693,7 +693,11 @@ int CEventManager::SetConfig(comtype_t comtype, int block, int field, int value,
 	if(!IgnoreConfig(block, field))
 	{
 		memcpy(cfg_value + i, &value, 4);
-		m_ipc->IPCSendMsg(read_shm_single, &i, 4);
+		m_ipc->IPCSendMsg(read_shm_single, &i, 4);		
+
+		//float ftmpx;
+		//memcpy(&ftmpx, cfg_value+i , 4);
+		//printf("111 xxx = (%f) , i = %d \n" , ftmpx , i);
 		updateparams(cfg_value ,block, field);
 	}
 
@@ -985,18 +989,22 @@ int CEventManager::updateparams(int *cfg_value ,int block, int field )
 			|| ((block >= CFGID_INPUT2_BKID) && (block <= CFGID_INPUT5_BKID + 6)) )
 			_StateManager->_state->m_Platform->updateFov(cfg_value,_StateManager->_state->m_plt,_StateManager->_state->_ptz->m_iZoomPos);
 			tmppos = _StateManager->_state->m_Platform->getBoresight(cfg_value,_StateManager->_state->_ptz->m_iZoomPos);
+			_StateManager->_state->ipcParam.intPrm[0] = tmppos.x;
+			_StateManager->_state->ipcParam.intPrm[1] = tmppos.y;
+			_StateManager->_state->m_ipc->IPCSendMsg(BoresightPos, _StateManager->_state->ipcParam.intPrm, 4*2);
+
 	}
 	else
 	{
 		if(isRelation2fov(block,field))
 			_StateManager->_state->m_Platform->updateFov(cfg_value,_StateManager->_state->m_plt,_StateManager->_state->_ptz->m_iZoomPos);
-		if(isRelation2boresight(block,field))
+		if(isRelation2boresight(block,field)){
 			tmppos = _StateManager->_state->m_Platform->getBoresight(cfg_value,_StateManager->_state->_ptz->m_iZoomPos);
+			_StateManager->_state->ipcParam.intPrm[0] = tmppos.x;
+			_StateManager->_state->ipcParam.intPrm[1] = tmppos.y;
+			_StateManager->_state->m_ipc->IPCSendMsg(BoresightPos, _StateManager->_state->ipcParam.intPrm, 4*2);
+		}
 	}
-	_StateManager->_state->ipcParam.intPrm[0] = tmppos.x;
-	_StateManager->_state->ipcParam.intPrm[1] = tmppos.y;
-	_StateManager->_state->m_ipc->IPCSendMsg(BoresightPos, _StateManager->_state->ipcParam.intPrm, 4*2);
-
 	return 0;
 }
 

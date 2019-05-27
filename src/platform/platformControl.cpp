@@ -474,6 +474,9 @@ int CplatFormControl::PlatformCtrl_OutPlatformDemand(PlatformCtrl_Obj *pObj)
 
 		fTmp = fTmpY * pObj->privates.fovY / pObj->privates.height;
 		pObj->privates.curRateDemandY = _Fiter->pidAlg(pObj->privates.filter[1], fTmp);
+printf("1111 fovx,y (%f , %f) \n" , pObj->privates.fovX,pObj->privates.fovY );
+printf("1111 demand x,y  (%f  , %f) \n" ,pObj->privates.curRateDemandX,pObj->privates.curRateDemandY);
+
 	}
 
 
@@ -670,9 +673,7 @@ void CplatFormControl::PlatformCtrl_reset4trk(HPLTCTRL handle)
 
 BoresightPos_s CplatFormControl::getBoresight(int* data , int zoom)
 {
-	BoresightPos_s pos;
-	pos = _Sensor->getBoresight(data, zoom);
-	return pos;
+	return _Sensor->getBoresight(data, zoom);
 }
 
 
