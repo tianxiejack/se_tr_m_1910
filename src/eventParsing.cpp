@@ -615,7 +615,7 @@ int CEventParsing::parsingComEvent(comtype_t comtype)
 						tempbuf[m-7]  = rcvBufQue.at(m);
 
 					memcpy(&settmp.value, tempbuf, 4);
-
+					
 					ComParams.setConfigQueue.push_back(settmp);
 					_Msg->MSGDRIV_send(MSGID_COM_INPUT_SETCFG, &ComParams);
 				}

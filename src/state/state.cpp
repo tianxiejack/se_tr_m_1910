@@ -423,6 +423,6 @@ void State::notifyzoomchange(int zoom)
 	pThis->ipcParam.intPrm[0] = pos.x;
 	pThis->ipcParam.intPrm[1] = pos.y;
 	pThis->m_ipc->IPCSendMsg(BoresightPos, pThis->ipcParam.intPrm, 4*2);
-	pThis->m_Platform->PlatformCtrl_sensorCompensation(pThis->m_plt, 1, zoom);
+	pThis->m_Platform->updateFov(cfg_value , m_plt , zoom);
 	return;
 }

@@ -540,12 +540,14 @@ void CEventManager::MSG_Com_SetCfg(void* p)
 	ComParams_t *tmp = (ComParams_t *)p;
 	while(tmp->setConfigQueue.size()){
 		tmpcfg = tmp->setConfigQueue[0];
-		printf("setcfg block,field,value(%d,%d,%f)\n", tmpcfg.block,tmpcfg.field,tmpcfg.value);
+		printf("setcfg block,field(%d,%d)\n", tmpcfg.block,tmpcfg.field);
 		OSA_semWait(&m_semHndl_s, OSA_TIMEOUT_FOREVER);
 		pThis->SetConfig(tmp->comtype, tmpcfg.block, tmpcfg.field, tmpcfg.value, NULL);
 		tmp->setConfigQueue.erase(tmp->setConfigQueue.begin());
 	}
 }
+
+
 void CEventManager::MSG_Com_GetCfg(void* p)
 {
 	Get_config_t tmpcfg;
@@ -690,6 +692,9 @@ int CEventManager::SetConfig(comtype_t comtype, int block, int field, int value,
 	if(!IgnoreConfig(block, field))
 	{
 		memcpy(cfg_value + i, &value, 4);
+
+		float tmp ;
+		memcpy(&tmp ,&cfg_value[CFGID_INPUT_boresightX(CFGID_INPUT2_BKID, 1)] ,4);
 		m_ipc->IPCSendMsg(read_shm_single, &i, 4);
 		updateparams(block, cfg_value);
 	}
@@ -936,10 +941,11 @@ int CEventManager::IgnoreConfig(int block, int field)
 int CEventManager::updateparams(int block, int *cfg_value)
 {
 	if(-1 == block)
-		;
+		return -1;
 	
 	if(((block >= CFGID_INPUT1_BKID) && (block <= CFGID_INPUT1_BKID + 6)) || ((block >= CFGID_INPUT2_BKID) && (block <= CFGID_INPUT5_BKID + 6)) )
-		_StateManager->_state->m_Platform->PlatformCtrl_sensor_Init(cfg_value);
+		_StateManager->_state->m_Platform->updateFov(cfg_value,_StateManager->_state->m_plt,_StateManager->_state->_ptz->m_iZoomPos);
+	return 0;
 }
 
 void CEventManager::signalFeedBack(int argnum ...)

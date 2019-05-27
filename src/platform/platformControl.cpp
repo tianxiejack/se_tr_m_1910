@@ -44,7 +44,7 @@ View* CplatFormControl::sensorParams()
 
 void CplatFormControl::PlatformCtrl_sensor_Init(int* data)
 {
-	_Sensor->updateFovParam(data);
+	_Sensor->updateFov(data);
 	_Sensor->getCameraResolution(data);
 	return ;
 }
@@ -160,18 +160,6 @@ void CplatFormControl::PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams 
 	pPrm->bTrkWinFilter = 1;
 	return ;
 }
-
-
-
-int CplatFormControl::PlatformCtrl_sensorCompensation(HPLTCTRL handle, int chid,unsigned int zoom)
-{
-	PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)handle->object;
-	pObj->privates.fovX = _Sensor->ZoomLevelFovCompensation(zoom, chid);
-	pObj->privates.fovY = _Sensor->ZoomVerticalFovCompensation(zoom, chid);
-printf("%s ,  get the Fov  x,y (%f , %f )\n",pObj->privates.fovX,pObj->privates.fovY);
-	return 0;
-}
-
 
 
 void CplatFormControl::PlatformCtrl_Delete(HPLTCTRL handle)
@@ -486,7 +474,6 @@ int CplatFormControl::PlatformCtrl_OutPlatformDemand(PlatformCtrl_Obj *pObj)
 
 		fTmp = fTmpY * pObj->privates.fovY / pObj->privates.height;
 		pObj->privates.curRateDemandY = _Fiter->pidAlg(pObj->privates.filter[1], fTmp);
-
 	}
 
 
@@ -688,3 +675,10 @@ BoresightPos_s CplatFormControl::getBoresight(int* data , int zoom)
 	return pos;
 }
 
+
+void CplatFormControl::updateFov(int* data , HPLTCTRL handle ,int zoom)
+{
+	PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)handle->object;
+	_Sensor->updateFov(data ,pObj, zoom);
+	return;
+}

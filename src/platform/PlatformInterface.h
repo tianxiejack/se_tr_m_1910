@@ -18,7 +18,6 @@ public:
 	virtual HPLTCTRL PlatformCtrl_Create(PlatformCtrl_CreateParams *pPrm) = 0;
 
 	virtual int PlatformCtrl_VirtualInput(HPLTCTRL handle, int iIndex, float fValue) = 0;
-	virtual int PlatformCtrl_sensorCompensation(HPLTCTRL handle, int chid,unsigned int zoom) = 0;
 	
 	virtual void PlatformCtrl_UpdateParams(HPLTCTRL handle, float* data, int block) = 0;
 
@@ -27,8 +26,7 @@ public:
 
 	virtual void PlatformCtrl_reset4trk(HPLTCTRL handle)=0;
 	virtual BoresightPos_s getBoresight(int* data , int zoom)=0;
-
-	
+	virtual void updateFov(int* data , HPLTCTRL handle = NULL ,int zoom = 0)=0;
 
 };
 
