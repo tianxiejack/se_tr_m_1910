@@ -25,7 +25,8 @@ public:
 
 	BoresightPos_s getBoresight(int* data , int zoom);
 	void updateFov(int* data , HPLTCTRL handle ,int zoom);
-
+	void switchSensor(int* data, HPLTCTRL handle ,int chid , int zoom);
+	
 
 private:
 	void PlatformCtrl_ClassInit();
@@ -43,7 +44,7 @@ private:
 	CKalman_PTZ* _Kalman;
 	CDeviceUser* _DeviceUser;
 	CSensorComp* _Sensor;
-	
+	View* m_viewParam;
 };
 
 #endif

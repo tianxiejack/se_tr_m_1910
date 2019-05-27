@@ -129,24 +129,18 @@ public:
 	CSensorComp(){};
 	~CSensorComp(){};
 
-
 	View* backParams();
-	BoresightPos_s updateParam( int* data , PlatformCtrl_Obj* pObj ,int curChid);
 	void updateFov(int* data ,PlatformCtrl_Obj* pObj = NULL, int zoom = 0);
-
 	void SensorComp_CreateParams_Init(SensorComp_CreateParams *pPrm, int i, View* Pserson,int width ,int height);
-	
-	float ZoomLevelFovCompensation(unsigned short zoom, int chid);
-	float ZoomVerticalFovCompensation(unsigned short zoom, int chid);
-	float dynamicSendBoresightPosX(unsigned short zoom , int chid);
-	float dynamicSendBoresightPosY(unsigned short zoom , int chid);
-
 	void getCameraResolution(int* data);
 	BoresightPos_s calcBoresightContinue(int* data , int zoom);
-
 	int getBaseAddress(int* data);
 	BoresightPos_s getBoresight(int* data , int zoom);
-	
+
+
+	//unused
+	BoresightPos_s updateParam( int* data , PlatformCtrl_Obj* pObj ,int curChid);
+
 private:
 	BoresightPos_s getTheNewestBoresight(int curChid );
 	void updateContinueFovParam( int* data );
@@ -157,9 +151,13 @@ private:
 
 	
 	void updateBoresight(int* data);
+	float ZoomLevelFovCompensation(unsigned short zoom, int chid);
+	float ZoomVerticalFovCompensation(unsigned short zoom, int chid);
+	float dynamicSendBoresightPosX(unsigned short zoom , int chid);
+	float dynamicSendBoresightPosY(unsigned short zoom , int chid);
+
 	
-	
-public:
+private:
 	View m_viewParam , m_viewParamBK;
 	BoresightPos_s Bpos;
 	

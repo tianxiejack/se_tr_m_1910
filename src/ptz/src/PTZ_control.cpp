@@ -597,6 +597,7 @@ void CPTZControl::queryZoom()
 	tmp.tv_sec = 0;
 	tmp.tv_usec = 30*1000;
 	select(0, NULL, NULL, NULL, &tmp);
+
 }
 
 void CPTZControl::QueryPanPos()

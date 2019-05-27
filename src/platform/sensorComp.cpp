@@ -420,3 +420,4 @@ BoresightPos_s CSensorComp::getBoresight(int* data , int zoom)
 	return tmp;
 }
 
+

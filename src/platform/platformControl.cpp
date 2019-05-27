@@ -15,6 +15,7 @@ const float EPSINON = 0.000001f;
 CplatFormControl::CplatFormControl()
 {
 	PlatformCtrl_ClassInit();
+	m_viewParam = _Sensor->backParams();
 }
 
 
@@ -60,15 +61,14 @@ HPLTCTRL CplatFormControl::PlatformCtrl_Create(PlatformCtrl_CreateParams *pPrm)
 	pObj = (PlatformCtrl_Obj *)malloc(sizeof(PlatformCtrl_Obj));
 	if(pObj == NULL)
 	    return NULL;
-
 	memset(pObj, 0, sizeof(PlatformCtrl_Obj));
 	memcpy(&pObj->params, pPrm, sizeof(PlatformCtrl_CreateParams));
 	pObj->inter.object = pObj;
 	pObj->privates.iTrkAlgStateBak = 0;
 
 	pObj->inter.output.iSensor = pObj->params.iSensorInit;
-	pObj->privates.fovX = _Sensor->m_viewParam.level_Fov_fix[pObj->inter.output.iSensor];
-	pObj->privates.fovY = _Sensor->m_viewParam.vertical_Fov_fix[pObj->inter.output.iSensor];
+	pObj->privates.fovX = m_viewParam->level_Fov_fix[pObj->inter.output.iSensor];
+	pObj->privates.fovY = m_viewParam->vertical_Fov_fix[pObj->inter.output.iSensor];
 	pObj->privates.width = (float)pObj->params.sensorParams[pObj->inter.output.iSensor].nWidth;
 	pObj->privates.height = (float)pObj->params.sensorParams[pObj->inter.output.iSensor].nHeight;
 
@@ -109,7 +109,7 @@ void CplatFormControl::PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams 
 	}
 	
 	if( m_Prm[CFGID_RTS_mainch] >=0 &&  m_Prm[CFGID_RTS_mainch] <= 5)
-		pPrm->iSensorInit = 1;//m_Prm[CFGID_RTS_mainch];
+		pPrm->iSensorInit = m_Prm[CFGID_RTS_mainch];
 	else
 		pPrm->iSensorInit = 1;
 	
@@ -682,3 +682,14 @@ void CplatFormControl::updateFov(int* data , HPLTCTRL handle ,int zoom)
 	_Sensor->updateFov(data ,pObj, zoom);
 	return;
 }
+
+
+void CplatFormControl::switchSensor(int* data, HPLTCTRL handle ,int chid,int zoom)
+{
+	PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)handle->object;
+	pObj->inter.output.iSensor = chid;
+	_Sensor->getBoresight(data , zoom);
+	_Sensor->updateFov(data, pObj, zoom);
+	return ;
+}
+

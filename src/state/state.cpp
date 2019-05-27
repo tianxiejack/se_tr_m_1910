@@ -95,8 +95,11 @@ void State::StateInit()
 	_ptz->m_Mtd_Moitor_X = cfg_value[CFGID_PREPOS_preposx];	
 	_ptz->m_Mtd_Moitor_Y = cfg_value[CFGID_PREPOS_preposy];
 	_ptz->m_Mtd_Moitor_Zoom = cfg_value[CFGID_PREPOS_prezoom];
+
+	_ptz->queryZoom();
 	return ;
 }
+
 
 int State::ChangeState(StateManger* con, char nextState)
 {
@@ -150,6 +153,7 @@ void State::TrkCtrl(char Enable)
 void State::switchSensor(char chid)
 {
 	switchSensor_interface(chid);
+	return ;
 }
 
 void State::ZoomCtrl(char type)
@@ -285,6 +289,8 @@ void State::switchSensor_interface(int chid)
 	}
 
 	curValidChid = selectch.idx;
+	m_Platform->switchSensor(cfg_value , m_plt, curValidChid, _ptz->m_iZoomPos);
+	
 	return ;
 }
 
