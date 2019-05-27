@@ -109,7 +109,7 @@ void CplatFormControl::PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams 
 	}
 	
 	if( m_Prm[CFGID_RTS_mainch] >=0 &&  m_Prm[CFGID_RTS_mainch] <= 5)
-		pPrm->iSensorInit =m_Prm[CFGID_RTS_mainch];
+		pPrm->iSensorInit = 1;//m_Prm[CFGID_RTS_mainch];
 	else
 		pPrm->iSensorInit = 1;
 	
@@ -168,6 +168,7 @@ int CplatFormControl::PlatformCtrl_sensorCompensation(HPLTCTRL handle, int chid,
 	PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)handle->object;
 	pObj->privates.fovX = _Sensor->ZoomLevelFovCompensation(zoom, chid);
 	pObj->privates.fovY = _Sensor->ZoomVerticalFovCompensation(zoom, chid);
+printf("%s ,  get the Fov  x,y (%f , %f )\n",pObj->privates.fovX,pObj->privates.fovY);
 	return 0;
 }
 
@@ -485,6 +486,7 @@ int CplatFormControl::PlatformCtrl_OutPlatformDemand(PlatformCtrl_Obj *pObj)
 
 		fTmp = fTmpY * pObj->privates.fovY / pObj->privates.height;
 		pObj->privates.curRateDemandY = _Fiter->pidAlg(pObj->privates.filter[1], fTmp);
+
 	}
 
 

@@ -68,6 +68,7 @@ private:
 	static void MSG_Com_DefaultCfg(void* p);
 	static void MSG_Com_SaveCfg(void* p);
 	
+	static void MSG_4test(void* p);
 
 	int  ReadConfigFile();
 	int SetConfig(comtype_t comtype, int block, int field, int value,char *inBuf);

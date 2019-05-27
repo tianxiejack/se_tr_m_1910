@@ -345,7 +345,6 @@ void CEventParsing::parsingJostickButtonData(unsigned char* jos_data)
 		switch(jos_data[BUTTON])
 		{
 			case js_5:
-				
 				break;
 			case js_6:
 				ComParams.sectrkctrl = ComParams.sectrkctrl % 2 + 1;
@@ -353,7 +352,7 @@ void CEventParsing::parsingJostickButtonData(unsigned char* jos_data)
 				index = 6;
 				break;
 			case js_7:
-				_Msg->MSGDRIV_send(MSGID_COM_INPUT_QUERYPTZPOS, &ComParams);
+
 				break;
 			case js_8:
 				ComParams.capturemode = (ComParams.capturemode + 1)%3;

@@ -159,6 +159,8 @@ void CEventManager::MSG_register()
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_DEFAULTCFG, MSG_Com_DefaultCfg, NULL);
 	_Msg->MSGDRIV_register(MSGID_COM_INPUT_SAVECFG, MSG_Com_SaveCfg, NULL);
 
+	_Msg->MSGDRIV_register(MSGID_INPUT_TEST, MSG_4test, NULL);
+
 	return ;
 }
 
@@ -433,7 +435,7 @@ void* CEventManager::setPlatAngle(void* p)
 	
 	int pan, til;
 	ComParams_t *tmp = (ComParams_t *)p;
-	pThis->_StateManager->_state->_ptz->ptzSetPos(tmp->platPan, tmp->platPan);
+	pThis->_StateManager->_state->_ptz->ptzSetPos(tmp->platPan, tmp->platTilt);
 	pThis->_StateManager->_state->_ptz->queryPos();
 	pThis->_StateManager->_state->_ptz->getpos(pan, til);
 	pThis->signalFeedBack(4, tmp->comtype, ACK_CtrlPos, pan, til);
@@ -1503,4 +1505,13 @@ void* CEventManager::answerZoom(void *p)
 	return NULL;
 }
 
+
+void CEventManager::MSG_4test(void* p)
+{
+	float dat;
+
+
+
+	return ;
+}
 
