@@ -67,8 +67,7 @@ HPLTCTRL CplatFormControl::PlatformCtrl_Create(PlatformCtrl_CreateParams *pPrm)
 	pObj->privates.iTrkAlgStateBak = 0;
 
 	pObj->inter.output.iSensor = pObj->params.iSensorInit;
-	pObj->privates.fovX = pObj->params.fFovx[pObj->inter.output.iSensor];
-	pObj->privates.fovY = pObj->params.fFovy[pObj->inter.output.iSensor];
+	pObj->privates.fovX = pObj->privates.fovY = 0;
 	pObj->privates.width = (float)pObj->params.sensorParams[pObj->inter.output.iSensor].nWidth;
 	pObj->privates.height = (float)pObj->params.sensorParams[pObj->inter.output.iSensor].nHeight;
 
@@ -100,7 +99,7 @@ void CplatFormControl::PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams 
 		else if(i == 1)
 			base = CFGID_INPUT2_BKID ; 
 		else
-			base = CFGID_INPUT2_BKID + (i-1)*16;
+			base = CFGID_INPUT2_BKID + (i-1)*7;
 		
 		_Sensor->SensorComp_CreateParams_Init(&pPrm->sensorParams[i], i, m_Sensor,m_Prm[CFGID_INPUT_RESX(base)],m_Prm[CFGID_INPUT_RESY(base)]);
 		pPrm->sensorParams[i].iIndex = i;
@@ -109,7 +108,7 @@ void CplatFormControl::PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams 
 	}
 	
 	if( m_Prm[CFGID_RTS_mainch] >=0 &&  m_Prm[CFGID_RTS_mainch] <= 5)
-		pPrm->iSensorInit = 1;//m_Prm[CFGID_RTS_mainch];
+		pPrm->iSensorInit = m_Prm[CFGID_RTS_mainch];
 	else
 		pPrm->iSensorInit = 1;
 	

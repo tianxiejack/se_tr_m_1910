@@ -71,12 +71,11 @@ void State::OperationInterface(StateManger* con)
 void State::platformCreate()
 {
 	viewParam = m_Platform->sensorParams();
-	m_Platform->PlatformCtrl_sensor_Init(cfg_value);
-	
-	
 	m_Platform->PlatformCtrl_CreateParams_Init(&m_cfgPlatParam, cfg_value, viewParam);
 	OSA_assert(m_plt == NULL);
 	m_plt = m_Platform->PlatformCtrl_Create(&m_cfgPlatParam);
+	m_Platform->PlatformCtrl_sensor_Init(cfg_value);
+	return;
 }
 
 void State::StateInit()
