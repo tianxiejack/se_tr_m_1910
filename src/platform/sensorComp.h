@@ -159,7 +159,7 @@ private:
 	void updateBoresight(int* data);
 	
 	
-private:
+public:
 	View m_viewParam , m_viewParamBK;
 	BoresightPos_s Bpos;
 	

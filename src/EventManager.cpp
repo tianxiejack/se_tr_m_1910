@@ -525,7 +525,8 @@ void CEventManager::MSG_Com_TrkOutput(void* p)
 	pThis->outtype = tmp->trkoutput;
 	
 	settmp.block= CFGID_PTZ_BKID;
-	settmp.field= 15;
+	settmp.block += 1;
+	settmp.field= 10;
 	memcpy(&settmp.value, &tmp->trkoutput, 4);
 	tmp->setConfigQueue.push_back(settmp);
 	

@@ -67,7 +67,8 @@ HPLTCTRL CplatFormControl::PlatformCtrl_Create(PlatformCtrl_CreateParams *pPrm)
 	pObj->privates.iTrkAlgStateBak = 0;
 
 	pObj->inter.output.iSensor = pObj->params.iSensorInit;
-	pObj->privates.fovX = pObj->privates.fovY = 0;
+	pObj->privates.fovX = _Sensor->m_viewParam.level_Fov_fix[pObj->inter.output.iSensor];
+	pObj->privates.fovY = _Sensor->m_viewParam.vertical_Fov_fix[pObj->inter.output.iSensor];
 	pObj->privates.width = (float)pObj->params.sensorParams[pObj->inter.output.iSensor].nWidth;
 	pObj->privates.height = (float)pObj->params.sensorParams[pObj->inter.output.iSensor].nHeight;
 
@@ -108,7 +109,7 @@ void CplatFormControl::PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams 
 	}
 	
 	if( m_Prm[CFGID_RTS_mainch] >=0 &&  m_Prm[CFGID_RTS_mainch] <= 5)
-		pPrm->iSensorInit = m_Prm[CFGID_RTS_mainch];
+		pPrm->iSensorInit = 1;//m_Prm[CFGID_RTS_mainch];
 	else
 		pPrm->iSensorInit = 1;
 	
