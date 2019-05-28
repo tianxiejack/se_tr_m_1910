@@ -294,16 +294,18 @@ float CSensorComp::dynamicSendBoresightPosX(unsigned short zoom , int chid)
 	float* ptr,*ptr1 ;
 	ptr = &m_viewParam.zoombak1[chid];
 	ptr1 = &m_viewParam.zoombak2[chid];
-
-	for(int i=0 ; i< 12 ; i++)
-	{
-		if( (zoom>= *(ptr+i*chid_camera*5))  && (zoom <= *(ptr1+i*chid_camera*5)) ) 
-			bPosx = linear_interpolation( *(ptr+i*chid_camera*5) , 
-									 *(ptr1+i*chid_camera*5) ,
-									 *(ptr - 2*chid_camera + i*chid_camera*5), 
-									 *(ptr1 - 2*chid_camera + i*chid_camera*5),
-									 zoom );
-	}
+	if(zoom != 0)
+		for(int i=0 ; i< 12 ; i++)
+		{
+			if( (zoom>= *(ptr+i*chid_camera*5))  && (zoom <= *(ptr1+i*chid_camera*5)) ) 
+				bPosx = linear_interpolation( *(ptr+i*chid_camera*5) , 
+										 *(ptr1+i*chid_camera*5) ,
+										 *(ptr - 2*chid_camera + i*chid_camera*5), 
+										 *(ptr1 - 2*chid_camera + i*chid_camera*5),
+										 zoom );
+		}
+	else
+		bPosx = (float)m_viewParam.Boresightpos_continue_x1[chid];
 	return bPosx;
 }
 
@@ -315,15 +317,19 @@ float CSensorComp::dynamicSendBoresightPosY(unsigned short zoom , int chid)
 	ptr = &m_viewParam.zoombak1[chid];
 	ptr1 = ptr + chid_camera*5;
 	float a,b,c,d;
-	for(int i=0 ; i< 12 ; i++)
-	{
-		if( (zoom> *(ptr+i*chid_camera*5))  && (zoom < *(ptr1+i*chid_camera*5)) ) 
-			bPosy = linear_interpolation( *(ptr+i*chid_camera*5) , 
-									 *(ptr1+i*chid_camera*5) ,
-									 *(ptr - 1*chid_camera + i*chid_camera*5),  
-									 *(ptr1 - 1*chid_camera + i*chid_camera*5),
-									 zoom );
-	}
+
+	if(zoom != 0)
+		for(int i=0 ; i< 12 ; i++)
+		{
+			if( (zoom> *(ptr+i*chid_camera*5))  && (zoom < *(ptr1+i*chid_camera*5)) ) 
+				bPosy = linear_interpolation( *(ptr+i*chid_camera*5) , 
+										 *(ptr1+i*chid_camera*5) ,
+										 *(ptr - 1*chid_camera + i*chid_camera*5),  
+										 *(ptr1 - 1*chid_camera + i*chid_camera*5),
+										 zoom );
+		}
+	else
+		bPosy = (float)m_viewParam.Boresightpos_continue_y1[chid];
 	return bPosy;
 }
 
@@ -414,7 +420,6 @@ BoresightPos_s CSensorComp::getBoresight(int* data , int zoom)
 		default:
 			break;
 	}	
-	//printf(" xx  yy = (%f  , %f ) \n" , tmp.x , tmp.y);
 	tmpdata = (int)tmp.x;	
 	memcpy(&data[CFGID_INPUT_CURBOREX(base)] ,&tmpdata,  4);
 	tmpdata = (int)tmp.y;	
