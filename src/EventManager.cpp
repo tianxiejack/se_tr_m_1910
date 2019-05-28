@@ -541,7 +541,7 @@ void CEventManager::MSG_Com_SetCfg(void* p)
 	ComParams_t *tmp = (ComParams_t *)p;
 	while(tmp->setConfigQueue.size()){
 		tmpcfg = tmp->setConfigQueue[0];
-		printf("setcfg block,field(%d,%d)\n", tmpcfg.block,tmpcfg.field);
+		printf("setcfg block,field(%d,%d) , value = %d \n", tmpcfg.block,tmpcfg.field,tmpcfg.value);
 		OSA_semWait(&m_semHndl_s, OSA_TIMEOUT_FOREVER);
 		pThis->SetConfig(tmp->comtype, tmpcfg.block, tmpcfg.field, tmpcfg.value, NULL);
 		tmp->setConfigQueue.erase(tmp->setConfigQueue.begin());

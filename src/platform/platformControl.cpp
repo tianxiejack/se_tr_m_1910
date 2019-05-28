@@ -473,14 +473,8 @@ int CplatFormControl::PlatformCtrl_OutPlatformDemand(PlatformCtrl_Obj *pObj)
 		fTmp = fTmpX * pObj->privates.fovX / pObj->privates.width;	
 		pObj->privates.curRateDemandX = _Fiter->pidAlg(pObj->privates.filter[0], fTmp);
 
-printf("fTmp = %f  , width = %f \n" , fTmp , pObj->privates.width);
-printf(" fov X : %f   , demand X  = %f  \n", pObj->privates.fovX , pObj->privates.curRateDemandX  );
-
 		fTmp = fTmpY * pObj->privates.fovY / pObj->privates.height;
 		pObj->privates.curRateDemandY = _Fiter->pidAlg(pObj->privates.filter[1], fTmp);
-
-
-
 	}
 
 
