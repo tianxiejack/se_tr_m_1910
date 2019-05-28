@@ -194,15 +194,15 @@ void CSensorComp::updateFov( int* data ,PlatformCtrl_Obj* pObj ,int zoom , int i
 				pObj->privates.fovY = m_viewParam.vertical_Fov_fix[chid];
 				break;
 			case 1:
-				level = data[CFGID_INPUT_FOVCLASS(base)] + 1;
+				level = data[CFGID_INPUT_FOVCLASS(base)];
 				if(level < 0)
 					level =0;
 				else if(level >4)
 					level = 4;
 				pfovx = &m_viewParam.level_Fov_switch1[chid];
 				pfovy = &m_viewParam.vertical_Fov_switch1[chid];
-				pfovx += (level-1)*chid_camera*4;
-				pfovy += (level-1)*chid_camera*4;	
+				pfovx += level*chid_camera*4;
+				pfovy += level*chid_camera*4;	
 				pObj->privates.fovX =  *pfovx;
 				pObj->privates.fovY =  *pfovy;
 				break;
@@ -468,13 +468,13 @@ BoresightPos_s CSensorComp::getBoresight(int* data , int zoom,int chid)
 			memcpy(&tmp.y, &data[CFGID_INPUT_boresightY(base,1)] , 4);
 			break;
 		case 1:
-			level = data[CFGID_INPUT_FOVCLASS(base)] + 1;
+			level = data[CFGID_INPUT_FOVCLASS(base)];
 			if(level < 0)
 				level =0;
 			else if(level >4)
 				level = 4;	
-			memcpy(&tmp.x, &data[CFGID_INPUT_boresightX(base, level )] , 4);
-			memcpy(&tmp.y, &data[CFGID_INPUT_boresightY(base, level )] , 4);	
+			memcpy(&tmp.x, &data[CFGID_INPUT_boresightX(base, level+1)] , 4);
+			memcpy(&tmp.y, &data[CFGID_INPUT_boresightY(base, level+1 )] , 4);	
 			break;
 		case 2:
 			tmp = calcBoresightContinue(zoom , id);
