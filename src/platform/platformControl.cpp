@@ -45,8 +45,8 @@ View* CplatFormControl::sensorParams()
 
 void CplatFormControl::PlatformCtrl_sensor_Init(int* data)
 {
-	_Sensor->updateFov(data);
 	_Sensor->getCameraResolution(data);
+	_Sensor->updateFov(data);
 	return ;
 }
 
@@ -69,8 +69,8 @@ HPLTCTRL CplatFormControl::PlatformCtrl_Create(PlatformCtrl_CreateParams *pPrm)
 	pObj->inter.output.iSensor = pObj->params.iSensorInit;
 	pObj->privates.fovX = m_viewParam->level_Fov_fix[pObj->inter.output.iSensor];
 	pObj->privates.fovY = m_viewParam->vertical_Fov_fix[pObj->inter.output.iSensor];
-	pObj->privates.width = (float)pObj->params.sensorParams[pObj->inter.output.iSensor].nWidth;
-	pObj->privates.height = (float)pObj->params.sensorParams[pObj->inter.output.iSensor].nHeight;
+	pObj->privates.width = m_viewParam->width[pObj->inter.output.iSensor];
+	pObj->privates.height =  m_viewParam->height[pObj->inter.output.iSensor];
 
 	for(i = 0; i < DevUsr_MAX; i++)
 	    pObj->privates.hDevUsers[i] = _DeviceUser->DeviceUser_Create(&pObj->params.deviceUsrParam[i], pObj);
@@ -80,7 +80,7 @@ HPLTCTRL CplatFormControl::PlatformCtrl_Create(PlatformCtrl_CreateParams *pPrm)
 
 	pObj->privates.hWinFilter = _Kalman->KalmanOpen(6, 3, 0);
 	_Kalman->KalmanInitParam(pObj->privates.hWinFilter, 0.0, 0.0, 0, 0.0);
-
+	
 	return &pObj->inter;
 }
 
@@ -97,8 +97,6 @@ void CplatFormControl::PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams 
 	{
 		if(i == 0)
 			base = CFGID_INPUT1_BKID ; 
-		else if(i == 1)
-			base = CFGID_INPUT2_BKID ; 
 		else
 			base = CFGID_INPUT2_BKID + (i-1)*7;
 		
@@ -112,7 +110,7 @@ void CplatFormControl::PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams 
 		pPrm->iSensorInit = m_Prm[CFGID_OUTPUT_DEFCH];
 	else
 		pPrm->iSensorInit = 1;
-printf(" iSensorInit = %d \n" , pPrm->iSensorInit);
+
 	for(i=0; i<DevUsr_MAX; i++){
 		_DeviceUser->DeviceUser_CreateParams_Init(&pPrm->deviceUsrParam[i]);
 		pPrm->deviceUsrParam[i].iIndex = i;
@@ -472,8 +470,14 @@ int CplatFormControl::PlatformCtrl_OutPlatformDemand(PlatformCtrl_Obj *pObj)
 		fTmp = fTmpX * pObj->privates.fovX / pObj->privates.width;	
 		pObj->privates.curRateDemandX = _Fiter->pidAlg(pObj->privates.filter[0], fTmp);
 
+printf("fTmp = %f  , width = %f \n" , fTmp , pObj->privates.width);
+printf(" fov X : %f   , demand X  = %f  \n", pObj->privates.fovX , pObj->privates.curRateDemandX  );
+
 		fTmp = fTmpY * pObj->privates.fovY / pObj->privates.height;
 		pObj->privates.curRateDemandY = _Fiter->pidAlg(pObj->privates.filter[1], fTmp);
+
+
+
 	}
 
 
@@ -686,8 +690,9 @@ void CplatFormControl::switchSensor(int* data, HPLTCTRL handle ,int chid,int zoo
 {
 	PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)handle->object;
 	pObj->inter.output.iSensor = chid;
-	_Sensor->getBoresight(data , zoom);
-	_Sensor->updateFov(data, pObj, zoom);
+	_Sensor->updateWH(data  ,pObj , chid);
+	_Sensor->getBoresight(data , zoom , chid );
+	_Sensor->updateFov(data, pObj, zoom , chid);
 	return ;
 }
 

@@ -306,8 +306,9 @@ void State::switchSensor_interface(int chid)
 			m_ipc->IPCSendMsg(sensor, ipcParam.intPrm, 4);
 		}
 	}
-
+	
 	curValidChid = selectch.idx;
+		
 	m_Platform->switchSensor(cfg_value , m_plt, curValidChid, _ptz->m_iZoomPos);
 	
 	return ;

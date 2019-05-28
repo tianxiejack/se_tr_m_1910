@@ -86,7 +86,6 @@ void* StateAuto_Mtd::autoMtdMainloop(void* p)
 	select(0, NULL, NULL, NULL, &tmp);	
 	pThis->ipcParam.intPrm[0] = 1;
 	pThis->m_ipc->IPCSendMsg(mtd, pThis->ipcParam.intPrm, 4);
-		printf("open the mtd  \n");
 
 	while(pThis->curState == STATE_AUTOMTD)
 	{		
@@ -143,8 +142,10 @@ void StateAuto_Mtd::recvTrkmsg(int arg)
 {
 	if(1 == arg)
 		m_timer->startTimer(timeAutoMtd,cfg_value[CFGID_MTD_trktime]*1000);
-	else if(3 == arg)
+	else if(3 == arg){
 		m_timer->stopTimer(timeAutoMtd);
+		outTrk();
+	}
 	return;
 }
 

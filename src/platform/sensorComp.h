@@ -120,6 +120,10 @@ typedef struct{
 	float Boresightpos_continue_x13[chid_camera];
 	float Boresightpos_continue_y13[chid_camera];
 	float zoombak13[chid_camera];
+
+	float width[chid_camera];
+	float height[chid_camera];
+	
 }View;
 
 
@@ -130,13 +134,14 @@ public:
 	~CSensorComp(){};
 
 	View* backParams();
-	void updateFov(int* data ,PlatformCtrl_Obj* pObj = NULL, int zoom = 0);
+	void updateFov(int* data ,PlatformCtrl_Obj* pObj = NULL, int zoom = 0 , int chid = -1);
 	void SensorComp_CreateParams_Init(SensorComp_CreateParams *pPrm, int i, View* Pserson,int width ,int height);
 	void getCameraResolution(int* data);
-	BoresightPos_s calcBoresightContinue(int* data , int zoom);
+	BoresightPos_s calcBoresightContinue(int zoom , int chid);
 	int getBaseAddress(int* data);
-	BoresightPos_s getBoresight(int* data , int zoom);
+	BoresightPos_s getBoresight(int* data , int zoom , int chid = -1);
 
+	void updateWH(int* data ,PlatformCtrl_Obj* pObj , int chid = -1);
 
 	//unused
 	BoresightPos_s updateParam( int* data , PlatformCtrl_Obj* pObj ,int curChid);

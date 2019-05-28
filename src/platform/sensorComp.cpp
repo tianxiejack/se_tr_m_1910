@@ -39,7 +39,7 @@ void CSensorComp::updateFixFovParam( int* data )
 	
 	for(int i=0 ; i<chid_camera; i++)
 	{
-		if(chid_camera == 0)
+		if(i == 0)
 			base = CFGID_INPUT1_BKID ; 
 		else
 			base = CFGID_INPUT2_BKID + (i-1)*7 ;
@@ -153,12 +153,23 @@ BoresightPos_s CSensorComp::getTheNewestBoresight(int curChid )
 
 
 
-void CSensorComp::updateFov( int* data ,PlatformCtrl_Obj* pObj ,int zoom)
+void CSensorComp::updateFov( int* data ,PlatformCtrl_Obj* pObj ,int zoom , int inchId)
 {
 	int level ;
 	float *pfovx, *pfovy;
-	int base = getBaseAddress(data);
-	int chid = data[CFGID_RTS_mainch];
+	int base , chid;
+
+	if(-1 == inchId){
+		 base = getBaseAddress(data);
+		 chid =  data[CFGID_RTS_mainch];
+	}else{
+		if(0 == inchId)
+			base = CFGID_INPUT1_BKID;
+		else
+			base = CFGID_INPUT2_BKID + (inchId-1)*7;
+		 chid = inchId;
+	}
+
  	switch(data[CFGID_INPUT_FOVTYPE(base)])
  	{
 		case 0:
@@ -198,7 +209,11 @@ void CSensorComp::updateFov( int* data ,PlatformCtrl_Obj* pObj ,int zoom)
 			default:
 				break;
 		}
+
+		printf(" cur id   :%d    , fov x,y = (%f , %f )  \n" , chid , pObj->privates.fovX  ,pObj->privates.fovY);
+
 	}
+
 	return ;
 }
 
@@ -288,7 +303,6 @@ void CSensorComp::SensorComp_CreateParams_Init(SensorComp_CreateParams *pPrm, in
 	pPrm->defaultBoresightPos_y = Pserson->Boresightpos_fix_y[i];
 	pPrm->fFovMin = 3.0f;
 	pPrm->fFovMax = Pserson->level_Fov_fix[i];
-	pPrm->fFovY = Pserson->vertical_Fov_fix[i];
 	return ;
 }
 
@@ -362,7 +376,7 @@ int CSensorComp::getBaseAddress(int* data)
 			base = CFGID_INPUT5_BKID;
 			break;
 		default:
-			base = CFGID_INPUT4_BKID;
+			base = CFGID_INPUT2_BKID;
 			break;
 	}
 	return base;
@@ -371,46 +385,73 @@ int CSensorComp::getBaseAddress(int* data)
 
 void CSensorComp::getCameraResolution(int* data)
 {
+	float tmpx,tmpy;
 	int base;
-	base = getBaseAddress(data);
-	switch(data[CFGID_INPUT_CHRES(base)])
+	for(int i=0; i<chid_camera ; i++)
 	{
-		case 0:
-		case 1:
-		case 5:
-			data[CFGID_INPUT_RESX(base)] = 1920;
-			data[CFGID_INPUT_RESY(base)] = 1080;
-			break;
-		case 2:
-		case 3:
-			data[CFGID_INPUT_RESX(base)] = 1280;
-			data[CFGID_INPUT_RESY(base)] = 720;
-			break;
-		case 6:
-			data[CFGID_INPUT_RESX(base)] = 720;
-			data[CFGID_INPUT_RESY(base)] = 576;
-			break;
-		default:
-			break;
+		if(0 == i)
+			base = CFGID_INPUT1_BKID;
+		else
+		 	base = CFGID_INPUT2_BKID + (i-1)*7;
+
+		switch(data[CFGID_INPUT_CHRES(base)])
+		{
+			case 0:
+			case 1:
+			case 5:
+				data[CFGID_INPUT_RESX(base)] = 1920;
+				data[CFGID_INPUT_RESY(base)] = 1080;
+				m_viewParam.width[i]  = 1920;
+				m_viewParam.height[i] = 1080;
+				break;
+			case 2:
+			case 3:
+				data[CFGID_INPUT_RESX(base)] = 1280;
+				data[CFGID_INPUT_RESY(base)] = 720;
+				m_viewParam.width[i]  = 1280;
+				m_viewParam.height[i] = 720;
+				break;
+			case 6:
+				data[CFGID_INPUT_RESX(base)] = 720;
+				data[CFGID_INPUT_RESY(base)] = 576;
+				m_viewParam.width[i]  = 720;
+				m_viewParam.height[i] = 576;
+				break;
+			default:
+				data[CFGID_INPUT_RESX(base)] = 1920;
+				data[CFGID_INPUT_RESY(base)] = 1080;
+				m_viewParam.width[i]  = 1920;
+				m_viewParam.height[i] = 1080;
+				break;
+		}	
 	}
 	return ;
 }
 
 
-BoresightPos_s CSensorComp::calcBoresightContinue(int* data , int zoom)
+BoresightPos_s CSensorComp::calcBoresightContinue(int zoom , int chid)
 {
 	BoresightPos_s ret;
-	ret.x = dynamicSendBoresightPosX(zoom , data[CFGID_RTS_mainch]);
-	ret.y = dynamicSendBoresightPosY(zoom , data[CFGID_RTS_mainch]);
+	ret.x = dynamicSendBoresightPosX(zoom , chid);
+	ret.y = dynamicSendBoresightPosY(zoom , chid);
 	return ret;
 }
 
 	
-BoresightPos_s CSensorComp::getBoresight(int* data , int zoom)
+BoresightPos_s CSensorComp::getBoresight(int* data , int zoom,int chid)
 {	
 	BoresightPos_s tmp;
-	int tmpdata;
-	int base = getBaseAddress(data);
+	int tmpdata,base, id;
+
+	if(-1 == chid)
+		 base = getBaseAddress(data);
+	else{
+		if(0 == chid)
+			base = CFGID_INPUT1_BKID;
+		else
+			base = CFGID_INPUT2_BKID + (chid-1)*7;
+	}
+
 	switch(data[CFGID_INPUT_FOVTYPE(base)])
 	{
 		case 0:
@@ -422,7 +463,7 @@ BoresightPos_s CSensorComp::getBoresight(int* data , int zoom)
 			memcpy(&tmp.y, &data[CFGID_INPUT_boresightY(base,  data[CFGID_INPUT_FOVCLASS(base)])] , 4);	
 			break;
 		case 2:
-			tmp = calcBoresightContinue(data , zoom);
+			tmp = calcBoresightContinue(zoom , chid);
 			break;
 		default:
 			break;
@@ -434,4 +475,17 @@ BoresightPos_s CSensorComp::getBoresight(int* data , int zoom)
 	return tmp;
 }
 
+
+void CSensorComp::updateWH(int* data ,PlatformCtrl_Obj* pObj , int chid)
+{
+	int id;
+	if( -1 == chid)
+		id = data[CFGID_RTS_mainch];
+	else
+		id = chid;
+	
+	pObj->privates.width = m_viewParam.width[id];
+	pObj->privates.height = m_viewParam.height[id];
+	return ;
+}
 
