@@ -811,11 +811,11 @@ int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
 									memcpy(cfg_value + i, &value, 4);
 								}
 							}
+							updateparams(cfg_value , blockId,feildId);
 						}
 					}
 				}
 
-				updateparams(cfg_value , blockId);
 
 				if(-1 == blockId)
 				{
@@ -1009,11 +1009,13 @@ int CEventManager::updateparams(int *cfg_value ,int block, int field )
 	{
 		if(((block >= CFGID_INPUT1_BKID) && (block <= CFGID_INPUT1_BKID + 6))
 			|| ((block >= CFGID_INPUT2_BKID) && (block <= CFGID_INPUT5_BKID + 6)) )
+		{
 			_StateManager->_state->m_Platform->updateFov(cfg_value,_StateManager->_state->m_plt,_StateManager->_state->_ptz->m_iZoomPos);
 			tmppos = _StateManager->_state->m_Platform->getBoresight(cfg_value,_StateManager->_state->_ptz->m_iZoomPos);
 			_StateManager->_state->ipcParam.intPrm[0] = tmppos.x;
 			_StateManager->_state->ipcParam.intPrm[1] = tmppos.y;
 			_StateManager->_state->m_ipc->IPCSendMsg(BoresightPos, _StateManager->_state->ipcParam.intPrm, 4*2);
+		}
 	}
 	else
 	{
