@@ -811,11 +811,11 @@ int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
 									memcpy(cfg_value + i, &value, 4);
 								}
 							}
-
-							updateparams(cfg_value , blockId );
 						}
 					}
 				}
+
+				updateparams(cfg_value , blockId);
 
 				if(-1 == blockId)
 				{
