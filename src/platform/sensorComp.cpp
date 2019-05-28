@@ -220,43 +220,50 @@ float CSensorComp::ZoomLevelFovCompensation(unsigned short zoom, int chid)
 	ptr = &m_viewParam.zoombak1[chid];
 	ptr1 = ptr + chid_camera*5;
 
-	for(int i=0 ; i< 12 ; i++)
-	{
-		if( (zoom> *(ptr+i*chid_camera*5))  && (zoom < *(ptr1+i*chid_camera*5)) ) 
+	if(zoom !=0 )
+		for(int i=0 ; i< 12 ; i++)
 		{
-			levelFov = linear_interpolation(	*(ptr+i*chid_camera*5) , 
-										*(ptr1+i*chid_camera*5) ,
-										*(ptr - 4*chid_camera + i*chid_camera*5), 
-										*(ptr1 - 4*chid_camera + i*chid_camera*5),
-										zoom );
-			break;
+			if( (zoom >= *(ptr+i*chid_camera*5))  && (zoom <= *(ptr1+i*chid_camera*5)) ) 
+			{
+				levelFov = linear_interpolation(	*(ptr+i*chid_camera*5) , 
+											*(ptr1+i*chid_camera*5) ,
+											*(ptr - 4*chid_camera + i*chid_camera*5), 
+											*(ptr1 - 4*chid_camera + i*chid_camera*5),
+											zoom );
+				break;
+			}
 		}
-	}
+	else
+		levelFov = m_viewParam.level_Fov_continue1[chid];
 	return levelFov;
 }
 
 
 float CSensorComp::ZoomVerticalFovCompensation(unsigned short zoom, int chid)
 {
-	float levelFov;
+	float verticalFov;
 	float *ptr,*ptr1;
 
 	ptr = &m_viewParam.zoombak1[chid];
 	ptr1 = ptr + chid_camera*5;
 
-	for(int i=0 ; i< 12 ; i++)
-	{
-		if( (zoom> *(ptr+i*chid_camera*5))  && (zoom < *(ptr1+i*chid_camera*5)) )
+	if(zoom != 0)
+		for(int i=0 ; i< 12 ; i++)
 		{
-			levelFov = linear_interpolation(	*(ptr+i*chid_camera*5) , 
-										*(ptr1+i*chid_camera*5) ,
-										*(ptr - 3*chid_camera + i*chid_camera*5),  
-										*(ptr1 - 3*chid_camera + i*chid_camera*5),
-										zoom );
-			break;
-		}
-	}	
-	return levelFov;
+			if( (zoom> *(ptr+i*chid_camera*5))  && (zoom < *(ptr1+i*chid_camera*5)) )
+			{
+				verticalFov = linear_interpolation(	*(ptr+i*chid_camera*5) , 
+											*(ptr1+i*chid_camera*5) ,
+											*(ptr - 3*chid_camera + i*chid_camera*5),  
+											*(ptr1 - 3*chid_camera + i*chid_camera*5),
+											zoom );
+				break;
+			}
+		}	
+	else
+		verticalFov = m_viewParam.vertical_Fov_continue1[chid];
+
+	return verticalFov;
 }
 
 
