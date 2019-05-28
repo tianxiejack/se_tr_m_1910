@@ -16,7 +16,7 @@ notifyZoom CPTZControl::notifyUpdateZoom = NULL;
 CPTZControl::CPTZControl(AgreeMentBaseFormat* _imp , notifyZoom ptr):pCom(NULL), 
 	exitQuery_X(false), exitQuery_Y(false), exitQueryzoom(false),
 	m_Mtd_Moitor(0),m_Mtd_Moitor_X(0),m_Mtd_Moitor_Y(0),	m_rcv_zoomValue(2849),
-	m_sync_pos(false),m_sync_fovComp(false),m_stateChange(false),m_iZoomPosBk(0)
+	m_sync_pos(false),m_sync_zoom(false),m_stateChange(false),m_iZoomPosBk(0)
 {
 
 	m_bStopZoom = false;
@@ -308,7 +308,7 @@ void CPTZControl::RecvByte(unsigned char byRecv)
 			}
 			
 			if(sync_zoom){
-				m_sync_fovComp = false;
+				m_sync_zoom = false;
 				sync_zoom = false;
 				
 			}
@@ -343,7 +343,7 @@ int CPTZControl::sendCmd(LPPELCO_D_REQPKT pCmd, PELCO_RESPONSE_t tResp /* = PELC
 		if(sign == 3)
 		{
 			m_sync_pos = false;
-			m_sync_fovComp = false;
+			m_sync_zoom = false;
 			sign = 0;
 		}
 		iRet = -1;
@@ -567,10 +567,10 @@ void CPTZControl::setZoomPos(Uint16 value)
 			ptzStop();
 			break;
 		}
-		queryZoom();
+		simpleQueryZoom();
 	}
 	exitQueryzoom = false;
-
+	return;
 }
 
 
@@ -589,7 +589,7 @@ void CPTZControl::simpleQueryPos()
 }
 
 
-void CPTZControl::queryZoom()
+void CPTZControl::simpleQueryZoom()
 {
 	_agreeMent->QueryZoomPos(m_pReq, m_byAddr);
 	sendCmd(m_pReq, PELCO_RESPONSE_Extended);
@@ -597,8 +597,18 @@ void CPTZControl::queryZoom()
 	tmp.tv_sec = 0;
 	tmp.tv_usec = 30*1000;
 	select(0, NULL, NULL, NULL, &tmp);
-
+	return ;
 }
+
+
+void CPTZControl::queryZoom()
+{
+	m_sync_zoom= true;
+	while(m_sync_zoom)
+		simpleQueryZoom();
+	return ;
+}
+
 
 void CPTZControl::QueryPanPos()
 {

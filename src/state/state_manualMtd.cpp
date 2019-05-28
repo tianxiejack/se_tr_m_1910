@@ -123,12 +123,7 @@ void ManualMtdCapture::pov_move(int x,int y)
 	if(cfg_value[CFGID_RTS_trken])
 		State::pov_move( x , y );
 	else if(cfg_value[CFGID_RTS_mtden])
-	{
-		if(x == 0x1)
-			switchTarget(0x81);
-		else if(x == 0x2)
-			switchTarget(0x80);
-	}
+		switchTarget(x);
 	return ;
 }
 

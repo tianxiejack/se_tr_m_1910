@@ -60,26 +60,27 @@ public:
 
 	int Create();
 	void Destroy();
-
-	int Move();
-
-
-	int Preset(int nCtrlType, int iPresetNum);
-	int Pattern(int nCtrlType, int iPatternNum);
-	int Query(int iQueryType);
-	int Dummy();
-
-	void ptzZoomWide();
-	void ptzZoomTele();
-	void ptzZoomStop();
-
-	int ptzMove(INT32 iDirection, UINT8 bySpeed);
 	int ptzStop();
 	void ptzSetPos(Uint16 posx, Uint16 posy);
 	void setZoomPos(Uint16 value);
+
+
+private:
+	int Move();
+	int Preset(int nCtrlType, int iPresetNum);
 	void QueryPanPos();
 	void QueryTiltPos();
 	void simpleQueryPos();
+
+
+//unused
+	int Pattern(int nCtrlType, int iPatternNum);
+	int Query(int iQueryType);
+	int Dummy();
+	void ptzZoomWide();
+	void ptzZoomTele();
+	void ptzZoomStop();
+	int ptzMove(INT32 iDirection, UINT8 bySpeed);
 
 	void shRunOutput();
 	void PanoramicMirror_Init();
@@ -90,6 +91,8 @@ public:
 
 	void test_left();
 	void test_stop();
+
+
 
 public:
 	int m_iSetPanSpeed, m_iSetTiltSpeed, m_iSetZoomSpeed,m_iSetIrisSpeed,m_iSetFocusNearSpeed, m_iSetFocusFarSpeed, m_iSetPreset;
@@ -158,7 +161,7 @@ protected:
 public:
 	char m_Mtd_Moitor; /*Recording detection area; 1: record; 0: don't record*/
 	unsigned short m_Mtd_Moitor_X,m_Mtd_Moitor_Y,m_Mtd_Moitor_Zoom;
-	bool m_sync_pos,m_sync_fovComp;
+	bool m_sync_pos,m_sync_zoom;
 	unsigned short m_rcv_zoomValue;
 	bool m_stateChange;
 
@@ -166,12 +169,15 @@ public:
 	void setPrepos(int& preposx,int& preposy);
 	int runToPrepos(int arg = 0);
 	void queryPos();
-	bool judgePanTilpos();
-	int judgepos(int arg=0);
 	void queryZoom();
-
 	void getpos(int& pan, int& til);
 	void getzoom(int& zoom);
+
+
+private:
+	bool judgePanTilpos();
+	int judgepos(int arg=0);
+	void simpleQueryZoom();
 	void resetPtz();
 	static notifyZoom notifyUpdateZoom;
 
