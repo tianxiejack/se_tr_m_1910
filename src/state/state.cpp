@@ -22,7 +22,8 @@ PlatformCtrl_CreateParams State::m_cfgPlatParam = {0};
 PLATFORMCTRL_TrackerInput State::m_pltInput = {0};
 PLATFORMCTRL_Output State::m_pltOutput; 
 DxTimer* State::m_timer = NULL;
-
+OSA_ThrHndl State::m_thrZoomServer;
+bool State::exitThreadZoomserver = false;
 
 State::State()
 {
@@ -47,6 +48,8 @@ State::State()
 
 State::~State()
 {
+	
+	OSA_thrJoin(&m_thrZoomServer);
 }
 
 void State::OperationInterface(StateManger* con)
@@ -78,6 +81,21 @@ void State::platformCreate()
 	return;
 }
 
+
+void* State::zoomServer(void* p)
+{
+	struct timeval timval;	
+	while(exitThreadZoomserver == false)
+	{
+		pThis->_ptz->simpleQueryZoom();
+		timval.tv_sec = 0;
+		timval.tv_usec = 50*1000;
+		select(0, NULL, NULL, NULL, &timval);	
+	}
+	return NULL;
+}
+
+
 void State::StateInit()
 {
 	if(m_st1 == NULL)
@@ -96,7 +114,8 @@ void State::StateInit()
 	_ptz->m_Mtd_Moitor_Y = cfg_value[CFGID_PREPOS_preposy];
 	_ptz->m_Mtd_Moitor_Zoom = cfg_value[CFGID_PREPOS_prezoom];
 
-	_ptz->queryZoom();
+	
+	OSA_thrCreate(&m_thrZoomServer, zoomServer, 0, 0, 0);
 	return ;
 }
 

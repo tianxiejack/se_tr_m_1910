@@ -112,7 +112,7 @@ void CplatFormControl::PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams 
 		pPrm->iSensorInit = m_Prm[CFGID_OUTPUT_DEFCH];
 	else
 		pPrm->iSensorInit = 1;
-
+printf(" iSensorInit = %d \n" , pPrm->iSensorInit);
 	for(i=0; i<DevUsr_MAX; i++){
 		_DeviceUser->DeviceUser_CreateParams_Init(&pPrm->deviceUsrParam[i]);
 		pPrm->deviceUsrParam[i].iIndex = i;

@@ -172,12 +172,11 @@ public:
 	void queryZoom();
 	void getpos(int& pan, int& til);
 	void getzoom(int& zoom);
-
+	void simpleQueryZoom();
 
 private:
 	bool judgePanTilpos();
 	int judgepos(int arg=0);
-	void simpleQueryZoom();
 	void resetPtz();
 	static notifyZoom notifyUpdateZoom;
 

@@ -603,10 +603,12 @@ void CPTZControl::simpleQueryZoom()
 
 void CPTZControl::queryZoom()
 {
+	#if 0
 	m_sync_zoom= true;
 	while(m_sync_zoom)
 		simpleQueryZoom();
 	return ;
+	#endif
 }
 
 

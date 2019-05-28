@@ -88,7 +88,8 @@ public:
 	void PreposHandle(int arg);
 	void getcurRate(float& curx , float& cury);
 	static void notifyzoomchange(int zoom);
-
+	static void* zoomServer(void* p);
+	
 public:
 	static CIPCProc* m_ipc;
 	static CPTZControl* _ptz;
@@ -102,7 +103,8 @@ public:
 private:
 	void platformCreate();
 	static State *m_st1, *m_st2, *m_st3, *m_st4, *m_st5;
-
+	static OSA_ThrHndl m_thrZoomServer;
+	static bool exitThreadZoomserver;
 };
 
 
