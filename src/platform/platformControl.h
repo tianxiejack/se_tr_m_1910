@@ -21,8 +21,7 @@ public:
 	int PlatformCtrl_TrackerInput(HPLTCTRL handle, PLATFORMCTRL_TrackerInput *pInput);
 	int PlatformCtrl_TrackerOutput(HPLTCTRL handle, PLATFORMCTRL_Output *pOutput);
 	int PlatformCtrl_VirtualInput(HPLTCTRL handle, int iIndex, float fValue);
-	void PlatformCtrl_UpdateParams(HPLTCTRL handle, float* data, int block);
-
+	
 	BoresightPos_s getBoresight(int* data , int zoom);
 	void updateFov(int* data , HPLTCTRL handle ,int zoom);
 	void switchSensor(int* data, HPLTCTRL handle ,int chid , int zoom);

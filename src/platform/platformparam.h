@@ -119,13 +119,13 @@ typedef PlatformFilter_CreateParams PlatformFilterParam;
 typedef struct {
 	float fOffset_X;
 	float fOffset_Y;
-	float fDeadband;
+	float fDeadbandx;
 	float fDeadbandy;
-	float fCutpoint1;
+	float fCutpoint1x;
 	float fCutpoint1y;
 	float fInputGain_X1;
 	float fInputGain_Y1;
-	float fCutpoint2;
+	float fCutpoint2x;
 	float fCutpoint2y;
 	float fInputGain_X2;
 	float fInputGain_Y2;
@@ -150,19 +150,12 @@ typedef struct
 	float demandMinY;
 	float deadbandX;
 	float deadbandY;
-	int bleedUsed;
-	float bleedX;
-	float bleedY;
 	int iSensorInit;
 	float fFovx[SENSOR_COUNT];
 	float fFovy[SENSOR_COUNT];
 	int acqOutputType;
 	int bTrkWinFilter;
-	int Kx;
-	int Ky;
-	float Error_X;
-	float Error_Y;
-	int Time;
+
 }PlatformCtrlParam;
 #pragma pack ()
 

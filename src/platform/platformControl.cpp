@@ -127,29 +127,21 @@ void CplatFormControl::PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams 
 	pPrm->demandMaxX = 8000;
 	pPrm->demandMaxY = 8000;
 
-	pPrm->bleedUsed = Bleed_BrosightError;
 	pPrm->deadbandX = 30;
 	pPrm->deadbandY = 30;
 
 	pPrm->acqOutputType = 2;
 
-	memcpy(&pPrm->Kx, m_Prm + CFGID_PID_RATIOX, 4);
-	memcpy(&pPrm->Ky, m_Prm + CFGID_PID_RATIOY, 4);
-	memcpy(&pPrm->Error_X, m_Prm + CFGID_PID_ERRORX, 4);
-	memcpy(&pPrm->Error_Y, m_Prm + CFGID_PID_ERRORY, 4);
-	memcpy(&pPrm->Time, m_Prm + CFGID_PID_TIME, 4);
-	memcpy(&pPrm->bleedX, m_Prm + CFGID_PID_LIMITX, 4);
-	memcpy(&pPrm->bleedY, m_Prm + CFGID_PID_LIMITY, 4);
 
-	memcpy(&pPrm->joystickRateDemandParam.fDeadband, m_Prm + CFGID_JOS_deadx, 4);// 0.1f;
+	memcpy(&pPrm->joystickRateDemandParam.fDeadbandx, m_Prm + CFGID_JOS_deadx, 4);// 0.1f;
 	memcpy(&pPrm->joystickRateDemandParam.fDeadbandy, m_Prm + CFGID_JOS_deady, 4);
 	memcpy(&pPrm->joystickRateDemandParam.fInputGain_X1, m_Prm + CFGID_JOS_inputgainx1, 4);// 0.2f;
 	memcpy(&pPrm->joystickRateDemandParam.fInputGain_Y1, m_Prm + CFGID_JOS_inputgainy1, 4);// 0.3f;
 	memcpy(&pPrm->joystickRateDemandParam.fInputGain_X2, m_Prm + CFGID_JOS_inputgainx2, 4);// 0.2f;
 	memcpy(&pPrm->joystickRateDemandParam.fInputGain_Y2, m_Prm + CFGID_JOS_inputgainy2, 4);// 0.3f;
-	memcpy(&pPrm->joystickRateDemandParam.fCutpoint1, m_Prm + CFGID_JOS_cutpointx1, 4);//0.7f;
+	memcpy(&pPrm->joystickRateDemandParam.fCutpoint1x, m_Prm + CFGID_JOS_cutpointx1, 4);//0.7f;
 	memcpy(&pPrm->joystickRateDemandParam.fCutpoint1y, m_Prm + CFGID_JOS_cutpointy1, 4);
-	memcpy(&pPrm->joystickRateDemandParam.fCutpoint2, m_Prm + CFGID_JOS_cutpointx2, 4);//0.7f;
+	memcpy(&pPrm->joystickRateDemandParam.fCutpoint2x, m_Prm + CFGID_JOS_cutpointx2, 4);//0.7f;
 	memcpy(&pPrm->joystickRateDemandParam.fCutpoint2y, m_Prm + CFGID_JOS_cutpointy2, 4);
 	
 	pPrm->joystickRateDemandParam.fPlatformAcquisitionModeGain_X = 5000.0f;
@@ -222,21 +214,38 @@ void CplatFormControl::joyParamProcHandle(PlatformCtrl_Obj *pObj)
 	JoystickRateDemandParam *pParam = &pObj->params.joystickRateDemandParam;
 
 	/*param limit*/
-	if(pParam->fDeadband > pParam->fCutpoint1)
-		pParam->fDeadband = pParam->fCutpoint1;
-	if(pParam->fCutpoint1 > pParam->fCutpoint2)
-		pParam->fCutpoint1 = pParam->fCutpoint2;
+	//x
+	if(pParam->fDeadbandx > pParam->fCutpoint1x)
+		pParam->fDeadbandx = pParam->fCutpoint1x;
+	if(pParam->fCutpoint1x > pParam->fCutpoint2x)
+		pParam->fCutpoint1x = pParam->fCutpoint2x;
 
-	if(pParam->fCutpoint2 > 1)
-		pParam->fCutpoint2 = 1;
+	if(pParam->fCutpoint2x > 1)
+		pParam->fCutpoint2x = 1;
 
-	if(pParam->fCutpoint2 < 0)
-		pParam->fCutpoint2 = 0;
-	if(pParam->fCutpoint1 < 0)
-		pParam->fCutpoint1 = 0;
-	if(pParam->fDeadband < 0)
-		pParam->fDeadband = 0;
-	
+	if(pParam->fCutpoint2x < 0)
+		pParam->fCutpoint2x = 0;
+	if(pParam->fCutpoint1x < 0)
+		pParam->fCutpoint1x = 0;
+	if(pParam->fDeadbandx < 0)
+		pParam->fDeadbandx = 0;
+
+	//y
+	if(pParam->fDeadbandy > pParam->fCutpoint1y)
+		pParam->fDeadbandy = pParam->fCutpoint1y;
+	if(pParam->fCutpoint1y > pParam->fCutpoint2y)
+		pParam->fCutpoint1y = pParam->fCutpoint2y;
+
+	if(pParam->fCutpoint2y > 1)
+		pParam->fCutpoint2y = 1;
+
+	if(pParam->fCutpoint2y < 0)
+		pParam->fCutpoint2y = 0;
+	if(pParam->fCutpoint1y < 0)
+		pParam->fCutpoint1y = 0;
+	if(pParam->fDeadbandy < 0)
+		pParam->fDeadbandy = 0;
+
 	return ;
 }
 
@@ -251,53 +260,53 @@ void CplatFormControl::joyXHandle(PlatformCtrl_Obj *pObj)
 
 	//X Axis
 	fTmp = pObj->inter.devUsrInput[DevUsr_AcqJoystickXInput];
-
-	if(fabsf(fTmp) < pParam->fDeadband)
+	
+	if(fabsf(fTmp) < pParam->fDeadbandx)
 		fTmp = 0.0;
 
-	if(fabsf(fTmp) < pParam->fCutpoint1)
+	if(fabsf(fTmp) < pParam->fCutpoint1x)
 	{
 		if(fTmp > 0){
-			fTmp -= pParam->fDeadband;
+			fTmp -= pParam->fDeadbandx;
 			fTmp *= pParam->fInputGain_X1;
 		}
 		else if (fTmp < 0){
 			fTmp = fabsf(fTmp);
-			fTmp -= pParam->fDeadband;
+			fTmp -= pParam->fDeadbandx;
 			fTmp *= pParam->fInputGain_X1;	
 			fTmp *= -1;
 		}
 	}
-	else if(fabsf(fTmp) >= pParam->fCutpoint1 && fabsf(fTmp) < pParam->fCutpoint2)
+	else if(fabsf(fTmp) >= pParam->fCutpoint1x && fabsf(fTmp) < pParam->fCutpoint2x)
 	{
 		if(fTmp >= 0){
-			fTmp = pParam->fInputGain_X1* (pParam->fCutpoint1- pParam->fDeadband)
-				+ pParam->fInputGain_X2*( fTmp - pParam->fCutpoint1);
+			fTmp = pParam->fInputGain_X1* (pParam->fCutpoint1x - pParam->fDeadbandx)
+				+ pParam->fInputGain_X2*( fTmp - pParam->fCutpoint1x);
 		}else{
 			fTmp = fabsf(fTmp);
-			fTmp = pParam->fInputGain_X1* (pParam->fCutpoint1- pParam->fDeadband)
-				+ pParam->fInputGain_X2*( fTmp - pParam->fCutpoint1);
+			fTmp = pParam->fInputGain_X1* (pParam->fCutpoint1x - pParam->fDeadbandx)
+				+ pParam->fInputGain_X2*( fTmp - pParam->fCutpoint1x);
 			fTmp *= -1;
 		}
 	}
 	else
 	{
 		if(fTmp > 0){
-			fTmp2 = pParam->fInputGain_X1* (pParam->fCutpoint1- pParam->fDeadband)
-				+ pParam->fInputGain_X2*( fTmp - pParam->fCutpoint1);
+			fTmp2 = pParam->fInputGain_X1* (pParam->fCutpoint1x- pParam->fDeadbandx)
+				+ pParam->fInputGain_X2*( fTmp - pParam->fCutpoint1x);
 			K = 1 - fTmp2;
-			K /= (1 - pParam->fCutpoint2);
-			fTmp -= pParam->fCutpoint2;
+			K /= (1 - pParam->fCutpoint2x);
+			fTmp -= pParam->fCutpoint2x;
 			fTmp *= K ;
 			fTmp += fTmp2;
 		}
 		else if (fTmp < 0){
 			fTmp = fabsf(fTmp);
-			fTmp2 = pParam->fInputGain_X1* (pParam->fCutpoint1- pParam->fDeadband)
-				+ pParam->fInputGain_X2*( fTmp - pParam->fCutpoint1);
+			fTmp2 = pParam->fInputGain_X1* (pParam->fCutpoint1x - pParam->fDeadbandx)
+				+ pParam->fInputGain_X2*( fTmp - pParam->fCutpoint1x);
 			K = 1 - fTmp2;
-			K /= (1 - pParam->fCutpoint2);
-			fTmp -= pParam->fCutpoint2;
+			K /= (1 - pParam->fCutpoint2x);
+			fTmp -= pParam->fCutpoint2x;
 			fTmp *= K ;
 			fTmp += fTmp2;
 			fTmp *= -1;
@@ -306,10 +315,7 @@ void CplatFormControl::joyXHandle(PlatformCtrl_Obj *pObj)
 
 	fTmp *= pParam->fPlatformAcquisitionModeGain_X;
 
-	if(pObj->params.acqOutputType == AcqOutputType_ShapedAndGainedAndIntegrated){
-	}
-	else
-		_Fiter->calcCurPlatAvrRate(pObj->privates.filter[0], fTmp);
+	_Fiter->calcCurPlatAvrRate(pObj->privates.filter[0], fTmp);
 
 	pObj->privates.curRateDemandX = fTmp;
 	
@@ -327,52 +333,52 @@ void CplatFormControl::joyYHandle(PlatformCtrl_Obj *pObj)
 	// Y Axis
 	fTmp = pObj->inter.devUsrInput[DevUsr_AcqJoystickYInput];
 
-	if(fabsf(fTmp) < pParam->fDeadband)
+	if(fabsf(fTmp) < pParam->fDeadbandy)
 		fTmp = 0.0;
 
-	if(fabsf(fTmp) < pParam->fCutpoint1)
+	if(fabsf(fTmp) < pParam->fCutpoint1y)
 	{
 		if(fTmp > 0){
-		fTmp -= pParam->fDeadband;
+		fTmp -= pParam->fDeadbandy;
 		fTmp *= pParam->fInputGain_Y1;
 		}
 		else if (fTmp < 0){
 			fTmp = fabsf(fTmp);
-			fTmp -= pParam->fDeadband;
+			fTmp -= pParam->fDeadbandy;
 			fTmp *= pParam->fInputGain_Y1;	
 			fTmp *= -1;
 		}
 	}
-	else if(fabsf(fTmp) >= pParam->fCutpoint1 && fabsf(fTmp) < pParam->fCutpoint2)
+	else if(fabsf(fTmp) >= pParam->fCutpoint1y && fabsf(fTmp) < pParam->fCutpoint2y)
 	{
 		if(fTmp >= 0){
-			fTmp = pParam->fInputGain_Y1* (pParam->fCutpoint1- pParam->fDeadband)
-				+ pParam->fInputGain_Y2*( fTmp - pParam->fCutpoint1);
+			fTmp = pParam->fInputGain_Y1* (pParam->fCutpoint1y- pParam->fDeadbandy)
+				+ pParam->fInputGain_Y2*( fTmp - pParam->fCutpoint1y);
 		}else{
 			fTmp = fabsf(fTmp);
-			fTmp = pParam->fInputGain_Y1* (pParam->fCutpoint1- pParam->fDeadband)
-				+ pParam->fInputGain_Y2*( fTmp - pParam->fCutpoint1);
+			fTmp = pParam->fInputGain_Y1* (pParam->fCutpoint1y- pParam->fDeadbandy)
+				+ pParam->fInputGain_Y2*( fTmp - pParam->fCutpoint1y);
 			fTmp *= -1;
 		}
 	}
 	else
 	{
 		if(fTmp > 0){
-			fTmp2 = pParam->fInputGain_Y1* (pParam->fCutpoint1- pParam->fDeadband)
-				+ pParam->fInputGain_Y2*( fTmp - pParam->fCutpoint1);
+			fTmp2 = pParam->fInputGain_Y1* (pParam->fCutpoint1y- pParam->fDeadbandy)
+				+ pParam->fInputGain_Y2*( fTmp - pParam->fCutpoint1y);
 			K = 1 - fTmp2;
-			K /= (1 - pParam->fCutpoint2);
-			fTmp -= pParam->fCutpoint2;
+			K /= (1 - pParam->fCutpoint2y);
+			fTmp -= pParam->fCutpoint2y;
 			fTmp *= K ;
 			fTmp += fTmp2;
 		}
 		else if (fTmp < 0){
 			fTmp = fabsf(fTmp);
-			fTmp2 = pParam->fInputGain_Y1* (pParam->fCutpoint1- pParam->fDeadband)
-				+ pParam->fInputGain_Y2*( fTmp - pParam->fCutpoint1);
+			fTmp2 = pParam->fInputGain_Y1* (pParam->fCutpoint1y- pParam->fDeadbandy)
+				+ pParam->fInputGain_Y2*( fTmp - pParam->fCutpoint1y);
 			K = 1 - fTmp2;
-			K /= (1 - pParam->fCutpoint2);
-			fTmp -= pParam->fCutpoint2;
+			K /= (1 - pParam->fCutpoint2y);
+			fTmp -= pParam->fCutpoint2y;
 			fTmp *= K ;
 			fTmp += fTmp2;
 			fTmp *= -1;
@@ -381,10 +387,7 @@ void CplatFormControl::joyYHandle(PlatformCtrl_Obj *pObj)
 
 	fTmp *= pParam->fPlatformAcquisitionModeGain_Y;
 
-	if(pObj->params.acqOutputType == AcqOutputType_ShapedAndGainedAndIntegrated){
-	}
-	else
-		_Fiter->calcCurPlatAvrRate(pObj->privates.filter[1], fTmp);
+	_Fiter->calcCurPlatAvrRate(pObj->privates.filter[1], fTmp);
 
 	pObj->privates.curRateDemandY = fTmp;
 	
@@ -604,70 +607,11 @@ int CplatFormControl::PlatformCtrl_VirtualInput(HPLTCTRL handle, int iIndex, flo
 }
 
 
-
-void CplatFormControl::PlatformCtrl_UpdateParams(HPLTCTRL handle, float* m_Prm, int block)
-{
-	 PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)handle->object;
-	 JoystickRateDemandParam *pPrm = &pObj->params.joystickRateDemandParam;
-	 int num;
-	 if(block == 1)
-	 {
-		num = (block-1)*16;
-		pPrm->fDeadband =m_Prm[++num];
-		pPrm->fCutpoint1 = m_Prm[++num];
-		pPrm->fInputGain_X1 =m_Prm[++num];
-		pPrm->fInputGain_Y1 =m_Prm[++num];
-		pPrm->fCutpoint2 = m_Prm[++num];
-		pPrm->fInputGain_X2 =m_Prm[++num];
-		pPrm->fInputGain_Y2 =m_Prm[++num];
-	 }
-
-	 if(block == 91)
-	 {
-		PlatformFilter_Obj *Pidx = (PlatformFilter_Obj*)pObj->privates.filter[0];
-		PlatformFilter_Obj *Pidy = (PlatformFilter_Obj*)pObj->privates.filter[1];
-		num = (block-1)*16;
-		Pidx->params.Kp  = m_Prm[++num];
-		Pidx->params.Ki = m_Prm[++num];
-		Pidx->params.Kd = m_Prm[++num];
-		Pidx->params.K = m_Prm[++num];
-
-		Pidy->params.Kp  = m_Prm[++num];
-		Pidy->params.Ki = m_Prm[++num];
-		Pidy->params.Kd = m_Prm[++num];
-		Pidy->params.K = m_Prm[++num];
-	 }
-
-	 if(block == 92)
-	 {
-		num = (block-1)*16;
-		pObj->params.Kx = m_Prm[num];
-		pObj->params.Ky = m_Prm[++num];
-		pObj->params.Error_X = m_Prm[++num];
-		pObj->params.Error_Y = m_Prm[++num];
-		pObj->params.Time = m_Prm[++num];
-		pObj->params.bleedX =m_Prm[++num];
-		pObj->params.bleedY =m_Prm[++num];
-	 }
-
-	 if(block == 100)
-	 {
-		num = (block-1)*16 + 4;
-		pObj->params.demandMaxX = m_Prm[num];
-		pObj->params.demandMaxY = m_Prm[++num];
-		pObj->params.deadbandX = m_Prm[++num];
-		pObj->params.deadbandY = m_Prm[++num];
-	 }
-}
-
-
-
 void CplatFormControl::PlatformCtrl_reset4trk(HPLTCTRL handle)
 {
 	PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)handle->object;
 	_Fiter->PlatformFilter_reset4trk(pObj->privates.filter[0]);
 	_Fiter->PlatformFilter_reset4trk(pObj->privates.filter[1]);
-
 	return ;
 }
 

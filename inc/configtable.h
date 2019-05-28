@@ -27,19 +27,19 @@ enum devvideo{
 	MAX_CHAN,
 };
 
-#define MAIN_CHID					video_gaoqing0
-#define PAL_VIRCHID					0
+#define MAIN_CHID			video_gaoqing0
+#define PAL_VIRCHID			0
 
-#define VIDEO_DIS_WIDTH		1920
-#define VIDEO_DIS_HEIGHT		1080
+#define VIDEO_DIS_WIDTH	1920
+#define VIDEO_DIS_HEIGHT	1080
 
 #define BALL_CHID			video_gaoqing
 #define GUN_CHID			video_gaoqing0
 
-#define min_width_ratio 0.2
-#define max_width_ratio 0.8
-#define min_height_ratio 0.2
-#define max_height_ratio 0.8
+#define min_width_ratio 	0.2
+#define max_width_ratio 	0.8
+#define min_height_ratio 	0.2
+#define max_height_ratio 	0.8
 
 extern int vcapWH[5][2];
 extern int vdisWH[5][2];
@@ -48,10 +48,10 @@ static int ShowDPI[MAX_CHAN][2] = {{1920, 1080},{1920, 1080},{1920, 1080},{1920,
 
 ////////////////////////////////////////////////////
 // sys config table part
-#define SYSCONFIG_VERSION     100
+#define SYSCONFIG_VERSION 	100
 #define CFGID_BKFEILD_MAX	16
-#define CFGID_USEROSD_MAX	32
-#define USEROSD_LENGTH	128
+#define CFGID_USEROSD_MAX 	32
+#define USEROSD_LENGTH		128
 
 #define CFGID_BUILD( blkId, feildId )   ( ( (( blkId) << 4 ) & 0xFF0 ) | ( feildId ) )
 #define CFGID_blkId( cfgId )            ( ( (cfgId) >> 4 ) & 0xFF )
@@ -185,16 +185,7 @@ typedef enum
 	CFGID_PID_KPY = CFGID_BUILD( CFGID_PID_BKID, 5 ),
 	CFGID_PID_KIY = CFGID_BUILD( CFGID_PID_BKID, 6 ),
 	CFGID_PID_KDY = CFGID_BUILD( CFGID_PID_BKID, 7 ),
-	CFGID_PID_KY = CFGID_BUILD( CFGID_PID_BKID, 8 ),
-
-	CFGID_PID_RATIOX = CFGID_BUILD( (CFGID_PID_BKID+1), 0 ),
-	CFGID_PID_RATIOY = CFGID_BUILD( (CFGID_PID_BKID+1), 1 ),
-	CFGID_PID_ERRORX = CFGID_BUILD( (CFGID_PID_BKID+1), 2 ),
-	CFGID_PID_ERRORY = CFGID_BUILD( (CFGID_PID_BKID+1), 3 ),
-	CFGID_PID_TIME = CFGID_BUILD( (CFGID_PID_BKID+1), 4 ),
-	CFGID_PID_LIMITX = CFGID_BUILD( (CFGID_PID_BKID+1), 5 ),
-	CFGID_PID_LIMITY = CFGID_BUILD( (CFGID_PID_BKID+1), 6 ),
-	
+	CFGID_PID_KY = CFGID_BUILD( CFGID_PID_BKID, 8 ),	
 }CFGID_PID;
 
 typedef enum 
