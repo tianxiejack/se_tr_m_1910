@@ -109,10 +109,10 @@ void CplatFormControl::PlatformCtrl_CreateParams_Init(PlatformCtrl_CreateParams 
 	}
 	
 	if( m_Prm[CFGID_RTS_mainch] >=0 &&  m_Prm[CFGID_RTS_mainch] <= 5)
-		pPrm->iSensorInit = m_Prm[CFGID_RTS_mainch];
+		pPrm->iSensorInit = m_Prm[CFGID_OUTPUT_DEFCH];
 	else
 		pPrm->iSensorInit = 1;
-	
+
 	for(i=0; i<DevUsr_MAX; i++){
 		_DeviceUser->DeviceUser_CreateParams_Init(&pPrm->deviceUsrParam[i]);
 		pPrm->deviceUsrParam[i].iIndex = i;
@@ -474,9 +474,6 @@ int CplatFormControl::PlatformCtrl_OutPlatformDemand(PlatformCtrl_Obj *pObj)
 
 		fTmp = fTmpY * pObj->privates.fovY / pObj->privates.height;
 		pObj->privates.curRateDemandY = _Fiter->pidAlg(pObj->privates.filter[1], fTmp);
-printf("1111 fovx,y (%f , %f) \n" , pObj->privates.fovX,pObj->privates.fovY );
-printf("1111 demand x,y  (%f  , %f) \n" ,pObj->privates.curRateDemandX,pObj->privates.curRateDemandY);
-
 	}
 
 
