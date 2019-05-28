@@ -138,7 +138,7 @@ public:
 	void SensorComp_CreateParams_Init(SensorComp_CreateParams *pPrm, int i, View* Pserson,int width ,int height);
 	void getCameraResolution(int* data);
 	BoresightPos_s calcBoresightContinue(int zoom , int chid);
-	int getBaseAddress(int* data);
+	int getBaseAddress(int* data , int* getId=NULL);
 	BoresightPos_s getBoresight(int* data , int zoom , int chid = -1);
 
 	void updateWH(int* data ,PlatformCtrl_Obj* pObj , int chid = -1);
