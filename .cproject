@@ -46,6 +46,8 @@
 							<tool id="nvcc.linker.base.367830157" name="NVCC Linker" superClass="nvcc.linker.base">
 								<option id="nvcc.linker.option.paths.926435254" name="Library search path (-L)" superClass="nvcc.linker.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/usr/local/lib"/>
+									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu"/>
+									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu/tegra"/>
 								</option>
 								<option id="nvcc.linker.option.libs.1800347047" name="Libraries (-l)" superClass="nvcc.linker.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="usb-1.0"/>
@@ -124,6 +126,8 @@
 								</option>
 								<option id="nvcc.linker.option.paths.117205399" name="Library search path (-L)" superClass="nvcc.linker.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/usr/local/lib"/>
+									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu"/>
+									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu/tegra"/>
 								</option>
 								<inputType id="nvcc.linker.input.547404825" superClass="nvcc.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
