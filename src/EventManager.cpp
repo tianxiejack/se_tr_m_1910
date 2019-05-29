@@ -15,6 +15,7 @@ extern OSA_SemHndl m_semHndl_s;
 const int profileNum = CFGID_BKID_MAX*16;
 
 using namespace cv;
+using namespace std;
 
 CEventManager::CEventManager()
 {
