@@ -48,6 +48,7 @@
 									<listOptionValue builtIn="false" value="/usr/local/lib"/>
 									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu"/>
 									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu/tegra"/>
+									<listOptionValue builtIn="false" value="/usr/lib"/>
 								</option>
 								<option id="nvcc.linker.option.libs.1800347047" name="Libraries (-l)" superClass="nvcc.linker.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="usb-1.0"/>
@@ -128,6 +129,7 @@
 									<listOptionValue builtIn="false" value="/usr/local/lib"/>
 									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu"/>
 									<listOptionValue builtIn="false" value="/usr/lib/aarch64-linux-gnu/tegra"/>
+									<listOptionValue builtIn="false" value="/usr/lib"/>
 								</option>
 								<inputType id="nvcc.linker.input.547404825" superClass="nvcc.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
