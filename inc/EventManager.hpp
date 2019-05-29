@@ -8,6 +8,10 @@
 #define EVENTMANAGER_HPP_
 #include "eventParsing.hpp"
 #include "StateManger.h"
+#include <opencv2/core/core.hpp>
+
+using namespace cv;
+using namespace std;
 
 typedef struct{
 	int status;
@@ -21,7 +25,7 @@ class CEventManager
 public:
 	CEventManager();
 	~CEventManager();
-	static void thread_ipcEvent();
+	static void *thread_ipcEvent(void *p);
 private:
 	MSGDRIV_Handle _Handle;
 	CMessage* _Msg;
@@ -97,6 +101,7 @@ public:
 
 
 public:
+	OSA_ThrHndl ipcEvent_thid;
 	Trkerr_t m_pixelErr;
 	SELF_SemHndl m_semSendpos,m_semSendZoom;
 };

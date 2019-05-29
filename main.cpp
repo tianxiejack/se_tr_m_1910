@@ -10,13 +10,14 @@ int main()
 {
 	CEventParsing parsing;
 	CEventManager* eventManager = new CEventManager();
-	std::thread T1(CEventParsing::thread_jsEvent);
-	std::thread T2(CEventParsing::thread_comrecvEvent);
-	std::thread T3(CEventParsing::thread_comsendEvent);
-	std::thread T4(CEventParsing::thread_Getaccept);
-	std::thread T5(CEventParsing::thread_ReclaimConnect);
-	std::thread T6(CEventManager::thread_ipcEvent);
 
+	OSA_thrCreate(&parsing.jsEvent_thid, parsing.thread_jsEvent, 0, 0, NULL);
+	OSA_thrCreate(&parsing.comrecvEvent_thid, parsing.thread_comrecvEvent, 0, 0, NULL);
+	OSA_thrCreate(&parsing.comsendEvent_thid, parsing.thread_comsendEvent, 0, 0, NULL);
+	OSA_thrCreate(&parsing.Getaccept_thid, parsing.thread_Getaccept, 0, 0, NULL);
+	OSA_thrCreate(&parsing.ReclaimConnect_thid, parsing.thread_ReclaimConnect, 0, 0, NULL);
+	OSA_thrCreate(&eventManager->ipcEvent_thid, eventManager->thread_ipcEvent, 0, 0, NULL);
+		
 	struct timeval tmp;
 	while(1)
 	{
@@ -25,12 +26,12 @@ int main()
 		select(0, NULL, NULL, NULL, &tmp);
 	}
 
-	T1.join();
-	T2.join();
-	T3.join();
-	T4.join();
-	T5.join();
-	T6.join();
+	OSA_thrDelete(&parsing.jsEvent_thid);
+	OSA_thrDelete(&parsing.comrecvEvent_thid);
+	OSA_thrDelete(&parsing.comsendEvent_thid);
+	OSA_thrDelete(&parsing.Getaccept_thid);
+	OSA_thrDelete(&parsing.ReclaimConnect_thid);
+	OSA_thrDelete(&eventManager->ipcEvent_thid);
 	return 0;
 }
 
