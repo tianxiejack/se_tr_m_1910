@@ -5,7 +5,6 @@
  *      Author: d
  */
 #include "EventManager.hpp"
-#include <opencv2/core/core.hpp>
 #include <cstdarg>
 
 CEventManager* CEventManager::pThis = NULL;
@@ -13,9 +12,6 @@ extern ACK_ComParams_t ACK_ComParams;
 extern OSA_SemHndl  m_semHndl;
 extern OSA_SemHndl m_semHndl_s;
 const int profileNum = CFGID_BKID_MAX*16;
-
-using namespace cv;
-using namespace std;
 
 CEventManager::CEventManager()
 {

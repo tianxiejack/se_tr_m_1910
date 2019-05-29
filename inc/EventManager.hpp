@@ -8,6 +8,10 @@
 #define EVENTMANAGER_HPP_
 #include "eventParsing.hpp"
 #include "StateManger.h"
+#include <opencv2/core/core.hpp>
+
+using namespace cv;
+using namespace std;
 
 typedef struct{
 	int status;
