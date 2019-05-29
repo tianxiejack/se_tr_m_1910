@@ -10,7 +10,7 @@
 
 #include <iostream>
 #include <stdio.h>
-#include <thread>
+//#include <thread>
 #include <string.h>
 #include <libusb.h>
 

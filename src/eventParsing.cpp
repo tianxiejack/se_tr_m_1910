@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include "osa_sem.h"
+#include <errno.h>
 
 CEventParsing* CEventParsing::pThis = NULL;
 ACK_ComParams_t ACK_ComParams;
@@ -33,6 +34,7 @@ CEventParsing::CEventParsing()
 	OSA_mutexCreate(&mutexConn);
 	pCom2 = PortFactory::createProduct(2);
 	pCom2->copen();
+
 }
 
 CEventParsing::~CEventParsing()
@@ -51,7 +53,7 @@ CEventParsing::~CEventParsing()
 	delete pCom2;
 }
 
-void CEventParsing::thread_jsEvent()
+void *CEventParsing::thread_jsEvent(void *p)
 {
 	while(!pThis->exit_jsParsing)
 	{
@@ -59,7 +61,7 @@ void CEventParsing::thread_jsEvent()
 	}
 }
 
-void CEventParsing::thread_comrecvEvent()
+void *CEventParsing::thread_comrecvEvent(void *p)
 {
 	int sizeRcv;
  	uint8_t dest[1024]={0};
@@ -76,7 +78,7 @@ void CEventParsing::thread_comrecvEvent()
 	}
 }
 
-void CEventParsing::thread_comsendEvent()
+void *CEventParsing::thread_comsendEvent(void *p)
 {
 	sendInfo repSendBuffer;
 	
@@ -112,7 +114,7 @@ void CEventParsing::thread_comsendEvent()
 	}
 }
 
-void CEventParsing::thread_Getaccept()
+void *CEventParsing::thread_Getaccept(void *p)
 {
 	int iret;
 	struct sockaddr_in connectAddr;
@@ -172,7 +174,7 @@ void *CEventParsing::thread_netrecvEvent(void *p)
 	}
 }
 
-int CEventParsing::thread_ReclaimConnect()
+void *CEventParsing::thread_ReclaimConnect(void *p)
 {
 	while(!pThis->exit_netParsing)
 	{

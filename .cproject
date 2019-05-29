@@ -38,7 +38,7 @@
 									<listOptionValue builtIn="false" value="../src/platform"/>
 									<listOptionValue builtIn="false" value="../src/IPC"/>
 								</option>
-								<option id="nvcc.compiler.cpp11option.1327409701" name="Enable C++11 support (-std=c++11)" superClass="nvcc.compiler.cpp11option" value="true" valueType="boolean"/>
+								<option id="nvcc.compiler.cpp11option.1327409701" name="Enable C++11 support (-std=c++11)" superClass="nvcc.compiler.cpp11option" value="false" valueType="boolean"/>
 								<inputType id="nvcc.compiler.input.cu.2016103792" superClass="nvcc.compiler.input.cu"/>
 								<inputType id="nvcc.compiler.input.cpp.1057083062" superClass="nvcc.compiler.input.cpp"/>
 								<inputType id="nvcc.compiler.input.c.86259754" superClass="nvcc.compiler.input.c"/>
@@ -52,7 +52,7 @@
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="ipc"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="opencv_core"/>
 								</option>
-								<option id="nvcc.linker.option.other.295630662" superClass="nvcc.linker.option.other" valueType="stringList">
+								<option id="nvcc.linker.option.other.295630662" name="Other options (-Xlinker [option])" superClass="nvcc.linker.option.other" valueType="stringList">
 									<listOptionValue builtIn="false" value="-rpath=/usr/lib/aarch64-linux-gnu/tegra"/>
 								</option>
 								<inputType id="nvcc.linker.input.1481615624" superClass="nvcc.linker.input">
@@ -114,7 +114,7 @@
 									<listOptionValue builtIn="false" value="../src/platform"/>
 									<listOptionValue builtIn="false" value="../src/IPC"/>
 								</option>
-								<option id="nvcc.compiler.cpp11option.1710425235" name="Enable C++11 support (-std=c++11)" superClass="nvcc.compiler.cpp11option" value="true" valueType="boolean"/>
+								<option id="nvcc.compiler.cpp11option.1710425235" name="Enable C++11 support (-std=c++11)" superClass="nvcc.compiler.cpp11option" value="false" valueType="boolean"/>
 								<inputType id="nvcc.compiler.input.cu.592981250" superClass="nvcc.compiler.input.cu"/>
 								<inputType id="nvcc.compiler.input.cpp.1529100750" superClass="nvcc.compiler.input.cpp"/>
 								<inputType id="nvcc.compiler.input.c.193611263" superClass="nvcc.compiler.input.c"/>
@@ -128,7 +128,7 @@
 								<option id="nvcc.linker.option.paths.117205399" name="Library search path (-L)" superClass="nvcc.linker.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="/usr/local/lib"/>
 								</option>
-								<option id="nvcc.linker.option.other.86628005" superClass="nvcc.linker.option.other" valueType="stringList">
+								<option id="nvcc.linker.option.other.86628005" name="Other options (-Xlinker [option])" superClass="nvcc.linker.option.other" valueType="stringList">
 									<listOptionValue builtIn="false" value="-rpath=/usr/lib/aarch64-linux-gnu/tegra"/>
 								</option>
 								<inputType id="nvcc.linker.input.547404825" superClass="nvcc.linker.input">

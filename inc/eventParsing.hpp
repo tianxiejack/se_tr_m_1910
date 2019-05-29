@@ -230,18 +230,20 @@ public:
 	~CEventParsing();
 	CjoyStick* _Js;
 	CMessage* _Msg;
-	static void thread_jsEvent();
+	OSA_ThrHndl jsEvent_thid, comrecvEvent_thid, comsendEvent_thid,Getaccept_thid, ReclaimConnect_thid;
+	static void *thread_jsEvent(void *p);
 private:
 	static CEventParsing* pThis;
 	bool exit_jsParsing,exit_comParsing,exit_netParsing;
+
 	void parsingJostickEvent(unsigned char* jos_data);
 
 
 public:
-	static void thread_comrecvEvent();
-	static void thread_comsendEvent();
-	static void thread_Getaccept();
-	static int thread_ReclaimConnect();
+	static void *thread_comrecvEvent(void *p);
+	static void *thread_comsendEvent(void *p);
+	static void *thread_Getaccept(void *p);
+	static void *thread_ReclaimConnect(void *p);
 	ComParams_t ComParams;
 private:
 	static void *thread_netrecvEvent(void *p);

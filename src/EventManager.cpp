@@ -63,7 +63,7 @@ void CEventManager::IPC_Creat()
 	usr_value = (char *)ipc_getSharedMem(IPC_USER_SHA);
 }
 
-void CEventManager::thread_ipcEvent()
+void *CEventManager::thread_ipcEvent(void *p)
 {
 	float value;
 	float errorx, errory;
@@ -1534,7 +1534,22 @@ string CEventManager::intip2string(unsigned int intip)
 	value2 = ((intip >> 8) & 0xff);
 	value3 = intip & 0xff;
 
-	string str = to_string(value0) + "." + to_string(value1) + "." + to_string(value2) + "." + to_string(value3);
+	//string str = to_string(value0) + "." + to_string(value1) + "." + to_string(value2) + "." + to_string(value3);
+	string str;
+	stringstream s0,s1,s2,s3;
+	string strtmp;
+	s0 << value0;
+	s0 >> strtmp;
+	str = strtmp;
+	s1 << value1;
+	s1 >> strtmp;
+	str = str + "." + strtmp;
+	s2 << value2;
+	s2 >> strtmp;
+	str = str + "." + strtmp;
+	s3 << value3;
+	s3 >> strtmp;
+	str = str + "." + strtmp;
 	return str;
 }
 unsigned int CEventManager::stringip2int(string str)
