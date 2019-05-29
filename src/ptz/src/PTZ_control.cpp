@@ -32,7 +32,7 @@ CPTZControl::CPTZControl(AgreeMentBaseFormat* _imp , notifyZoom ptr):pCom(NULL),
 	m_iPanPos = m_iTiltPos = m_iZoomPos = m_iIrisPos= m_iFocusPos = 0;
 	m_isetZoom = 0;
 
-	m_changeZoom = false;
+	m_change = false;
 
 	m_bQuryZoomPos = false;
 	m_fZoomLimit = 32.0;
@@ -359,9 +359,25 @@ bool mask = true;
 int CPTZControl::MoveSync()
 {
 	int iRet = 0;
-	//OSA_mutexLock(&m_mutex);
+	bool sendFlag = false;
+	static char num = 0;
 
-	if(m_changeZoom || m_iSetZoomSpeed)
+	if( m_change ){
+		sendFlag = true;
+		num=0;
+	}
+	else 
+	{	
+		if(num <10)
+			num++;
+		if(num < 3)
+			sendFlag = true;
+		else
+			sendFlag = false;
+	}
+
+	
+	if( sendFlag )
 	{
 		int Pan  = abs((int)(m_iCurPanSpeed));
 		int Tilt   = abs((int)m_iCurTiltSpeed);
@@ -410,7 +426,7 @@ int CPTZControl::MoveSync()
 			iRet = SendtrackErr();
 			break;
 		}
-		m_changeZoom = false;
+		m_change = false;
 	}
 
 	return iRet;
@@ -418,17 +434,16 @@ int CPTZControl::MoveSync()
 
 int CPTZControl::Move()
 {
-
 	int iRet = 0;
 	if(m_iCurPanSpeed == m_iSetPanSpeed
 		&& m_iCurTiltSpeed == m_iSetTiltSpeed
 		&& m_iCurZoomSpeed == m_iSetZoomSpeed
 		&& m_iCurIrisSpeed == m_iSetIrisSpeed
 		&& m_iCurFocusNearSpeed == m_iSetFocusNearSpeed
-		&&m_iCurFocusFarSpeed == m_iSetFocusFarSpeed)
+		&& m_iCurFocusFarSpeed == m_iSetFocusFarSpeed)
 		return 0;
 
-	m_changeZoom = 1;
+	m_change = true;
 	
 	m_iCurPanSpeed = m_iSetPanSpeed;
 	m_iCurTiltSpeed = m_iSetTiltSpeed;

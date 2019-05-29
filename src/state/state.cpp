@@ -24,6 +24,7 @@ PLATFORMCTRL_Output State::m_pltOutput;
 DxTimer* State::m_timer = NULL;
 OSA_ThrHndl State::m_thrZoomServer;
 bool State::exitThreadZoomserver = false;
+int State::m_delta = 15;
 
 State::State()
 {
@@ -189,7 +190,6 @@ void State::ZoomCtrl(char type)
 
 void State::virtualAxisMove(int x, int y)
 {
-	printf("x , y  = (%d  , %d) \n" , x, y);
 	float fx,fy;
 	fx = (float)x/32767;
 	fy = (float)y/32767;
@@ -201,10 +201,8 @@ void State::virtualAxisMove(int x, int y)
 void State::axisMove(int x, int y)
 {
 	float fx,fy;
-	x -= (JOS_VALUE_MAX>>1);
-	y -= (JOS_VALUE_MAX>>1);
-	fx = (float)x/(JOS_VALUE_MAX>>1);
-	fy = (float)y/(JOS_VALUE_MAX>>1);
+	fx = (float)x/((JOS_VALUE_MAX>>1) - m_delta);
+	fy = (float)y/((JOS_VALUE_MAX>>1) - m_delta);
 	axisMove_interface(fx , fy);
 	return ;
 }

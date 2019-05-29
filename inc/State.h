@@ -99,6 +99,7 @@ public:
 	static int* cfg_value;
 	char curValidChid;
 	selectCh_t selectch;
+	static int m_delta;
 
 private:
 	void platformCreate();

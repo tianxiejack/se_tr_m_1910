@@ -78,15 +78,15 @@ void BoxCapture::virtualAxisMove(int x, int y)
 
 void BoxCapture::axisMove(int x, int y)
 {
-	if( abs(x - (JOS_VALUE_MAX>>1)) <= 20 && abs(y - (JOS_VALUE_MAX>>1)) <= 20 )
+	if(  x == 0 && y == 0 )
 	{
 		m_winx = 1920>>1;
 		m_winy = 1080>>1;
 	}
 	else
 	{
-		m_winx = (unsigned int)(1920 * ((float)x / JOS_VALUE_MAX));
-		m_winy = (unsigned int)(1080 * ((float)y / JOS_VALUE_MAX));
+		m_winx = (1920>>1) + ((1920>>1) * ((float)x / ((JOS_VALUE_MAX>>1)-m_delta)));
+		m_winy = (1080>>1) + ((1080>>1) * ((float)y / ((JOS_VALUE_MAX>>1)-m_delta)));
 	}
 	ipcParam.intPrm[0] = 2;
 	ipcParam.intPrm[1] = m_winx;

@@ -122,6 +122,28 @@ void StateManger::inter_AxisPos(int x, int y)
 
 void StateManger::inter_AxisMove(int x, int y)
 {
+	x -= (JOS_VALUE_MAX>>1);
+	y -= (JOS_VALUE_MAX>>1);
+
+	if( abs(x) < _state->m_delta )
+		x = 0;
+	else
+	{
+		if(x>= _state->m_delta)
+			x -= _state->m_delta;
+		else 
+			x += _state->m_delta;
+	}
+	
+	if( abs(y) <_state->m_delta )
+		y = 0;
+	else
+	{
+		if(y>= _state->m_delta)
+			y -= _state->m_delta;
+		else 
+			y += _state->m_delta;
+	}
 	_state->axisMove(x, y);
 	return ;
 }

@@ -111,7 +111,7 @@ protected:
 	bool m_bChangePanSpeed, m_bChangeTiltSpeed, m_bChangeIrisSpeed,
 	m_bChangeFocusNearSpeed, m_bChangeFocusFarSpeed, m_bChangePreset;
 	bool m_bStopZoom;
-	bool m_changeZoom;
+	bool m_change;
 	int m_iIrisPos,m_iMagnification, m_iFocusPos;
 	bool m_bQuryZoomPos;
 	float m_fZoomLimit;
