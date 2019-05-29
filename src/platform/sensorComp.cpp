@@ -213,11 +213,7 @@ void CSensorComp::updateFov( int* data ,PlatformCtrl_Obj* pObj ,int zoom , int i
 			default:
 				break;
 		}
-
-		printf(" cur id   :%d    , fov x,y = (%f , %f )  \n" , chid , pObj->privates.fovX  ,pObj->privates.fovY);
-
 	}
-
 	return ;
 }
 
