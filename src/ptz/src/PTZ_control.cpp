@@ -333,8 +333,9 @@ int CPTZControl::sendCmd(LPPELCO_D_REQPKT pCmd, PELCO_RESPONSE_t tResp /* = PELC
 		OSA_mutexUnlock(&m_mutex);
 		return OSA_EFAIL;
 	}
-	if(tResp != PELCO_RESPONSE_Null)
-		iRet = SELF_semWait(&m_sem, 200);
+	
+	//if(tResp != PELCO_RESPONSE_Null)
+	//	iRet = SELF_semWait(&m_sem, 200);
 	
 	static int sign;
 	if( iRet != OSA_SOK ){

@@ -1024,6 +1024,10 @@ int CEventManager::updateparams(int *cfg_value ,int block, int field )
 			_StateManager->_state->ipcParam.intPrm[1] = tmppos.y;
 			_StateManager->_state->m_ipc->IPCSendMsg(BoresightPos, _StateManager->_state->ipcParam.intPrm, 4*2);
 		}
+		if(block == CFGID_JOS_BKID)
+			_StateManager->_state->m_Platform->PlatformCtrl_updateJosparam(_StateManager->_state->m_plt, cfg_value );
+		if(block == CFGID_PID_BKID)
+			_StateManager->_state->m_Platform->PlatformCtrl_updatePIDparam(_StateManager->_state->m_plt, cfg_value );
 	}
 	return 0;
 }

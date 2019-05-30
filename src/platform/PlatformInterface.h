@@ -26,6 +26,9 @@ public:
 	virtual BoresightPos_s getBoresight(int* data , int zoom)=0;
 	virtual void updateFov(int* data , HPLTCTRL handle = NULL ,int zoom = 0)=0;
 	virtual void switchSensor(int* data, HPLTCTRL handle ,int chid , int zoom)=0;
+	virtual void PlatformCtrl_updatePIDparam(HPLTCTRL handle,int* data)=0;
+	virtual void PlatformCtrl_updateJosparam(HPLTCTRL handle,int* data)=0;
+
 };
 
 

@@ -51,6 +51,50 @@ void CplatFormControl::PlatformCtrl_sensor_Init(int* data)
 }
 
 
+void CplatFormControl::PlatformCtrl_updateJosparam(HPLTCTRL handle,int* data)
+{
+	PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)handle->object;
+	
+	if(pObj == NULL)
+		return ;
+
+	memcpy(&pObj->params.joystickRateDemandParam.fDeadbandx, data + CFGID_JOS_deadx, 4);// 0.1f;
+	memcpy(&pObj->params.joystickRateDemandParam.fDeadbandy, data + CFGID_JOS_deady, 4);
+	memcpy(&pObj->params.joystickRateDemandParam.fInputGain_X1, data + CFGID_JOS_inputgainx1, 4);// 0.2f;
+	memcpy(&pObj->params.joystickRateDemandParam.fInputGain_Y1, data + CFGID_JOS_inputgainy1, 4);// 0.3f;
+	memcpy(&pObj->params.joystickRateDemandParam.fInputGain_X2, data + CFGID_JOS_inputgainx2, 4);// 0.2f;
+	memcpy(&pObj->params.joystickRateDemandParam.fInputGain_Y2, data + CFGID_JOS_inputgainy2, 4);// 0.3f;
+	memcpy(&pObj->params.joystickRateDemandParam.fCutpoint1x, data + CFGID_JOS_cutpointx1, 4);//0.7f;
+	memcpy(&pObj->params.joystickRateDemandParam.fCutpoint1y, data + CFGID_JOS_cutpointy1, 4);
+	memcpy(&pObj->params.joystickRateDemandParam.fCutpoint2x, data + CFGID_JOS_cutpointx2, 4);//0.7f;
+	memcpy(&pObj->params.joystickRateDemandParam.fCutpoint2y, data + CFGID_JOS_cutpointy2, 4);
+
+printf(" fDeadbandx  : %f\n " , pObj->params.joystickRateDemandParam.fDeadbandx);
+printf(" fDeadbandy  : %f\n " , pObj->params.joystickRateDemandParam.fDeadbandy);
+printf(" fInputGain_X1  : %f\n " , pObj->params.joystickRateDemandParam.fInputGain_X1);
+printf(" fInputGain_Y1  : %f\n " , pObj->params.joystickRateDemandParam.fInputGain_Y1);
+printf(" fInputGain_X2  : %f\n " , pObj->params.joystickRateDemandParam.fInputGain_X2);
+printf(" fInputGain_Y2  : %f\n " , pObj->params.joystickRateDemandParam.fInputGain_Y2);
+printf(" fCutpoint1x  : %f\n " , pObj->params.joystickRateDemandParam.fCutpoint1x);
+printf(" fCutpoint1y  : %f\n " , pObj->params.joystickRateDemandParam.fCutpoint1y);
+printf(" fCutpoint2x  : %f\n " , pObj->params.joystickRateDemandParam.fCutpoint2x);
+printf(" fCutpoint2y  : %f\n " , pObj->params.joystickRateDemandParam.fCutpoint2y);
+
+
+	return;	
+}
+
+
+void CplatFormControl::PlatformCtrl_updatePIDparam(HPLTCTRL handle,int* data)
+{
+	PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)handle->object;
+	if(pObj == NULL)
+		return ;
+
+	_Fiter->PlatformFilter_updatePidParams(&pObj->params.platformFilterParam[0],&pObj->params.platformFilterParam[1],data);
+	return ;
+}
+
 
 HPLTCTRL CplatFormControl::PlatformCtrl_Create(PlatformCtrl_CreateParams *pPrm)
 {
