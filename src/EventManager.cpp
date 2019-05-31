@@ -925,10 +925,70 @@ int CEventManager::SaveConfig(comtype_t comtype)
 
 int CEventManager::IgnoreConfig(int block, int field)
 {
-	int i = CFGID_BUILD(block, field);
+	int cfgid = CFGID_BUILD(block, field);
 
-	if((CFGID_PREPOS_preposx == i) || (CFGID_PREPOS_preposy == i))
-		return 1;
+	int ignore_cfgid[profileNum] = {
+		CFGID_TRK_BASE+1,
+		CFGID_TRK_BASE+3,
+		CFGID_TRK_BASE+4,
+		CFGID_TRK_BASE+5,
+		CFGID_TRK_BASE+6,
+		CFGID_TRK_BASE+7,
+		CFGID_TRK_BASE+8,
+		CFGID_TRK_BASE+9,
+		CFGID_TRK_BASE+10,
+		CFGID_TRK_BASE+11,
+		CFGID_TRK_BASE+12,
+		CFGID_TRK_BASE+13,
+		CFGID_TRK_BASE+14,
+
+		CFGID_TRK_BASE2,
+		CFGID_TRK_BASE2+1,
+		CFGID_TRK_BASE2+2,
+		CFGID_TRK_BASE2+3,
+		CFGID_TRK_BASE2+4,
+		CFGID_TRK_BASE2+7,
+		CFGID_TRK_BASE2+8,
+		CFGID_TRK_BASE2+9,
+		CFGID_TRK_BASE2+10,
+		CFGID_TRK_BASE2+11,
+		CFGID_TRK_BASE2+12,
+		CFGID_TRK_BASE2+13,
+		CFGID_TRK_BASE2+14,
+		CFGID_TRK_BASE2+15,
+
+		CFGID_TRK_BASE3,
+		CFGID_TRK_BASE3+1,
+		CFGID_TRK_BASE3+2,
+		CFGID_TRK_BASE3+3,
+		CFGID_TRK_BASE3+4,
+		CFGID_TRK_BASE3+5,
+		CFGID_TRK_BASE3+6,
+		CFGID_TRK_BASE3+7,
+		CFGID_TRK_BASE3+8,
+		CFGID_TRK_BASE3+9,
+		CFGID_TRK_BASE3+10,
+		CFGID_TRK_BASE3+11,
+		CFGID_TRK_BASE3+12,
+		CFGID_TRK_BASE3+13,
+		CFGID_TRK_BASE3+14,
+		CFGID_TRK_BASE3+15,
+		
+		CFGID_PREPOS_preposx,
+		CFGID_PREPOS_preposy,
+		CFGID_PREPOS_prezoom,
+
+		-1
+	};
+
+	for(int i = 0; i < profileNum; i++)
+	{
+		if(-1 == ignore_cfgid[i])
+			return 0;
+		
+		if(cfgid == ignore_cfgid[i])
+			return 1;
+	}
 
 	return 0;
 }
