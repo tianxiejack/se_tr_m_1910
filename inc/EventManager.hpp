@@ -79,7 +79,8 @@ private:
 	int GetConfig(comtype_t comtype, int block, int field);
 	int DefaultConfig(comtype_t comtype, int blockId);
 	int SaveConfig(comtype_t comtype);
-	int IgnoreConfig(int block, int field);
+	int IgnoreConfig(int block, int field, int value);
+	int Invalid_Config_Value(int block, int field, int value);
 	int updateparams(int *cfg_value , int block, int field = -1);
 	void signalFeedBack(int argnum ...);
 	void signalFeedBack_output(comtype_t comtype, int trkstat, int outtype, float x, float y);

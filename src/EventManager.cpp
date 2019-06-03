@@ -687,7 +687,7 @@ int CEventManager::SetConfig(comtype_t comtype, int block, int field, int value,
 	if((usrosdId >= 0) && (i == CFGID_OSD_CONTENT(usrosdId) || i == CFGID_OSD2_CONTENT(usrosdId)))
 		return 0;
 	
-	if(!IgnoreConfig(block, field))
+	if(!IgnoreConfig(block, field, value))
 	{
 		memcpy(cfg_value + i, &value, 4);
 		m_ipc->IPCSendMsg(read_shm_single, &i, 4);		
@@ -923,10 +923,13 @@ int CEventManager::SaveConfig(comtype_t comtype)
 		
 }
 
-int CEventManager::IgnoreConfig(int block, int field)
+int CEventManager::IgnoreConfig(int block, int field, int value)
 {
 	int cfgid = CFGID_BUILD(block, field);
 
+	if(Invalid_Config_Value(block, field, value))
+		return 1;
+	
 	int ignore_cfgid[profileNum] = {
 		CFGID_TRK_BASE+1,
 		CFGID_TRK_BASE+3,
@@ -988,6 +991,75 @@ int CEventManager::IgnoreConfig(int block, int field)
 		
 		if(cfgid == ignore_cfgid[i])
 			return 1;
+	}
+
+	return 0;
+}
+
+int CEventManager::Invalid_Config_Value(int block, int field, int value)
+{
+	int cfgid = CFGID_BUILD(block, field);
+
+	switch(cfgid)
+	{
+		case CFGID_INPUT_FIXAIMW(CFGID_INPUT1_BKID):
+		case CFGID_INPUT_FIXAIMW(CFGID_INPUT2_BKID):
+		case CFGID_INPUT_FIXAIMW(CFGID_INPUT3_BKID):
+		case CFGID_INPUT_FIXAIMW(CFGID_INPUT4_BKID):
+		case CFGID_INPUT_FIXAIMW(CFGID_INPUT5_BKID):
+		case CFGID_INPUT_FIXAIMH(CFGID_INPUT1_BKID):
+		case CFGID_INPUT_FIXAIMH(CFGID_INPUT2_BKID):
+		case CFGID_INPUT_FIXAIMH(CFGID_INPUT3_BKID):
+		case CFGID_INPUT_FIXAIMH(CFGID_INPUT4_BKID):
+		case CFGID_INPUT_FIXAIMH(CFGID_INPUT5_BKID):
+			
+		case CFGID_INPUT_SWAIMW(CFGID_INPUT1_BKID, 1):
+		case CFGID_INPUT_SWAIMW(CFGID_INPUT1_BKID, 2):
+		case CFGID_INPUT_SWAIMW(CFGID_INPUT1_BKID, 3):
+		case CFGID_INPUT_SWAIMH(CFGID_INPUT1_BKID, 1):
+		case CFGID_INPUT_SWAIMH(CFGID_INPUT1_BKID, 2):
+		case CFGID_INPUT_SWAIMH(CFGID_INPUT1_BKID, 3):
+			
+		case CFGID_INPUT_SWAIMW(CFGID_INPUT2_BKID, 1):
+		case CFGID_INPUT_SWAIMW(CFGID_INPUT2_BKID, 2):
+		case CFGID_INPUT_SWAIMW(CFGID_INPUT2_BKID, 3):
+		case CFGID_INPUT_SWAIMH(CFGID_INPUT2_BKID, 1):
+		case CFGID_INPUT_SWAIMH(CFGID_INPUT2_BKID, 2):
+		case CFGID_INPUT_SWAIMH(CFGID_INPUT2_BKID, 3):
+			
+		case CFGID_INPUT_SWAIMW(CFGID_INPUT3_BKID, 1):
+		case CFGID_INPUT_SWAIMW(CFGID_INPUT3_BKID, 2):
+		case CFGID_INPUT_SWAIMW(CFGID_INPUT3_BKID, 3):
+		case CFGID_INPUT_SWAIMH(CFGID_INPUT3_BKID, 1):
+		case CFGID_INPUT_SWAIMH(CFGID_INPUT3_BKID, 2):
+		case CFGID_INPUT_SWAIMH(CFGID_INPUT3_BKID, 3):
+			
+		case CFGID_INPUT_SWAIMW(CFGID_INPUT4_BKID, 1):
+		case CFGID_INPUT_SWAIMW(CFGID_INPUT4_BKID, 2):
+		case CFGID_INPUT_SWAIMW(CFGID_INPUT4_BKID, 3):
+		case CFGID_INPUT_SWAIMH(CFGID_INPUT4_BKID, 1):
+		case CFGID_INPUT_SWAIMH(CFGID_INPUT4_BKID, 2):
+		case CFGID_INPUT_SWAIMH(CFGID_INPUT4_BKID, 3):
+			
+		case CFGID_INPUT_SWAIMW(CFGID_INPUT5_BKID, 1):
+		case CFGID_INPUT_SWAIMW(CFGID_INPUT5_BKID, 2):
+		case CFGID_INPUT_SWAIMW(CFGID_INPUT5_BKID, 3):
+		case CFGID_INPUT_SWAIMH(CFGID_INPUT5_BKID, 1):
+		case CFGID_INPUT_SWAIMH(CFGID_INPUT5_BKID, 2):
+		case CFGID_INPUT_SWAIMH(CFGID_INPUT5_BKID, 3):
+			if(value < 5)
+				return 1;
+			break;
+		case CFGID_INPUT_AIMLV(CFGID_INPUT1_BKID):
+		case CFGID_INPUT_AIMLV(CFGID_INPUT2_BKID):
+		case CFGID_INPUT_AIMLV(CFGID_INPUT3_BKID):
+		case CFGID_INPUT_AIMLV(CFGID_INPUT4_BKID):
+		case CFGID_INPUT_AIMLV(CFGID_INPUT5_BKID):
+			if((value < 1) || (value > 3))
+				return 1;
+			break;
+		default:
+			break;
 	}
 
 	return 0;
