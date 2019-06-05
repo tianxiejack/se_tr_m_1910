@@ -114,12 +114,6 @@ static void Ipc_init()
 	tmpIpc[IPC_SEM].IPCID = IPC_MAX;
 	tmpIpc[IPC_SEM].ptr = NULL;
 
-	memcpy(tmpIpc[IPC_SEM].name,tmp,sizeof(tmp));
-	tmpIpc[IPC_SEM].Identify = IPC_SEM;
-	tmpIpc[IPC_SEM].Class = IPC_Class_SEM;
-	tmpIpc[IPC_SEM].IPCID = IPC_MAX;
-	tmpIpc[IPC_SEM].ptr = NULL;
-
 	return;
 }
 

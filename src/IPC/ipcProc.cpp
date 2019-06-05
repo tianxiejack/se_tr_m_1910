@@ -44,7 +44,8 @@ int CIPCProc::IPCRecvGstMsg(void* prm)
 	switch(recvData.cmd_ID)
 	{
 		case 0:
-			m_gstRectParm.status = pIn->intPrm[0];			
+			m_gstRectParm.status = pIn->intPrm[0];	
+			flag = 0;
 			break;
 		case 1:
 			m_gstRectParm.status = pIn->intPrm[0];

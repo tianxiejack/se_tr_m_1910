@@ -311,20 +311,26 @@ void CSensorComp::SensorComp_CreateParams_Init(SensorComp_CreateParams *pPrm, in
 float CSensorComp::dynamicSendBoresightPosX(unsigned short zoom , int chid)
 {
 	float bPosx;
-	
+	bool flag = false;
 	float* ptr,*ptr1 ;
 	ptr = &m_viewParam.zoombak1[chid];
 	ptr1 = &m_viewParam.zoombak2[chid];
 	if(zoom != 0)
 		for(int i=0 ; i< 12 ; i++)
 		{
-			if( (zoom>= *(ptr+i*chid_camera*5))  && (zoom <= *(ptr1+i*chid_camera*5)) ) 
+			if( (zoom>= *(ptr+i*chid_camera*5))  && (zoom < *(ptr1+i*chid_camera*5)) ) 
+			{
 				bPosx = linear_interpolation( *(ptr+i*chid_camera*5) , 
 										 *(ptr1+i*chid_camera*5) ,
 										 *(ptr - 2*chid_camera + i*chid_camera*5), 
 										 *(ptr1 - 2*chid_camera + i*chid_camera*5),
-										 zoom );
+									 zoom );
+				flag = true;
+			}
+			if(!flag)
+				bPosx = (float)m_viewParam.Boresightpos_continue_x13[chid];
 		}
+		
 	else
 		bPosx = (float)m_viewParam.Boresightpos_continue_x1[chid];
 	return bPosx;
@@ -334,6 +340,7 @@ float CSensorComp::dynamicSendBoresightPosX(unsigned short zoom , int chid)
 float CSensorComp::dynamicSendBoresightPosY(unsigned short zoom , int chid)
 {
 	float bPosy;
+	bool flag = false;
 	float* ptr,*ptr1 ;
 	ptr = &m_viewParam.zoombak1[chid];
 	ptr1 = ptr + chid_camera*5;
@@ -342,12 +349,17 @@ float CSensorComp::dynamicSendBoresightPosY(unsigned short zoom , int chid)
 	if(zoom != 0)
 		for(int i=0 ; i< 12 ; i++)
 		{
-			if( (zoom >= *(ptr+i*chid_camera*5))  && (zoom <= *(ptr1+i*chid_camera*5)) ) 
+			if( (zoom >= *(ptr+i*chid_camera*5))  && (zoom < *(ptr1+i*chid_camera*5)) ) 
+			{
 				bPosy = linear_interpolation( *(ptr+i*chid_camera*5) , 
 										 *(ptr1+i*chid_camera*5) ,
 										 *(ptr - 1*chid_camera + i*chid_camera*5),  
 										 *(ptr1 - 1*chid_camera + i*chid_camera*5),
 										 zoom );
+				flag = true;
+			}
+			if(!flag)
+				bPosy = (float)m_viewParam.Boresightpos_continue_y13[chid];
 		}
 	else
 		bPosy = (float)m_viewParam.Boresightpos_continue_y1[chid];

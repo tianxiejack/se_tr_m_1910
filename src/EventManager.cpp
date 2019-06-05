@@ -79,12 +79,15 @@ void *CEventManager::thread_ipcGstEvent(void *p)
 					pThis->_StateManager->_state->_ptz->ptzStop();
 				else if(pThis->m_ipc->m_gstRectParm.status == 1)
 					pThis->_StateManager->_state->m_Platform->PlatformCtrl_reset4trk(pThis->_StateManager->_state->m_plt);
+				//printf("trk enable   status : %d \n" , pThis->m_ipc->m_gstRectParm.status );
 				break;
 			case 1:	
 				pThis->m_pixelErr.status = pThis->m_ipc->m_gstRectParm.status;
 				pThis->m_pixelErr.errx = pThis->m_ipc->m_gstRectParm.errx;
 				pThis->m_pixelErr.erry = pThis->m_ipc->m_gstRectParm.erry;
 				pThis->_Msg->MSGDRIV_send(MSGID_COM_INPUT_TRKCONTROL, 0);
+				//printf("trking  status : %d , err x,y (%f , %f ) \n" , 
+				//	pThis->m_pixelErr.status ,pThis->m_pixelErr.errx , pThis->m_pixelErr.erry );
 				break;
 
 			default:
