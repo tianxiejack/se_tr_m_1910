@@ -34,6 +34,31 @@ int CIPCProc::IPCSendMsg(CMD_ID cmd, void* prm, int len)
 	return 0;
 }
 
+
+int CIPCProc::IPCRecvGstMsg(void* prm)
+{
+	SENDST recvData;
+	IPC_PRM_INT *pIn = (IPC_PRM_INT *)&recvData.param;
+	ipc_recvmsg( IPC_GSTREAM_PTZ , &recvData );
+	int flag = -1;
+	switch(recvData.cmd_ID)
+	{
+		case 0:
+			m_gstRectParm.status = pIn->intPrm[0];			
+			break;
+		case 1:
+			m_gstRectParm.status = pIn->intPrm[0];
+			memcpy((void*)&m_gstRectParm.errx ,(void*)&pIn->intPrm[sizeof(float)],sizeof(float));
+			memcpy((void*)&m_gstRectParm.erry ,(void*)&pIn->intPrm[2*sizeof(float)],sizeof(float));
+			flag = 1;
+			break;
+		default:
+			break;
+	}
+	return flag;
+}
+
+
 int CIPCProc::IPCRecvMsg(void* prm)
 {
 	SENDST recvData;

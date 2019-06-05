@@ -5,7 +5,6 @@ CjoyStick::CjoyStick()
 {
 	g_usb_handle = NULL;
 	memset(jos_data, 0, sizeof(jos_data));
-	init();
 }
 
 CjoyStick::~CjoyStick()
@@ -27,35 +26,35 @@ int CjoyStick::init()
 	rv = get_device_descriptor(&dev_desc,&user_device);
 	if(rv < 0) {
 		printf("*** get_device_descriptor failed! \n");
-		return -1;
+		return false;
 	}
 	printf("get_device_descriptor  rv = %d \n",rv);
 	rv = get_device_endpoint(&dev_desc,&user_device);
 	if(rv < 0) {
 		printf("*** get_device_endpoint failed! rv:%d \n",rv);
-		return -1;
+		return false;
 	}
 	printf("get_device_endpoint  rv = %d \n",rv);
 	g_usb_handle = libusb_open_device_with_vid_pid(NULL, user_device.idVendor, user_device.idProduct);
 	if(g_usb_handle == NULL) {
 		printf("*** Permission denied or Can not find the USB board (Maybe the USB driver has not been installed correctly), quit!\n");
-		return -1;
+		return false;
 	}
 		rv = libusb_claim_interface(g_usb_handle,user_device.bInterfaceNumber);
 		if(rv < 0) {
 			rv = libusb_detach_kernel_driver(g_usb_handle,user_device.bInterfaceNumber);
 			if(rv < 0) {
 				printf("*** libusb_detach_kernel_driver failed! rv%d\n",rv);
-				return -1;
+				return false;
 			}
 			rv = libusb_claim_interface(g_usb_handle,user_device.bInterfaceNumber);
 			if(rv < 0)
 			{
 				printf("*** libusb_claim_interface failed! rv%d\n",rv);
-				return -1;
+				return false;
 			}
 		}
-		return 0;
+		return true;
 }
 
 unsigned char* CjoyStick::JoystickProcess()

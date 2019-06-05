@@ -17,6 +17,7 @@ int main()
 	OSA_thrCreate(&parsing.Getaccept_thid, parsing.thread_Getaccept, 0, 0, NULL);
 	OSA_thrCreate(&parsing.ReclaimConnect_thid, parsing.thread_ReclaimConnect, 0, 0, NULL);
 	OSA_thrCreate(&eventManager->ipcEvent_thid, eventManager->thread_ipcEvent, 0, 0, NULL);
+	OSA_thrCreate(&eventManager->ipcGstEvent_thid, eventManager->thread_ipcGstEvent, 0, 0, NULL);
 		
 	struct timeval tmp;
 	while(1)
@@ -32,6 +33,8 @@ int main()
 	OSA_thrDelete(&parsing.Getaccept_thid);
 	OSA_thrDelete(&parsing.ReclaimConnect_thid);
 	OSA_thrDelete(&eventManager->ipcEvent_thid);
+	OSA_thrDelete(&eventManager->ipcGstEvent_thid);
+
 	return 0;
 }
 

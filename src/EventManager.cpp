@@ -17,6 +17,7 @@ CEventManager::CEventManager()
 {
 	pThis = this;
 	exit_ipcthread = false;
+	exit_ipcGstthread = false;
 	memset(winPos, 0, sizeof(winPos));
 	_Msg = CMessage::getInstance();
 	_StateManager = new StateManger(new PlatFormCapture());
@@ -40,6 +41,7 @@ CEventManager::~CEventManager()
 	SELF_semDelete(&m_semSendZoom);
 
 	exit_ipcthread = true;
+	exit_ipcGstthread = true;
 	delete pThis;
 	delete _StateManager;
 	delete m_ipc;
@@ -59,6 +61,38 @@ void CEventManager::IPC_Creat()
 	cfg_value = (int *)ipc_getSharedMem(IPC_IMG_SHA);
 	usr_value = (char *)ipc_getSharedMem(IPC_USER_SHA);
 }
+
+
+void *CEventManager::thread_ipcGstEvent(void *p)
+{
+	float value;
+	float errorx, errory;
+	int flag = -1;
+	while(!pThis->exit_ipcGstthread)
+	{
+		flag = pThis->m_ipc->IPCRecvGstMsg(NULL);
+		
+		switch(flag)
+		{
+			case 0:
+				if(pThis->m_ipc->m_gstRectParm.status == 0)
+					pThis->_StateManager->_state->_ptz->ptzStop();
+				else if(pThis->m_ipc->m_gstRectParm.status == 1)
+					pThis->_StateManager->_state->m_Platform->PlatformCtrl_reset4trk(pThis->_StateManager->_state->m_plt);
+				break;
+			case 1:	
+				pThis->m_pixelErr.status = pThis->m_ipc->m_gstRectParm.status;
+				pThis->m_pixelErr.errx = pThis->m_ipc->m_gstRectParm.errx;
+				pThis->m_pixelErr.erry = pThis->m_ipc->m_gstRectParm.erry;
+				pThis->_Msg->MSGDRIV_send(MSGID_COM_INPUT_TRKCONTROL, 0);
+				break;
+
+			default:
+				break;
+		}
+	}
+}
+
 
 void *CEventManager::thread_ipcEvent(void *p)
 {

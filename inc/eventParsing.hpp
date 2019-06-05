@@ -235,7 +235,7 @@ public:
 private:
 	static CEventParsing* pThis;
 	bool exit_jsParsing,exit_comParsing,exit_netParsing;
-
+	bool m_josValid;
 	void parsingJostickEvent(unsigned char* jos_data);
 
 

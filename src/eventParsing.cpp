@@ -21,7 +21,7 @@ CEventParsing::CEventParsing()
 	exit_jsParsing = false;
 	_Msg = CMessage::getInstance();
 	_Js = new CjoyStick();
-
+	m_josValid = _Js->init();
 	OSA_semCreate(&m_semHndl, 1, 0);
 	OSA_semCreate(&m_semHndl_s, 1, 0);
 	OSA_semSignal(&m_semHndl_s);
@@ -57,7 +57,9 @@ void *CEventParsing::thread_jsEvent(void *p)
 {
 	while(!pThis->exit_jsParsing)
 	{
-		pThis->parsingJostickEvent(pThis->_Js->JoystickProcess());
+		pThis->exit_jsParsing = !pThis->m_josValid;
+		if(pThis->m_josValid)
+			pThis->parsingJostickEvent(pThis->_Js->JoystickProcess());
 	}
 }
 

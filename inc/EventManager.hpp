@@ -26,6 +26,7 @@ public:
 	CEventManager();
 	~CEventManager();
 	static void *thread_ipcEvent(void *p);
+	static void *thread_ipcGstEvent(void *p);
 private:
 	MSGDRIV_Handle _Handle;
 	CMessage* _Msg;
@@ -35,6 +36,7 @@ private:
 	int *cfg_value;
 	char *usr_value;
 	bool exit_ipcthread;
+	bool exit_ipcGstthread;
 	float winPos[2];
 	int outtype = 0;
 	comtype_t outcomtype;
@@ -103,6 +105,7 @@ public:
 
 public:
 	OSA_ThrHndl ipcEvent_thid;
+	OSA_ThrHndl ipcGstEvent_thid;
 	Trkerr_t m_pixelErr;
 	SELF_SemHndl m_semSendpos,m_semSendZoom;
 };

@@ -7,6 +7,12 @@
 #pragma once
 using namespace std;
 
+typedef struct{
+	int status;
+	float errx;
+	float erry;
+}GstRectParm_t;
+	
 class  CIPCProc{
 
 public:
@@ -15,7 +21,9 @@ public:
 
 	int IPCSendMsg(CMD_ID cmd, void* prm, int len);
 	int IPCRecvMsg(void* prm);
+	int IPCRecvGstMsg(void* prm);
 
+	GstRectParm_t m_gstRectParm;
 private:
 	static CIPCProc* pThis;
 	pthread_mutex_t mutex;

@@ -40,13 +40,14 @@ class CjoyStick
 public:
 	CjoyStick();
 	~CjoyStick();
+	int init();
 	unsigned char* JoystickProcess();
 private:
+	
 	unsigned char jos_data[8];
 	libusb_device_handle* g_usb_handle;
 	struct userDevice user_device;
 	struct libusb_device_descriptor dev_desc;
-	int init();
 	void JsProcess();
 	int get_device_descriptor(struct libusb_device_descriptor *dev_desc,struct userDevice *user_device);
 	int get_device_endpoint(struct libusb_device_descriptor *dev_desc,struct userDevice *user_device);
