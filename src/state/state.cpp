@@ -203,6 +203,15 @@ void State::axisMove(int x, int y)
 	float fx,fy;
 	fx = (float)x/((JOS_VALUE_MAX>>1) - m_delta);
 	fy = (float)y/((JOS_VALUE_MAX>>1) - m_delta);
+	if(fx > 1)
+		fx = 1;
+	else if(fx < -1)
+		fx =-1;
+	
+	if(fy >1)
+		fy = 1;
+	else if(fy < -1)
+		fy = -1;
 	axisMove_interface(fx , fy);
 	return ;
 }

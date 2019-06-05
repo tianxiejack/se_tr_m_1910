@@ -304,7 +304,7 @@ void CplatFormControl::joyXHandle(PlatformCtrl_Obj *pObj)
 
 	//X Axis
 	fTmp = pObj->inter.devUsrInput[DevUsr_AcqJoystickXInput];
-	
+printf("x input : %f \n" , fTmp );	
 	if(fabsf(fTmp) < pParam->fDeadbandx)
 		fTmp = 0.0;
 
@@ -339,8 +339,12 @@ void CplatFormControl::joyXHandle(PlatformCtrl_Obj *pObj)
 			fTmp2 = pParam->fInputGain_X1* (pParam->fCutpoint1x- pParam->fDeadbandx)
 				+ pParam->fInputGain_X2*( fTmp - pParam->fCutpoint1x);
 			K = 1 - fTmp2;
-			K /= (1 - pParam->fCutpoint2x);
+			if((1 - pParam->fCutpoint2x) == 0 )
+				K = 0;
+			else
+				K /= (1 - pParam->fCutpoint2x);
 			fTmp -= pParam->fCutpoint2x;
+	printf(" 222  ftmp  = %f ,K = %f  \n" , fTmp2 , K );
 			fTmp *= K ;
 			fTmp += fTmp2;
 		}
@@ -349,7 +353,10 @@ void CplatFormControl::joyXHandle(PlatformCtrl_Obj *pObj)
 			fTmp2 = pParam->fInputGain_X1* (pParam->fCutpoint1x - pParam->fDeadbandx)
 				+ pParam->fInputGain_X2*( fTmp - pParam->fCutpoint1x);
 			K = 1 - fTmp2;
-			K /= (1 - pParam->fCutpoint2x);
+			if((1 - pParam->fCutpoint2x) == 0 )
+				K = 0;
+			else
+				K /= (1 - pParam->fCutpoint2x);
 			fTmp -= pParam->fCutpoint2x;
 			fTmp *= K ;
 			fTmp += fTmp2;
@@ -362,6 +369,7 @@ void CplatFormControl::joyXHandle(PlatformCtrl_Obj *pObj)
 	_Fiter->calcCurPlatAvrRate(pObj->privates.filter[0], fTmp);
 
 	pObj->privates.curRateDemandX = fTmp;
+printf("x output : %f \n" , fTmp );	
 	
 	return;
 }
@@ -411,7 +419,10 @@ void CplatFormControl::joyYHandle(PlatformCtrl_Obj *pObj)
 			fTmp2 = pParam->fInputGain_Y1* (pParam->fCutpoint1y- pParam->fDeadbandy)
 				+ pParam->fInputGain_Y2*( fTmp - pParam->fCutpoint1y);
 			K = 1 - fTmp2;
-			K /= (1 - pParam->fCutpoint2y);
+			if((1 - pParam->fCutpoint2y) == 0 )
+				K = 0;
+			else
+				K /= (1 - pParam->fCutpoint2y);
 			fTmp -= pParam->fCutpoint2y;
 			fTmp *= K ;
 			fTmp += fTmp2;
@@ -421,7 +432,10 @@ void CplatFormControl::joyYHandle(PlatformCtrl_Obj *pObj)
 			fTmp2 = pParam->fInputGain_Y1* (pParam->fCutpoint1y- pParam->fDeadbandy)
 				+ pParam->fInputGain_Y2*( fTmp - pParam->fCutpoint1y);
 			K = 1 - fTmp2;
-			K /= (1 - pParam->fCutpoint2y);
+			if((1 - pParam->fCutpoint2y) == 0 )
+				K = 0;
+			else
+				K /= (1 - pParam->fCutpoint2y);
 			fTmp -= pParam->fCutpoint2y;
 			fTmp *= K ;
 			fTmp += fTmp2;
