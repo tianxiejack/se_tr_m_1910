@@ -304,7 +304,6 @@ void CplatFormControl::joyXHandle(PlatformCtrl_Obj *pObj)
 
 	//X Axis
 	fTmp = pObj->inter.devUsrInput[DevUsr_AcqJoystickXInput];
-printf("x input : %f \n" , fTmp );	
 	if(fabsf(fTmp) < pParam->fDeadbandx)
 		fTmp = 0.0;
 
@@ -344,7 +343,6 @@ printf("x input : %f \n" , fTmp );
 			else
 				K /= (1 - pParam->fCutpoint2x);
 			fTmp -= pParam->fCutpoint2x;
-	printf(" 222  ftmp  = %f ,K = %f  \n" , fTmp2 , K );
 			fTmp *= K ;
 			fTmp += fTmp2;
 		}
@@ -369,7 +367,6 @@ printf("x input : %f \n" , fTmp );
 	_Fiter->calcCurPlatAvrRate(pObj->privates.filter[0], fTmp);
 
 	pObj->privates.curRateDemandX = fTmp;
-printf("x output : %f \n" , fTmp );	
 	
 	return;
 }
