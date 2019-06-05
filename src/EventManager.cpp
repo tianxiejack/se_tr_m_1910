@@ -49,8 +49,8 @@ CEventManager::~CEventManager()
 
 void CEventManager::IPC_Creat()
 {
-    Ipc_init();
-   	int ret = Ipc_create();
+	Ipc_init();
+   	int ret = Ipc_create(tmpIpc);
 	if(ret == -1)
 	{
 		printf("[%s] %d ipc create error \n", __func__, __LINE__);

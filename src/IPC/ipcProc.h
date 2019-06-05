@@ -12,24 +12,13 @@ class  CIPCProc{
 public:
 	CIPCProc();
 	~CIPCProc();
-	int Create();
-	int Destroy();
 
 	int IPCSendMsg(CMD_ID cmd, void* prm, int len);
 	int IPCRecvMsg(void* prm);
 
-	int m_thrRcvRun;
-	static void *IPC_childdataRcvn(void * prm){
-		CIPCProc *pThis = (CIPCProc*)prm;
-		pThis->getIPCMsgProc();
-	};
-
 private:
 	static CIPCProc* pThis;
-	bool exitThreadIPCRcv;
-	OSA_ThrHndl thrHandlPCRcv;
 	pthread_mutex_t mutex;
-	void getIPCMsgProc();
 
 };
 #endif

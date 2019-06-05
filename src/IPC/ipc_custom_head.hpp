@@ -1,14 +1,14 @@
-/*
- * ipc_custom_head.hpp
- *
- *  Created on: 2019年3月14日
- *      Author: alex
- */
 
 #ifndef IPC_CUSTOM_HEAD_HPP_
 #define IPC_CUSTOM_HEAD_HPP_
 
+#ifdef __cplusplus
+extern "C"{
+#endif
+
 #include "Ipcctl.h"
+#include "stdlib.h"
+#include <string.h>
 
 #define CFGID_FEILD_MAX	16
 #define CFGID_BLOCK_MAX	128
@@ -47,10 +47,11 @@ typedef enum
     IPC_IMG_SHA,
     IPC_USER_SHA,
     IPC_SEM,
+    IPC_GSTREAM_PTZ = 10,
     IPC_MAX
 }IPC_MTYPE;
 
-typedef enum 
+typedef enum
 {
 	shm_rdonly,
 	shm_rdwr
@@ -61,57 +62,77 @@ typedef struct
 	unsigned int intPrm[PARAMLEN/4];
 }IPC_PRM_INT;
 
+static IPC_Handl_t * tmpIpc;
+
 static void Ipc_init()
 {
-	IpcHandl.resize(IPC_MAX);
-
-	IpcHandl[IPC_TOIMG_MSG].name = DEFAULTPATH;
-	IpcHandl[IPC_TOIMG_MSG].Identify = IPC_TOIMG_MSG;
-	IpcHandl[IPC_TOIMG_MSG].Class = IPC_Class_MSG;
-	IpcHandl[IPC_TOIMG_MSG].IPCID = 0;
-	IpcHandl[IPC_TOIMG_MSG].length = 0;
-	IpcHandl[IPC_TOIMG_MSG].ptr = NULL;
+	tmpIpc = (IPC_Handl_t*)malloc(IPC_MAX* sizeof(IPC_Handl_t));
+	memset(tmpIpc,0,sizeof(IPC_Handl_t)*IPC_MAX);
+	char tmp[256] = {"/"};
+	memcpy(tmpIpc[IPC_TOIMG_MSG].name,tmp,sizeof(tmp));
+	tmpIpc[IPC_TOIMG_MSG].Identify = IPC_TOIMG_MSG;
+	tmpIpc[IPC_TOIMG_MSG].Class = IPC_Class_MSG;
+	tmpIpc[IPC_TOIMG_MSG].IPCID = IPC_MAX;
+	tmpIpc[IPC_TOIMG_MSG].length = 0;
+	tmpIpc[IPC_TOIMG_MSG].ptr = NULL;
 	
-	IpcHandl[IPC_FRIMG_MSG].name = DEFAULTPATH;
-	IpcHandl[IPC_FRIMG_MSG].Identify = IPC_FRIMG_MSG;
-	IpcHandl[IPC_FRIMG_MSG].Class = IPC_Class_MSG;
-	IpcHandl[IPC_FRIMG_MSG].IPCID = 0;
-	IpcHandl[IPC_FRIMG_MSG].length = 0;
-	IpcHandl[IPC_FRIMG_MSG].ptr = NULL;
+	memcpy(tmpIpc[IPC_FRIMG_MSG].name,tmp,sizeof(tmp));
+	tmpIpc[IPC_FRIMG_MSG].Identify = IPC_FRIMG_MSG;
+	tmpIpc[IPC_FRIMG_MSG].Class = IPC_Class_MSG;
+	tmpIpc[IPC_FRIMG_MSG].IPCID = IPC_MAX;
+	tmpIpc[IPC_FRIMG_MSG].length = 0;
+	tmpIpc[IPC_FRIMG_MSG].ptr = NULL;
+
+	memcpy(tmpIpc[IPC_GSTREAM_PTZ].name,tmp,sizeof(tmp));
+	tmpIpc[IPC_GSTREAM_PTZ].Identify = IPC_GSTREAM_PTZ;
+	tmpIpc[IPC_GSTREAM_PTZ].Class = IPC_Class_MSG;
+	tmpIpc[IPC_GSTREAM_PTZ].IPCID = IPC_MAX;
+	tmpIpc[IPC_GSTREAM_PTZ].length = 0;
+	tmpIpc[IPC_GSTREAM_PTZ].ptr = NULL;
 	
-	IpcHandl[IPC_IMG_SHA].name = DEFAULTPATH;
-	IpcHandl[IPC_IMG_SHA].Identify = IPC_IMG_SHA;
-	IpcHandl[IPC_IMG_SHA].Class=IPC_Class_SHA;
-	IpcHandl[IPC_IMG_SHA].IPCID = 0;
-	IpcHandl[IPC_IMG_SHA].length = 4*CFGID_FEILD_MAX*CFGID_BLOCK_MAX;
-	IpcHandl[IPC_IMG_SHA].RWmode = shm_rdwr;
-	IpcHandl[IPC_IMG_SHA].ptr = NULL;
+	memcpy(tmpIpc[IPC_IMG_SHA].name,tmp,sizeof(tmp));
+	tmpIpc[IPC_IMG_SHA].Identify = IPC_IMG_SHA;
+	tmpIpc[IPC_IMG_SHA].Class=IPC_Class_SHA;
+	tmpIpc[IPC_IMG_SHA].IPCID = IPC_MAX;
+	tmpIpc[IPC_IMG_SHA].length = 4*CFGID_FEILD_MAX*CFGID_BLOCK_MAX;
+	tmpIpc[IPC_IMG_SHA].RWmode = shm_rdwr;
+	tmpIpc[IPC_IMG_SHA].ptr = NULL;
 
-	IpcHandl[IPC_USER_SHA].name = DEFAULTPATH;
-	IpcHandl[IPC_USER_SHA].Identify = IPC_USER_SHA;
-	IpcHandl[IPC_USER_SHA].Class=IPC_Class_SHA;
-	IpcHandl[IPC_USER_SHA].IPCID = 0;
-	IpcHandl[IPC_USER_SHA].length = USEROSD_LENGTH*CFGID_USEROSD_MAX;
-	IpcHandl[IPC_USER_SHA].RWmode = shm_rdwr;
-	IpcHandl[IPC_USER_SHA].ptr = NULL;
+	memcpy(tmpIpc[IPC_USER_SHA].name,tmp,sizeof(tmp));
+	tmpIpc[IPC_USER_SHA].Identify = IPC_USER_SHA;
+	tmpIpc[IPC_USER_SHA].Class=IPC_Class_SHA;
+	tmpIpc[IPC_USER_SHA].IPCID = IPC_MAX;
+	tmpIpc[IPC_USER_SHA].length = USEROSD_LENGTH*CFGID_USEROSD_MAX;
+	tmpIpc[IPC_USER_SHA].RWmode = shm_rdwr;
+	tmpIpc[IPC_USER_SHA].ptr = NULL;
 
-	IpcHandl[IPC_SEM].name = DEFAULTPATH;
-	IpcHandl[IPC_SEM].Identify = IPC_SEM;
-	IpcHandl[IPC_SEM].Class = IPC_Class_SEM;	
-	IpcHandl[IPC_SEM].IPCID = 0;
-	IpcHandl[IPC_SEM].ptr = NULL;
+	memcpy(tmpIpc[IPC_SEM].name,tmp,sizeof(tmp));
+	tmpIpc[IPC_SEM].Identify = IPC_SEM;
+	tmpIpc[IPC_SEM].Class = IPC_Class_SEM;
+	tmpIpc[IPC_SEM].IPCID = IPC_MAX;
+	tmpIpc[IPC_SEM].ptr = NULL;
+
+	memcpy(tmpIpc[IPC_SEM].name,tmp,sizeof(tmp));
+	tmpIpc[IPC_SEM].Identify = IPC_SEM;
+	tmpIpc[IPC_SEM].Class = IPC_Class_SEM;
+	tmpIpc[IPC_SEM].IPCID = IPC_MAX;
+	tmpIpc[IPC_SEM].ptr = NULL;
 
 	return;
 }
 
-//static float *sysConfig = NULL;
-//static unsigned char *userConfig = NULL;
+
 static void *ipc_getSharedMem(IPC_MTYPE itype)
 {
 	if(itype == IPC_IMG_SHA || itype == IPC_USER_SHA)
-		return (void*)IpcHandl[itype].ptr;
+		return ipc_getSharedAddress(itype);
+		//return (void*)IpcHandl[itype].ptr;
 	else
 		return NULL;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* IPC_CUSTOM_HEAD_HPP_ */
