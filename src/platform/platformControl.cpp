@@ -91,7 +91,9 @@ void CplatFormControl::PlatformCtrl_updatePIDparam(HPLTCTRL handle,int* data)
 	if(pObj == NULL)
 		return ;
 
-	_Fiter->PlatformFilter_updatePidParams(&pObj->params.platformFilterParam[0],&pObj->params.platformFilterParam[1],data);
+	PlatformFilter_Obj *pObjx = (PlatformFilter_Obj*)pObj->privates.filter[0];
+	PlatformFilter_Obj *pObjy = (PlatformFilter_Obj*)pObj->privates.filter[1];
+	_Fiter->PlatformFilter_updatePidParams( &pObjx->params , &pObjy->params , data );
 	return ;
 }
 
