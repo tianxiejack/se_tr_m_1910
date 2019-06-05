@@ -4,5 +4,5 @@
 
 USER_OBJS :=
 
-LIBS := -lusb-1.0 -lipc -lopencv_core
+LIBS := -lusb-1.0 -lopencv_core -lipc_c
 
