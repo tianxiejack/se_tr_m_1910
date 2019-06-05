@@ -229,12 +229,12 @@ int CUartProc::setPort(int fd, const int baud_rate, const int c_flow, const int 
             break;
     }
 	
-    //newtio.c_cflag |= (CLOCAL | CREAD);
-     newtio.c_oflag &= ~OPOST;                 // 杈撳嚭鏁版嵁妯″紡锛屽師濮嬫暟鎹?    Opt.c_oflag &= ~(ONLCR | OCRNL);          //娣诲姞鐨?
-    //newtio.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+    newtio.c_cflag |= (CLOCAL | CREAD);
+    newtio.c_oflag &= ~OPOST;                 // 杈撳嚭鏁版嵁妯″紡锛屽師濮嬫暟鎹?    Opt.c_oflag &= ~(ONLCR | OCRNL);          //娣诲姞鐨?
+    newtio.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
    
-    //newtio.c_iflag &= ~(ICRNL | INLCR);
-    //newtio.c_iflag &= ~(IXON | IXOFF | IXANY);   // 涓嶄娇鐢ㄨ蒋浠舵祦鎺э紱
+    newtio.c_iflag &= ~(ICRNL | INLCR);
+    newtio.c_iflag &= ~(IXON | IXOFF | IXANY);   // 涓嶄娇鐢ㄨ蒋浠舵祦鎺э紱
     newtio.c_cflag &= ~CRTSCTS;   //  涓嶄娇鐢ㄦ祦鎺у埗
 
     newtio.c_cc[VTIME] = 0;
