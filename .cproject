@@ -45,8 +45,8 @@
 							<tool id="nvcc.linker.base.483008244" name="NVCC Linker" superClass="nvcc.linker.base">
 								<option id="nvcc.linker.option.libs.1176333716" name="Libraries (-l)" superClass="nvcc.linker.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="usb-1.0"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="ipc"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="opencv_core"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="ipc_c"/>
 								</option>
 								<inputType id="nvcc.linker.input.831469910" superClass="nvcc.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -114,8 +114,8 @@
 							<tool id="nvcc.linker.base.1932752102" name="NVCC Linker" superClass="nvcc.linker.base">
 								<option id="nvcc.linker.option.libs.1330776537" name="Libraries (-l)" superClass="nvcc.linker.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="usb-1.0"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="ipc"/>
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="opencv_core"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="ipc_c"/>
 								</option>
 								<option id="nvcc.linker.option.other.2073142315" name="Other options (-Xlinker [option])" superClass="nvcc.linker.option.other" valueType="stringList">
 									<listOptionValue builtIn="false" value="-rpath=/usr/lib/aarch64-linux-gnu/tegra"/>
