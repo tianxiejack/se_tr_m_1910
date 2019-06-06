@@ -166,8 +166,8 @@ float CPlatformFilter::pidAlg(HPLTFILTER hFilter, float curXc)
 		return ret;
 
 	Kp = pObj->params.Kp;
-	Ki = pObj->params.Ki * Kp;
-	Kd = pObj->params.Kd * Kp;
+	Ki = pObj->params.Ki ;
+	Kd = pObj->params.Kd ;
 	K = pObj->params.K;
 
 	if((pObj->privates.Xc[2] ==0) && (pObj->privates.Xc[1]==0))
