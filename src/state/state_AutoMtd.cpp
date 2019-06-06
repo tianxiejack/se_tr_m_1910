@@ -25,6 +25,7 @@ void StateAuto_Mtd::OperationChangeState(StateManger* con)
 
 	OSA_ThrHndl tmpHandle;
 	OSA_thrCreate(&tmpHandle, autoMtdMainloop, 0, 0, 0);
+	
 	return ;
 }
 

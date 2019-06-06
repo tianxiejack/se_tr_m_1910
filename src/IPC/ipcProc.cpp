@@ -49,8 +49,8 @@ int CIPCProc::IPCRecvGstMsg(void* prm)
 			break;
 		case 1:
 			m_gstRectParm.status = pIn->intPrm[0];
-			memcpy((void*)&m_gstRectParm.errx ,(void*)&pIn->intPrm[sizeof(float)],sizeof(float));
-			memcpy((void*)&m_gstRectParm.erry ,(void*)&pIn->intPrm[2*sizeof(float)],sizeof(float));
+			memcpy((void*)&m_gstRectParm.errx ,(void*)&pIn->intPrm[1],sizeof(float));
+			memcpy((void*)&m_gstRectParm.erry ,(void*)&pIn->intPrm[2],sizeof(float));
 			flag = 1;
 			break;
 		default:

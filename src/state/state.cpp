@@ -69,6 +69,13 @@ void State::OperationInterface(StateManger* con)
 		else
 			m_ipc->IPCSendMsg(trk, ipcParam.intPrm, 4);
 	}	
+
+	PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)m_plt->object;
+	ipcParam.intPrm[0] = 2;
+	ipcParam.intPrm[1] = (int)(pObj->privates.width*0.5);
+	ipcParam.intPrm[2] = (int)(pObj->privates.height*0.5);
+	m_ipc->IPCSendMsg(AcqPos, ipcParam.intPrm, 4*3);
+	printf("reset the boresight \n ");
 	return ;
 }
 
