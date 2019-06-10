@@ -867,13 +867,18 @@ bool CPTZControl::judgePanTilpos()
 
 int CPTZControl::judgepos(int arg)
 {
+	int num = 0;
 	int ret = 0;
 	do
 	{
 		queryPos();
-		if(judgePanTilpos())
-		{	
+		if(judgePanTilpos()){	
 			ret = 1;
+			break;
+		}
+		num++;
+		if(num > 10){
+			ret = -1;
 			break;
 		}
 	}while(!arg);
