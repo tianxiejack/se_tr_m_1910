@@ -862,9 +862,10 @@ bool CPTZControl::judgePanTilpos()
 {
 	static int num = 0;
 	static int panposBk,tilposBk;
-	if( m_Mtd_Moitor_X == m_iPanPos && m_Mtd_Moitor_Y == m_iTiltPos )
+	if( m_Mtd_Moitor_X == m_iPanPos && m_Mtd_Moitor_Y == m_iTiltPos ){
+		num=0;
 		return true;
-	
+	}
 	if(panposBk == m_iPanPos || tilposBk == m_iTiltPos)
 		num++;
 	else
@@ -890,11 +891,6 @@ int CPTZControl::judgepos(int arg)
 		queryPos();
 		if(judgePanTilpos()){	
 			ret = 1;
-			break;
-		}
-		num++;
-		if(num > 10){
-			ret = -1;
 			break;
 		}
 	}while(!arg);
