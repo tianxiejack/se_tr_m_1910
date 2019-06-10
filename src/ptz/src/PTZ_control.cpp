@@ -860,8 +860,24 @@ void CPTZControl::queryPos()
 
 bool CPTZControl::judgePanTilpos()
 {
+	static int num = 0;
+	static int panposBk,tilposBk;
 	if( m_Mtd_Moitor_X == m_iPanPos && m_Mtd_Moitor_Y == m_iTiltPos )
 		return true;
+	
+	if(panposBk == m_iPanPos || tilposBk == m_iTiltPos)
+		num++;
+	else
+		num=0;
+
+	panposBk = m_iPanPos;
+	tilposBk = m_iTiltPos;
+
+	if(num>10)
+	{
+		num=0;
+		return true;
+	}
 	return false;
 }
 
