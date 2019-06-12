@@ -37,6 +37,7 @@
 									<listOptionValue builtIn="false" value="../src/comm"/>
 									<listOptionValue builtIn="false" value="../src/platform"/>
 									<listOptionValue builtIn="false" value="../src/IPC"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/libusb-1.0"/>
 								</option>
 								<inputType id="nvcc.compiler.input.cu.700280120" superClass="nvcc.compiler.input.cu"/>
 								<inputType id="nvcc.compiler.input.cpp.836683492" superClass="nvcc.compiler.input.cpp"/>
@@ -106,6 +107,7 @@
 									<listOptionValue builtIn="false" value="../src/comm"/>
 									<listOptionValue builtIn="false" value="../src/platform"/>
 									<listOptionValue builtIn="false" value="../src/IPC"/>
+									<listOptionValue builtIn="false" value="/usr/local/include/libusb-1.0"/>
 								</option>
 								<inputType id="nvcc.compiler.input.cu.2065999090" superClass="nvcc.compiler.input.cu"/>
 								<inputType id="nvcc.compiler.input.cpp.10186106" superClass="nvcc.compiler.input.cpp"/>

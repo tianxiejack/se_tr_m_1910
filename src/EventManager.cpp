@@ -673,7 +673,7 @@ int  CEventManager::ReadConfigFile()
 						memset(usr_value + usrosdId * USEROSD_LENGTH, 0, USEROSD_LENGTH);
 						str.copy(usr_value+usrosdId*USEROSD_LENGTH, str.length()<USEROSD_LENGTH?str.length():USEROSD_LENGTH, 0);
 					}
-					else if(i == CFGID_PTZ_netip)
+					else if((i == CFGID_PTZ_netip) || (i == CFGID_OUTPUT_compressip))
 					{
 						str = (string)fr[cfg_avt];
 						unsigned int intip = stringip2int(str);
@@ -826,7 +826,7 @@ int CEventManager::DefaultConfig(comtype_t comtype, int blockId)
 									m_ipc->IPCSendMsg(read_shm_usrosd, &usrosdId, 4);
 								}
 							}
-							else if(i == CFGID_PTZ_netip)
+							else if((i == CFGID_PTZ_netip) || (i == CFGID_OUTPUT_compressip))
 							{
 								str = (string)fr[cfg_avt];
 								unsigned int intip = stringip2int(str);
@@ -918,7 +918,7 @@ int CEventManager::SaveConfig(comtype_t comtype)
 						
 						fr<< cfg_avt << str;
 					}
-					else if(i == CFGID_PTZ_netip)
+					else if((i == CFGID_PTZ_netip) || (i == CFGID_OUTPUT_compressip))
 					{
 						unsigned int intip;
 						memcpy(&intip, cfg_value + i, 4);
