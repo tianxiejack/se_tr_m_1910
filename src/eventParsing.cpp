@@ -28,7 +28,8 @@ CEventParsing::CEventParsing()
 	memset(&ComParams, 0, sizeof(ComParams));
 	exit_comParsing = false;
 	pCom1 = PortFactory::createProduct(1);
-	comfd = pCom1->copen();
+	if(pCom1 != NULL)
+		comfd = pCom1->copen();
 	exit_netParsing = false;
 	memset(&mutexConn,0,sizeof(mutexConn));
 	OSA_mutexCreate(&mutexConn);
@@ -47,9 +48,12 @@ CEventParsing::~CEventParsing()
 	OSA_semDelete(&m_semHndl_s);
 	exit_comParsing = true;
 	exit_netParsing = true;
-	pCom1->cclose();
+	if(pCom1 != NULL)
+	{
+		pCom1->cclose();
+		delete pCom1;
+	}
 	pCom2->cclose();
-	delete pCom1;
 	delete pCom2;
 }
 
@@ -71,7 +75,8 @@ void *CEventParsing::thread_comrecvEvent(void *p)
 	int dest_cnt = 0;
 	unsigned char  tmpRcvBuff[RECV_BUF_SIZE];
 	memset(tmpRcvBuff,0,sizeof(tmpRcvBuff));
-
+	if(pThis->pCom1 == NULL)
+		return NULL;
 	while(!pThis->exit_comParsing)
 	{
 		sizeRcv= pThis->pCom1->crecv(pThis->comfd, (void *)tmpRcvBuff,RECV_BUF_SIZE);
@@ -90,7 +95,8 @@ void *CEventParsing::thread_comsendEvent(void *p)
 		pThis->getSendInfo(&repSendBuffer);
 		if(1 == repSendBuffer.comtype.type)
 		{
-			pThis->pCom1->csend(repSendBuffer.comtype.fd, &repSendBuffer.sendBuff, repSendBuffer.byteSizeSend);
+			if(pThis->pCom1 != NULL)
+				pThis->pCom1->csend(repSendBuffer.comtype.fd, &repSendBuffer.sendBuff, repSendBuffer.byteSizeSend);
 		}
 
 		else if(2 == repSendBuffer.comtype.type)

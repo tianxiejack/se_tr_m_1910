@@ -64,7 +64,8 @@ int CPTZControl::Create()
 	m_pResp = (LPPELCO_D_RESPPKT)recvBuffer;
 
 	pCom = PortFactory::createProduct(3);
-	fd_ptz = pCom->copen();
+	if(pCom != NULL)
+		fd_ptz = pCom->copen();
 
 	if(pCom != NULL)
 	{
@@ -322,6 +323,9 @@ int CPTZControl::sendCmd(LPPELCO_D_REQPKT pCmd, PELCO_RESPONSE_t tResp /* = PELC
 	int iRet = OSA_SOK;
 	unsigned char *buffer = (unsigned char *)pCmd;
 
+	if(pCom == NULL)
+		return OSA_EFAIL;
+	
 	OSA_mutexLock(&m_mutex);
 	m_tResponse = tResp;
 
@@ -682,7 +686,6 @@ void  CPTZControl::trackErrOutput()
 int CPTZControl::SendtrackErr()
 {
 	int iRet = OSA_SOK;
-
 	OSA_mutexLock(&m_mutex);
 	if(pCom == NULL || pCom->csend(fd_ptz, (unsigned char *)trackBuf, sizeof(trackBuf)) != sizeof(trackBuf))
 	{
@@ -699,6 +702,9 @@ int CPTZControl::SendtrackErr()
 
 void CPTZControl::shRunOutput()
 {
+	if(pCom == NULL)
+		return;
+	
 	_agreeMent->MakeMoveX();
 	pCom->csend(fd_ptz, _agreeMent->sendBuf, 12);
 
@@ -707,11 +713,13 @@ void CPTZControl::shRunOutput()
 
 	_agreeMent->MakeStop();
 	pCom->csend(fd_ptz, _agreeMent->sendBuf, 8);
-
+	
 }
 
 void CPTZControl::PanoramicMirrorOutput()
 {
+	if(pCom == NULL)
+		return ;
 #if 0
 
 	static bool sign = true;
@@ -754,6 +762,9 @@ void CPTZControl::PanoramicMirrorOutput()
 
 void CPTZControl::PanoramicMirror_Init()
 {
+	if(pCom = NULL)
+		return;
+	
 	_agreeMent->SetSpeedX();
 	/*
 	for(int i=0; i<6; i++)
@@ -772,6 +783,8 @@ void CPTZControl::PanoramicMirror_Init()
 
 void CPTZControl::MakeFoucusFar()
 {
+	if(pCom == NULL)
+		return;
 	_agreeMent->MakeFocusFar(NULL, 0);
 	if(_GlobalDate->ptzType == Panoramic_mirror)
 		pCom->csend(fd_ptz, _agreeMent->sendBuf, 10);
@@ -781,6 +794,8 @@ void CPTZControl::MakeFoucusFar()
 
 void CPTZControl::MakeFocusNear()
 {
+	if(pCom == NULL)
+		return;
 	_agreeMent->MakeFocusNear(NULL, 0);
 	if(_GlobalDate->ptzType == Panoramic_mirror)
 		pCom->csend(fd_ptz, _agreeMent->sendBuf, 10);
@@ -790,12 +805,16 @@ void CPTZControl::MakeFocusNear()
 
 void CPTZControl::MakeFocusStop()
 {
+	if(pCom == NULL)
+		return;
 	_agreeMent->MakeFocusStop(NULL, 0);
 	pCom->csend(fd_ptz, _agreeMent->sendBuf, 10);
 }
 
 void CPTZControl::test_left()
 {
+	if(pCom == NULL)
+		return;
 	_agreeMent->sendBuf[0] = 0x02;
 	_agreeMent->sendBuf[1] = 0x91;
 	_agreeMent->sendBuf[2] = 0x00;
@@ -812,6 +831,8 @@ void CPTZControl::test_left()
 
 void CPTZControl::test_stop()
 {
+	if(pCom == NULL)
+		return;
 	_agreeMent->MakeStop();
 	pCom->csend(fd_ptz, _agreeMent->sendBuf, 10);
 }
