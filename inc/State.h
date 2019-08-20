@@ -15,6 +15,7 @@
 #include "StateManger.h"
 #include "platformControl.h"
 #include "ipcProc.h"
+#include "ptz_onvif_control.hpp"
 
 typedef enum {
 	Exit = 0,
@@ -92,7 +93,7 @@ public:
 	
 public:
 	static CIPCProc* m_ipc;
-	static CPTZControl* _ptz;
+	static CptzInterface* _ptz;
 	static AgreeMentBaseFormat* _agreement;
 	static CPlatformInterface* m_Platform;
 	static CPTZSpeedTransfer*  m_ptzSpeed;
@@ -155,6 +156,23 @@ private:
 
 	
 };
+
+
+class StateLinkManual:public State
+{
+public:
+	StateLinkManual();
+	virtual ~StateLinkManual();
+	void OperationChangeState(StateManger* con);
+	int curStateInterface();
+
+
+
+	
+private:
+
+};
+
 
 
 

@@ -20,7 +20,7 @@ CEventManager::CEventManager()
 	exit_ipcGstthread = false;
 	memset(winPos, 0, sizeof(winPos));
 	_Msg = CMessage::getInstance();
-	_StateManager = new StateManger(new PlatFormCapture());
+	_StateManager = new StateManger(new StateLinkManual());
 	_Handle = _Msg->MSGDRIV_create();
 	MSG_register();
 	m_ipc = (CIPCProc*)_StateManager->returnIpc();
@@ -1168,30 +1168,32 @@ inline bool CEventManager::isRelation2boresight(int block , int field)
 int CEventManager::updateparams(int *cfg_value ,int block, int field )
 {
 	BoresightPos_s tmppos;
+	int izoomPos;
 	if(-1 == block)
 		return -1;
+	
+	_StateManager->_state->_ptz->getzoom(izoomPos);
 
 	if(-1 == field)
 	{
 		if(((block >= CFGID_INPUT1_BKID) && (block <= CFGID_INPUT1_BKID + 6))
 			|| ((block >= CFGID_INPUT2_BKID) && (block <= CFGID_INPUT5_BKID + 6)) )
 		{
-			_StateManager->_state->m_Platform->updateFov(cfg_value,_StateManager->_state->m_plt,_StateManager->_state->_ptz->m_iZoomPos);
-			tmppos = _StateManager->_state->m_Platform->getBoresight(cfg_value,_StateManager->_state->_ptz->m_iZoomPos);
+			_StateManager->_state->m_Platform->updateFov(cfg_value,_StateManager->_state->m_plt,izoomPos);
+			tmppos = _StateManager->_state->m_Platform->getBoresight(cfg_value,izoomPos);
 			_StateManager->_state->ipcParam.intPrm[0] = tmppos.x;
 			_StateManager->_state->ipcParam.intPrm[1] = tmppos.y;
-			_StateManager->_state->m_ipc->IPCSendMsg(BoresightPos, _StateManager->_state->ipcParam.intPrm, 4*2);
 		}
 	}
 	else
 	{
 		if(isRelation2fov(block,field))
-			_StateManager->_state->m_Platform->updateFov(cfg_value,_StateManager->_state->m_plt,_StateManager->_state->_ptz->m_iZoomPos);
+			_StateManager->_state->m_Platform->updateFov(cfg_value,_StateManager->_state->m_plt,izoomPos);
 		if(isRelation2boresight(block,field)){
-			tmppos = _StateManager->_state->m_Platform->getBoresight(cfg_value,_StateManager->_state->_ptz->m_iZoomPos);
+			tmppos = _StateManager->_state->m_Platform->getBoresight(cfg_value,izoomPos);
 			_StateManager->_state->ipcParam.intPrm[0] = tmppos.x;
 			_StateManager->_state->ipcParam.intPrm[1] = tmppos.y;
-			_StateManager->_state->m_ipc->IPCSendMsg(BoresightPos, _StateManager->_state->ipcParam.intPrm, 4*2);
+			//_StateManager->_state->m_ipc->IPCSendMsg(BoresightPos, _StateManager->_state->ipcParam.intPrm, 4*2);
 		}
 		if(block == CFGID_JOS_BKID)
 			_StateManager->_state->m_Platform->PlatformCtrl_updateJosparam(_StateManager->_state->m_plt, cfg_value );

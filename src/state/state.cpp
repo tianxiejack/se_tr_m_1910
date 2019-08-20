@@ -9,7 +9,7 @@ State* State::m_st3 = NULL;
 State* State::m_st4 = NULL;
 State* State::m_st5 = NULL;
 
-CPTZControl* State::_ptz = NULL;
+CptzInterface* State::_ptz = NULL;
 AgreeMentBaseFormat* State::_agreement = NULL;
 CPlatformInterface* State::m_Platform = NULL;
 CPTZSpeedTransfer*  State::m_ptzSpeed = NULL;
@@ -33,7 +33,10 @@ State::State()
 	if(_agreement == NULL)
 		_agreement = new IPelcoDFormat();
 	if(_ptz == NULL)
-		_ptz = new CPTZControl(_agreement,notifyzoomchange);
+	{
+		//_ptz = new CPTZControl(_agreement,notifyzoomchange);
+		_ptz = new CPTZ_ONVIF();
+	}
 	if(m_Platform == NULL)
 		m_Platform = new CplatFormControl();
 	if(m_ptzSpeed == NULL)
@@ -65,16 +68,16 @@ void State::OperationInterface(StateManger* con)
 	{
 		ipcParam.intPrm[0] = 0;
 		if(cfg_value[CFGID_RTS_trkmode])
-			m_ipc->IPCSendMsg(sceneTrk, ipcParam.intPrm, 4);
+			;//m_ipc->IPCSendMsg(sceneTrk, ipcParam.intPrm, 4);
 		else
-			m_ipc->IPCSendMsg(trk, ipcParam.intPrm, 4);
+			;//m_ipc->IPCSendMsg(trk, ipcParam.intPrm, 4);
 	}	
 
 	PlatformCtrl_Obj *pObj = (PlatformCtrl_Obj*)m_plt->object;
 	ipcParam.intPrm[0] = 2;
 	ipcParam.intPrm[1] = (int)(pObj->privates.width*0.5);
 	ipcParam.intPrm[2] = (int)(pObj->privates.height*0.5);
-	m_ipc->IPCSendMsg(AcqPos, ipcParam.intPrm, 4*3);
+	//m_ipc->IPCSendMsg(AcqPos, ipcParam.intPrm, 4*3);
 	printf("reset the boresight \n ");
 	return ;
 }
@@ -118,10 +121,9 @@ void State::StateInit()
 		m_st5 = new ManualMtdCapture();
 	platformCreate();
 
-	_ptz->m_Mtd_Moitor_X = cfg_value[CFGID_PREPOS_preposx];	
-	_ptz->m_Mtd_Moitor_Y = cfg_value[CFGID_PREPOS_preposy];
-	_ptz->m_Mtd_Moitor_Zoom = cfg_value[CFGID_PREPOS_prezoom];
-
+	_ptz->setMtdMonitorP(cfg_value[CFGID_PREPOS_preposx]);
+	_ptz->setMtdMonitorT(cfg_value[CFGID_PREPOS_preposy]);
+	_ptz->setMtdMonitorZ(cfg_value[CFGID_PREPOS_prezoom]);
 	
 	OSA_thrCreate(&m_thrZoomServer, zoomServer, 0, 0, 0);
 	return ;
@@ -161,7 +163,7 @@ void State::TrkCtrl(char Enable)
 {
 	struct timeval tmp;
 	ipcParam.intPrm[0] = Enable;
-	m_ipc->IPCSendMsg(trk, ipcParam.intPrm, 4);
+	//m_ipc->IPCSendMsg(trk, ipcParam.intPrm, 4);
 	if(Enable && m_plt != NULL)
 	{	
 		m_Platform->PlatformCtrl_reset4trk(m_plt);
@@ -184,13 +186,13 @@ void State::switchSensor(char chid)
 }
 
 void State::ZoomCtrl(char type)
-{
+{	
 	if(type == 0x01)
-		_ptz->m_iSetZoomSpeed = -1;
+		_ptz->setZoomSpeed(-1);
 	else if(type == 0x02)
-		_ptz->m_iSetZoomSpeed = 1;
+		_ptz->setZoomSpeed(1);
 	else
-		_ptz->m_iSetZoomSpeed = 0;
+		_ptz->setZoomSpeed(0);
 	return ;
 }
 
@@ -245,7 +247,7 @@ void State::trkSearch(int type, int x, int y)
 	ipcParam.intPrm[0] = type;
 	ipcParam.intPrm[1] = x;
 	ipcParam.intPrm[2] = y;
-	m_ipc->IPCSendMsg(sectrk, ipcParam.intPrm, 3*4);
+	//m_ipc->IPCSendMsg(sectrk, ipcParam.intPrm, 3*4);
 	return ;
 }
 
@@ -322,8 +324,9 @@ void State::switchSensor_interface(int chid)
 	}
 	
 	curValidChid = selectch.idx;
-		
-	m_Platform->switchSensor(cfg_value , m_plt, curValidChid, _ptz->m_iZoomPos);
+	int zoomtmp;
+	_ptz->getzoom(zoomtmp);
+	m_Platform->switchSensor(cfg_value , m_plt, curValidChid, zoomtmp);
 	
 	return ;
 }
@@ -337,9 +340,11 @@ void State::axisMove_interface(float x, float y)
 	m_pltInput.iTrkAlgState= 0;
 	m_Platform->PlatformCtrl_TrackerInput(m_plt, &m_pltInput);
 	m_Platform->PlatformCtrl_TrackerOutput(m_plt, &m_pltOutput);
-//	printf("%s : LINE : %d   , x = %f , y = %f \n",__func__, __LINE__,  m_pltOutput.fPlatformDemandX, m_pltOutput.fPlatformDemandY);
-	_ptz->m_iSetPanSpeed = m_ptzSpeed->GetPanSpeed(m_pltOutput.fPlatformDemandX);
-	_ptz->m_iSetTiltSpeed = m_ptzSpeed->GetTiltSpeed(m_pltOutput.fPlatformDemandY);
+	//printf("%s : LINE : %d   , x = %f , y = %f \n",__func__, __LINE__,  m_pltOutput.fPlatformDemandX, m_pltOutput.fPlatformDemandY);
+
+	_ptz->setPanSpeed(m_ptzSpeed->GetPanSpeed(m_pltOutput.fPlatformDemandX));
+	_ptz->setTiltSpeed(m_ptzSpeed->GetTiltSpeed(m_pltOutput.fPlatformDemandY));
+
 	return ;
 }
 
@@ -347,22 +352,23 @@ void State::axisMove_interface(float x, float y)
 void State::Ctrl_Iris(int dir)
 {
 	if(dir < 0)
-		_ptz->m_iSetIrisSpeed = -1;
+		_ptz->setIrisSpeed(-1);
 	else if(dir  > 0)
-		_ptz->m_iSetIrisSpeed = 1;
+		_ptz->setIrisSpeed(1);
 	else
-		_ptz->m_iSetIrisSpeed = 0;
+		_ptz->setIrisSpeed(0);
 }
 
 void State::Ctrl_Focus(int dir)
 {
 	if(dir < 0)
-		_ptz->m_iSetFocusFarSpeed = -1;
+		_ptz->setFocusFarSpeed(-1);
 	else if(dir > 0)
-		_ptz->m_iSetFocusNearSpeed = 1;
-	else{
-		_ptz->m_iSetFocusFarSpeed = 0;
-		_ptz->m_iSetFocusNearSpeed = 0;
+		_ptz->setFocusNearSpeed(1);
+	else
+	{
+		_ptz->setFocusFarSpeed(0);
+		_ptz->setFocusNearSpeed(0);
 	}
 }
 
@@ -421,10 +427,8 @@ void State::trkMovControl(int status,int errx,int erry)
 	
 	if(1)//(cfg_value[CFGID_PTZ_protype] == 1)
 	{
-		_ptz->m_iSetPanSpeed = m_ptzSpeed->GetPanSpeed((int)m_pltOutput.fPlatformDemandX);
-		_ptz->m_iSetTiltSpeed = m_ptzSpeed->GetTiltSpeed((int)m_pltOutput.fPlatformDemandY);
-
-		//printf("%s :    panSpeed :%d  , tilSpeed : %d  \n",__func__,_ptz->m_iSetPanSpeed,_ptz->m_iSetTiltSpeed);
+		_ptz->setPanSpeed(m_ptzSpeed->GetPanSpeed((int)m_pltOutput.fPlatformDemandX));
+		_ptz->setTiltSpeed(m_ptzSpeed->GetTiltSpeed((int)m_pltOutput.fPlatformDemandY));
 	}
 	return ;
 }
@@ -434,7 +438,7 @@ void State::pov_move(int x,int y)
 {
 	ipcParam.intPrm[0] = x;
 	ipcParam.intPrm[1] = y;	
-	m_ipc->IPCSendMsg(posmove,ipcParam.intPrm,4*2);
+	//m_ipc->IPCSendMsg(posmove,ipcParam.intPrm,4*2);
 	return ;
 }
 
@@ -461,7 +465,7 @@ void State::notifyzoomchange(int zoom)
 	BoresightPos_s pos = pThis->m_Platform->getBoresight(cfg_value , zoom);
 	pThis->ipcParam.intPrm[0] = pos.x;
 	pThis->ipcParam.intPrm[1] = pos.y;
-	pThis->m_ipc->IPCSendMsg(BoresightPos, pThis->ipcParam.intPrm, 4*2);
+	//pThis->m_ipc->IPCSendMsg(BoresightPos, pThis->ipcParam.intPrm, 4*2);
 	pThis->m_Platform->updateFov(cfg_value , m_plt , zoom);
 	return;
 }

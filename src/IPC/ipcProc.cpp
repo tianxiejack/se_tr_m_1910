@@ -67,37 +67,33 @@ int CIPCProc::IPCRecvMsg(void* prm)
 	ipc_recvmsg(IPC_FRIMG_MSG,&recvData);
 	switch(recvData.cmd_ID)
 	{
-	case read_shm_block:
-		{
-			int configId = pIn->intPrm[0];
-			int blkid = CFGID_blkId(configId);
-			int feildId = CFGID_feildId(configId);
-			/*if(blkid == CFGID_RTS_BKID)
+		case read_shm_block:
 			{
-				if(prm != NULL)
-					memcpy(prm, , );
-			}*/
-		}
-		break;
-	case read_shm_single:
-		{	
-			if(pIn->intPrm[0] == CFGID_RTS_mainch)
-				return (CFGID_RTS_mainch);
-			else if(pIn->intPrm[0] == CFGID_RTS_mainch2)
-				return (CFGID_RTS_mainch2);
-			else if(pIn->intPrm[0] == CFGID_RTS_trken)
-				return (CFGID_RTS_trken);
-			else if(pIn->intPrm[0] == CFGID_RTS_sectrkstat)
-				return (CFGID_RTS_sectrkstat);
-			else if(pIn->intPrm[0] == CFGID_RTS_trkstat)
-				return (CFGID_RTS_trkstat);
-			else if(pIn->intPrm[0] == CFGID_RTS_mtddet)
-				return (CFGID_RTS_mtddet);
-		}		
-		break;
+				int configId = pIn->intPrm[0];
+				int blkid = CFGID_blkId(configId);
+				int feildId = CFGID_feildId(configId);
+			}
+			break;
+		case read_shm_single:
+			{	
+				if(pIn->intPrm[0] == CFGID_RTS_mainch)
+					return (CFGID_RTS_mainch);
+				else if(pIn->intPrm[0] == CFGID_RTS_mainch2)
+					return (CFGID_RTS_mainch2);
+				else if(pIn->intPrm[0] == CFGID_RTS_trken)
+					return (CFGID_RTS_trken);
+				else if(pIn->intPrm[0] == CFGID_RTS_sectrkstat)
+					return (CFGID_RTS_sectrkstat);
+				else if(pIn->intPrm[0] == CFGID_RTS_trkstat)
+					return (CFGID_RTS_trkstat);
+				else if(pIn->intPrm[0] == CFGID_RTS_mtddet)
+					return (CFGID_RTS_mtddet);
+			}		
+			break;
+		
 
-	default:
-		break;
+		default:
+			break;
 	}
 	return 0;
 }

@@ -1,9 +1,15 @@
+/*
+ * ipc_custom_head.h
+ *
+ *  Created on: 2019骞?鏈?4鏃?
+ *      Author: alex
+ */
 
 #ifndef IPC_CUSTOM_HEAD_HPP_
 #define IPC_CUSTOM_HEAD_HPP_
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif
 
 #include "Ipcctl.h"
@@ -40,22 +46,62 @@ typedef enum
 	read_shm_usrosd,
 }CMD_ID;
 
+
 typedef enum 
 {
-    IPC_TOIMG_MSG = 0,  		// SERVER TO CLIENT
+    IPC_TOIMG_MSG = 0,  // SERVER TO CLIENT
     IPC_FRIMG_MSG,		// CLIENT TO SERCER
     IPC_IMG_SHA,
     IPC_USER_SHA,
     IPC_SEM,
-    IPC_GSTREAM_PTZ = 10,
+    IPC_GSTREAM_PTZ = 10, //attach to the gstreamer app of DAO
     IPC_MAX
 }IPC_MTYPE;
+
 
 typedef enum
 {
 	shm_rdonly,
 	shm_rdwr
 }shm_perms;
+
+
+typedef enum
+{
+	cursor_move = 1,
+	jos_button,
+	jos_Dir,
+	mouse_button,
+	enter,
+	jos_menu,
+	workMode,
+	ctrlMode
+}josType;
+
+typedef enum{
+	manual_linkage = 1,
+	Auto_linkage,
+	ballctrl
+}work_Mode;
+
+typedef enum{
+	jos = 1,
+	mouse
+}jos_Mode;
+
+typedef enum{
+	jos_mode = 1,
+	mouse_mode,
+	exit_calibrate_mode
+}jos_mouse_Mode;
+
+typedef enum{
+	cursor_up = 1,
+	cursor_down,
+	cursor_left,
+	cursor_right,
+}josDir;
+
 
 typedef struct
 {
@@ -69,8 +115,6 @@ static void Ipc_init()
 	tmpIpc = (IPC_Handl_t*)malloc(IPC_MAX* sizeof(IPC_Handl_t));
 	memset(tmpIpc,0,sizeof(IPC_Handl_t)*IPC_MAX);
 	char tmp[256] = {"/"};
-	tmpIpc[0].IPCID = IPC_MAX;
-	
 	memcpy(tmpIpc[IPC_TOIMG_MSG].name,tmp,sizeof(tmp));
 	tmpIpc[IPC_TOIMG_MSG].Identify = IPC_TOIMG_MSG;
 	tmpIpc[IPC_TOIMG_MSG].Class = IPC_Class_MSG;
@@ -84,13 +128,6 @@ static void Ipc_init()
 	tmpIpc[IPC_FRIMG_MSG].IPCID = IPC_MAX;
 	tmpIpc[IPC_FRIMG_MSG].length = 0;
 	tmpIpc[IPC_FRIMG_MSG].ptr = NULL;
-
-	memcpy(tmpIpc[IPC_GSTREAM_PTZ].name,tmp,sizeof(tmp));
-	tmpIpc[IPC_GSTREAM_PTZ].Identify = IPC_GSTREAM_PTZ;
-	tmpIpc[IPC_GSTREAM_PTZ].Class = IPC_Class_MSG;
-	tmpIpc[IPC_GSTREAM_PTZ].IPCID = IPC_MAX;
-	tmpIpc[IPC_GSTREAM_PTZ].length = 0;
-	tmpIpc[IPC_GSTREAM_PTZ].ptr = NULL;
 	
 	memcpy(tmpIpc[IPC_IMG_SHA].name,tmp,sizeof(tmp));
 	tmpIpc[IPC_IMG_SHA].Identify = IPC_IMG_SHA;
@@ -117,7 +154,8 @@ static void Ipc_init()
 	return;
 }
 
-
+//static int *sysConfig = NULL;
+//static unsigned char *userConfig = NULL;
 static void *ipc_getSharedMem(IPC_MTYPE itype)
 {
 	if(itype == IPC_IMG_SHA || itype == IPC_USER_SHA)
@@ -132,3 +170,4 @@ static void *ipc_getSharedMem(IPC_MTYPE itype)
 #endif
 
 #endif /* IPC_CUSTOM_HEAD_HPP_ */
+

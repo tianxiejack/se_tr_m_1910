@@ -497,7 +497,7 @@ void CPTZControl::resetPtz()
 }
 
 
-int CPTZControl::ptzStop()
+void CPTZControl::ptzStop()
 {
 	resetPtz();
 	_agreeMent->PktFormat(m_pReq, 0, 0, 0, 0, m_byAddr);
@@ -523,7 +523,7 @@ void CPTZControl::ptzZoomStop()
 }
 
 
-void CPTZControl::ptzSetPos(Uint16 posx, Uint16 posy)
+void CPTZControl::ptzSetPos(unsigned int posx, unsigned int posy)
 {
 	timeout = 0;
 	posx_bak = posx;
@@ -566,7 +566,7 @@ void CPTZControl::ptzSetPos(Uint16 posx, Uint16 posy)
 	pThis->dtimer.stopTimer(pThis->breakQuery_Y);
 }
 
-void CPTZControl::setZoomPos(Uint16 value)
+void CPTZControl::setZoomPos(unsigned int value)
 {
 	if(value < 2849)
 		value = 2849;
@@ -912,4 +912,62 @@ void CPTZControl::getzoom(int& zoom)
 	zoom = m_iZoomPos;
 	return ;
 }
+
+void CPTZControl::setZoomSpeed(int speed)
+{
+	m_iSetZoomSpeed = speed;
+	return;
+}
+
+void CPTZControl::setPanSpeed(int speed)
+{
+	m_iSetPanSpeed = speed;
+	return;
+}
+
+void CPTZControl::setTiltSpeed(int speed)
+{
+	m_iSetTiltSpeed = speed;
+	return;
+}
+
+
+void CPTZControl::setFocusFarSpeed(int speed)
+{
+	m_iSetFocusFarSpeed = speed;
+	return;
+}
+
+void CPTZControl::setFocusNearSpeed(int speed)
+{
+	m_iSetFocusFarSpeed = speed;
+	return;
+}
+
+ 
+void CPTZControl::setIrisSpeed(int speed)
+{
+	m_iSetIrisSpeed = speed;
+	return;
+}
+
+
+void CPTZControl::setMtdMonitorP(int value)
+{
+	m_Mtd_Moitor_X = value;
+	return;
+}
+
+void CPTZControl::setMtdMonitorT(int value)
+{
+	m_Mtd_Moitor_Y = value;
+	return;
+}
+
+void CPTZControl::setMtdMonitorZ(int value)
+{
+	m_Mtd_Moitor_Zoom = value;
+	return;
+}
+
 

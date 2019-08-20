@@ -119,7 +119,7 @@ void StateAuto_Mtd::outTrk()
 	if(cfg_value[CFGID_RTS_trken])
 	{
 		ipcParam.intPrm[0] = 0;
-		m_ipc->IPCSendMsg(trk, ipcParam.intPrm, 4);		
+		//m_ipc->IPCSendMsg(trk, ipcParam.intPrm, 4);		
 	}
 	OSA_ThrHndl tmpHandle;
 	OSA_thrCreate(&tmpHandle, autoMtdMainloop, 0, 0, 0);

@@ -24,7 +24,7 @@ typedef enum{
 	PELCO_RESPONSE_Extended
 }PELCO_RESPONSE_t;
 
-class CPTZControl : CptzInterface
+class CPTZControl : public CptzInterface
 {
     OSA_ThrHndl thrHandleDataIn;
     volatile Bool exitDataInThread;
@@ -60,10 +60,20 @@ public:
 
 	int Create();
 	void Destroy();
-	int ptzStop();
-	void ptzSetPos(Uint16 posx, Uint16 posy);
-	void setZoomPos(Uint16 value);
+	void ptzStop();
+	void ptzSetPos(unsigned int posx, unsigned int posy);
+	void setZoomPos(unsigned int value);
 
+	void setZoomSpeed(int speed);
+
+	void setPanSpeed(int speed);
+	void setTiltSpeed(int speed);
+	void setFocusFarSpeed(int speed);
+	void setFocusNearSpeed(int speed);
+	void setIrisSpeed(int speed);
+	void setMtdMonitorP(int value);
+	void setMtdMonitorT(int value);
+	void setMtdMonitorZ(int value);
 
 private:
 	int Move();

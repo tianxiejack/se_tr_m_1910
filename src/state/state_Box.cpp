@@ -71,7 +71,7 @@ void BoxCapture::virtualAxisMove(int x, int y)
 	ipcParam.intPrm[0] = 2;
 	ipcParam.intPrm[1] = m_winx;
 	ipcParam.intPrm[2] = m_winy;
-	m_ipc->IPCSendMsg(AcqPos, ipcParam.intPrm, 4*3);
+	//m_ipc->IPCSendMsg(AcqPos, ipcParam.intPrm, 4*3);
 	return ;
 }
 
@@ -91,7 +91,7 @@ void BoxCapture::axisMove(int x, int y)
 	ipcParam.intPrm[0] = 2;
 	ipcParam.intPrm[1] = m_winx;
 	ipcParam.intPrm[2] = m_winy;
-	m_ipc->IPCSendMsg(AcqPos, ipcParam.intPrm, 4*3);
+	//m_ipc->IPCSendMsg(AcqPos, ipcParam.intPrm, 4*3);
 	return ;
 }
 
@@ -103,7 +103,7 @@ void BoxCapture::TrkCtrl(char Enable)
 		ipcParam.intPrm[0] = Enable;
 		ipcParam.intPrm[1] = m_winx;
 		ipcParam.intPrm[2] = m_winy;
-		m_ipc->IPCSendMsg(AcqPos, ipcParam.intPrm, 4*3);
+		//m_ipc->IPCSendMsg(AcqPos, ipcParam.intPrm, 4*3);
 		if(m_plt != NULL)
 			m_Platform->PlatformCtrl_reset4trk(m_plt);
 		m_winx = 1920>>1;
