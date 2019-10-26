@@ -13,6 +13,12 @@ extern OSA_SemHndl  m_semHndl;
 extern OSA_SemHndl m_semHndl_s;
 const int profileNum = CFGID_BKID_MAX*16;
 
+
+int CEventManager::sendIpcMsgFunc(CMD_ID cmd, void* prm, int len)
+{
+	return pThis->m_ipc->IPCSendMsg(cmd,prm,len);
+}
+
 CEventManager::CEventManager()
 {
 	pThis = this;
@@ -32,7 +38,12 @@ CEventManager::CEventManager()
 	
 	SELF_semCreate(&m_semSendpos);
 	SELF_semCreate(&m_semSendZoom);
-	
+
+
+	m_803uart = new C803COM(sendIpcMsgFunc);
+	m_803uart->createPort();
+	OSA_thrCreate(&m_803rcvhandl, m_803uart->runUpExtcmd, 0, 0, NULL);
+
 }
 
 CEventManager::~CEventManager()
