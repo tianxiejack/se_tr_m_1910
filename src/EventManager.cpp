@@ -150,6 +150,11 @@ void *CEventManager::thread_ipcEvent(void *p)
 				pThis->_Msg->MSGDRIV_send(MSGID_COM_INPUT_TRKCONTROL, 0);
 
 				pThis->_StateManager->_state->recvTrkmsg(pThis->cfg_value[CFGID_RTS_trkstat]);
+
+				pThis->m_803uart->sendtrkerr(pThis->cfg_value[CFGID_RTS_mainch],
+					(int)pThis->cfg_value[CFGID_RTS_trkstat], 
+					pThis->m_pixelErr.errx, 
+					pThis->m_pixelErr.erry, 0);
 					
 				if(1 == pThis->outtype)
 				{

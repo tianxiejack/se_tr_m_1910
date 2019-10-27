@@ -71,7 +71,7 @@ void C803COM::sendtrkerr(int chid,int status,float errx,float erry,int rendercou
 		m_senddata[2] = 0x1;
 	else
 		m_senddata[2] = 0x0;
-	
+
 	x = (int)round(errx);
 	m_senddata[3] = (abs(x)>>8)&(0xff);
 	m_senddata[4] = abs(x)&(0xff);
@@ -153,7 +153,7 @@ void C803COM::findValidData(unsigned char *tmpRcvBuff, int sizeRcv)
 	{
 		for(int j=0;j<sizeRcv;j++)
 		{
-			printf(" %02x ",tmpRcvBuff[j]);
+			printf("@@@ %02x ",tmpRcvBuff[j]);
 		}
 		printf("\n");
 
