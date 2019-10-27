@@ -29,6 +29,7 @@ int CIPCProc::IPCSendMsg(CMD_ID cmd, void* prm, int len)
 
 	pthread_mutex_lock(&mutex);
 	ipc_sendmsg(IPC_TOIMG_MSG ,&sendData);
+	ipc_sendmsg(IPC_TOIMG_MSG ,&sendData);
 	pthread_mutex_unlock(&mutex);
 
 	return 0;

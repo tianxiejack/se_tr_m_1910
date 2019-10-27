@@ -18,11 +18,12 @@ int main()
 	OSA_thrCreate(&parsing.ReclaimConnect_thid, parsing.thread_ReclaimConnect, 0, 0, NULL);
 	OSA_thrCreate(&eventManager->ipcEvent_thid, eventManager->thread_ipcEvent, 0, 0, NULL);
 	OSA_thrCreate(&eventManager->ipcGstEvent_thid, eventManager->thread_ipcGstEvent, 0, 0, NULL);
-		
+
+	int chid = 2;
 	struct timeval tmp;
 	while(1)
 	{
-		tmp.tv_sec = 100;
+		tmp.tv_sec = 3;
 		tmp.tv_usec = 0;
 		select(0, NULL, NULL, NULL, &tmp);
 	}

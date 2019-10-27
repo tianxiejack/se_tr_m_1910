@@ -28,11 +28,12 @@ public:
 	~CEventManager();
 	static void *thread_ipcEvent(void *p);
 	static void *thread_ipcGstEvent(void *p);
+	CIPCProc* m_ipc;
 private:
 	MSGDRIV_Handle _Handle;
 	CMessage* _Msg;
 	StateManger* _StateManager;
-	CIPCProc* m_ipc;
+
 	static CEventManager* pThis;
 	int *cfg_value;
 	char *usr_value;

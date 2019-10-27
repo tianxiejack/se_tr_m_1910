@@ -103,9 +103,10 @@ CPortInterface* PortFactory::createProduct(int type)
 			temp = new CNetProc(10000);
 		   	break;
 	        case 3:
-			ReadUartParams(param);
-			temp = new CUartProc("/dev/ttyTHS2", param.baud_rate, param.flow, param.data_bits, param.parity, param.stop_bits);
-	            	break;
+			//ReadUartParams(param);
+			//temp = new CUartProc("/dev/ttyTHS2", param.baud_rate, param.flow, param.data_bits, param.parity, param.stop_bits);
+			temp = new CUartProc("/dev/ttyTHS2", 115200, 0, 8, 'N', 1);
+			break;
 	        default:
 	            	break;
 	}

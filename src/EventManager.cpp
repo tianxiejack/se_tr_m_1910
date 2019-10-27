@@ -16,6 +16,7 @@ const int profileNum = CFGID_BKID_MAX*16;
 
 int CEventManager::sendIpcMsgFunc(CMD_ID cmd, void* prm, int len)
 {
+	printf("sendIpcMsgFunc  : send cmd : %d \n " ,cmd );
 	return pThis->m_ipc->IPCSendMsg(cmd,prm,len);
 }
 

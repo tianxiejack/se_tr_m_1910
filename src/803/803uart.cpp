@@ -16,7 +16,7 @@ IPC_PRM_INT gIpcParam;
 static C803COM* gThis;
 	
 C803COM::C803COM(sendIpcMsgCallback pfunc):pCom1(NULL),pCom2(NULL),
-					existRecvThread(false),m_cmdlength(8),m_trktime(3)
+					existRecvThread(false),m_cmdlength(9),m_trktime(3)
 {
 	memset(m_senddata,0,sizeof(m_senddata));
 	memset(m_recvdata,0,sizeof(m_recvdata));
@@ -153,7 +153,7 @@ void C803COM::findValidData(unsigned char *tmpRcvBuff, int sizeRcv)
 	{
 		for(int j=0;j<sizeRcv;j++)
 		{
-			printf("%02x ",tmpRcvBuff[j]);
+			printf(" %02x ",tmpRcvBuff[j]);
 		}
 		printf("\n");
 
@@ -198,7 +198,7 @@ void C803COM::findValidData(unsigned char *tmpRcvBuff, int sizeRcv)
 unsigned int C803COM::recvcheck_sum()
 {
 	unsigned int sum = 0;
-	for(int i=2;i<=5;i++)
+	for(int i=2;i<=6;i++)
 		sum += m_rcvBuf[i];
 	return sum;
 }
@@ -211,7 +211,6 @@ void C803COM::parsing()
 	if(m_rcvBuf.size()<m_cmdlength)
 		return;
 
-	
 	unsigned char checkSum = recvcheck_sum();
 
 	if( ((checkSum>>8)&0xff) == m_rcvBuf[7] && ((checkSum&0xff) == m_rcvBuf[8]))
@@ -222,11 +221,13 @@ void C803COM::parsing()
 			{
 				gIpcParam.intPrm[0] = 1;
 				pFunc_SendIpc(changeSensor, gIpcParam.intPrm, 4);	
+				printf("send sensor  1 \n");
 			}
 			else if(m_rcvBuf[2] == 0x2)
 			{
 				gIpcParam.intPrm[0] = 2;
 				pFunc_SendIpc(changeSensor, gIpcParam.intPrm, 4);
+				printf("send sensor  2 \n");
 			}
 		}
 
@@ -236,11 +237,13 @@ void C803COM::parsing()
 			{
 				gIpcParam.intPrm[0] = 0;
 				pFunc_SendIpc(trk,gIpcParam.intPrm,4);
+				printf("trk open \n");
 			}
 			else if(m_rcvBuf[3] == 0x2)
 			{
 				gIpcParam.intPrm[0] = 1;
 				pFunc_SendIpc(trk,gIpcParam.intPrm,4);	
+				printf("trk close \n");
 			}
 		}
 
@@ -250,11 +253,13 @@ void C803COM::parsing()
 			{
 				gIpcParam.intPrm[0] = 1;
 				pFunc_SendIpc(mtd, gIpcParam.intPrm, 4);
+				printf("mtd open \n");
 			}
 			else if(m_rcvBuf[4] == 0x2)
 			{
 				gIpcParam.intPrm[0] = 0;
 				pFunc_SendIpc(mtd, gIpcParam.intPrm, 4);
+				printf("mtd close \n");
 			}		
 		}
 
@@ -264,6 +269,7 @@ void C803COM::parsing()
 			{
 				gIpcParam.intPrm[0] = m_rcvBuf[5];
 				pFunc_SendIpc(trkMtdId, gIpcParam.intPrm, 4);
+				printf("trk mtd id = %d \n" , gIpcParam.intPrm[0]);
 			}	
 		}
 
@@ -274,6 +280,7 @@ void C803COM::parsing()
 				m_trktime = m_rcvBuf[6];
 				pFunc_SendIpc(settrktime, gIpcParam.intPrm, 4);
 				saveTrktime();
+				printf("trk time : %d \n", m_trktime);
 			}	
 		}
 				
