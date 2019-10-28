@@ -25,7 +25,7 @@ public:
 	void sendtrkerr(int chid,int status,float errx,float erry,int rendercount);
 	void getExtcmd();
 	static void* runUpExtcmd(void*);
-
+	void sendmtdprm(IPC_MTD_COORD_T inPrm);
 
 protected:
 	void packageSendbaseData();
@@ -35,12 +35,16 @@ protected:
 	void calcCheckNum();
 	int readtrktime();
 	void saveTrktime();
+	void calcCheckNumMtdprm();
+
+
 
 private:
 	CPortInterface* pCom1,*pCom2;
 	int com1fd,com2fd;
 	unsigned char m_senddata[12];
 	unsigned char m_recvdata[1024];
+	unsigned char m_sendMtdPrm[26];
 
 	bool existRecvThread;
 	OSA_MutexHndl m_com1mutex;

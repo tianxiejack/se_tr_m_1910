@@ -116,7 +116,7 @@ void *CEventManager::thread_ipcEvent(void *p)
 	int cfgid = -1;
 	while(!pThis->exit_ipcthread)
 	{
-		cfgid = pThis->m_ipc->IPCRecvMsg(NULL);
+		cfgid = pThis->m_ipc->IPCRecvMsg(&pThis->m_mtdcoord);
 		switch(cfgid)
 		{
 			case CFGID_RTS_mainch:
@@ -170,6 +170,10 @@ void *CEventManager::thread_ipcEvent(void *p)
 
 			case CFGID_RTS_mtddet:	
 					pThis->_StateManager->_state->mtdhandle(pThis->cfg_value[CFGID_RTS_mtddet]);
+				break;
+
+			case MTDCORRDPARAM:
+					pThis->m_803uart->sendmtdprm(pThis->m_mtdcoord);
 				break;
 
 			default:

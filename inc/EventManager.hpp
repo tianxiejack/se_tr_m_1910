@@ -114,7 +114,8 @@ public:
 	
 	C803COM* m_803uart;
 	OSA_ThrHndl m_803rcvhandl;
-	
+
+	IPC_MTD_COORD_T m_mtdcoord;
 	static int sendIpcMsgFunc(CMD_ID cmd, void* prm, int len);
 	
 };

@@ -8,6 +8,7 @@
 #include "803uart.h"
 #include <math.h>
 #include <opencv2/core/core.hpp>
+#include "ipc_custom_head.hpp"
 
 using namespace cv;
 
@@ -368,4 +369,44 @@ void C803COM::saveTrktime()
 		fclose(fp);
 		status  = 0;
 	}	
+}
+
+
+void C803COM::sendmtdprm(IPC_MTD_COORD_T inPrm)
+{
+	memset(m_sendMtdPrm,0,sizeof(m_sendMtdPrm));
+
+	m_sendMtdPrm[0] = 0xEB;
+	m_sendMtdPrm[1] = 0x55;
+	m_sendMtdPrm[2] = inPrm.chid;
+
+	for(int i=0 ; i< 5; i++)
+	{
+		m_sendMtdPrm[3+i*4+0] = (inPrm.target[i].x>>8)&(0xff);
+		m_sendMtdPrm[3+i*4+1] = (inPrm.target[i].x)&(0xff);
+	
+		m_sendMtdPrm[3+i*4+2] = (inPrm.target[i].y>>8)&(0xff);
+		m_sendMtdPrm[3+i*4+3] = (inPrm.target[i].y)&(0xff);
+	}
+	calcCheckNumMtdprm();
+	
+	m_sendMtdPrm[24] = 0x0D;
+	m_sendMtdPrm[25] = 0x0A;	
+
+	OSA_mutexLock(&m_com1mutex);
+	pCom1->csend(com1fd, m_senddata, sizeof(m_senddata));
+	OSA_mutexUnlock(&m_com1mutex);
+
+	return;	
+}
+
+void C803COM::calcCheckNumMtdprm()
+{
+	int sum = 0;
+	for(int i=3;i<=24;i++)
+		sum += m_sendMtdPrm[i-1];
+
+	m_sendMtdPrm[24] = sum&(0xff);
+
+	return;	
 }

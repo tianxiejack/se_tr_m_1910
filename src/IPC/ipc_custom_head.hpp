@@ -43,6 +43,7 @@ typedef enum
 	changeSensor,
 	trkMtdId,
 	settrktime,
+	sendMtdcoord,
 	
 	read_shm_config,
 	read_shm_block,
@@ -105,6 +106,19 @@ typedef enum{
 	cursor_left,
 	cursor_right,
 }josDir;
+
+
+typedef struct
+{
+	unsigned int x;
+	unsigned int y;
+}IPC_PIXEL_T;
+
+typedef struct
+{
+	int chid;
+	IPC_PIXEL_T target[5];
+}IPC_MTD_COORD_T;
 
 
 typedef struct

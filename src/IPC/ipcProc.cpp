@@ -90,7 +90,10 @@ int CIPCProc::IPCRecvMsg(void* prm)
 					return (CFGID_RTS_mtddet);
 			}		
 			break;
-		
+		case sendMtdcoord:
+			memcpy(prm , pIn , sizeof(IPC_MTD_COORD_T));
+			return (MTDCORRDPARAM);
+			break;
 
 		default:
 			break;
