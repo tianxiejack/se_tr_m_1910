@@ -408,10 +408,10 @@ void C803COM::sendmtdprm(IPC_MTD_COORD_T inPrm)
 void C803COM::calcCheckNumMtdprm()
 {
 	int sum = 0;
-	for(int i=3;i<=24;i++)
+	for(int i=3;i<=23;i++)
 		sum += m_sendMtdPrm[i-1];
 
-	m_sendMtdPrm[24] = sum&(0xff);
+	m_sendMtdPrm[23] = sum&(0xff);
 
 	return;	
 }
