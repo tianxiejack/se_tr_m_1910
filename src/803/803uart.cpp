@@ -222,13 +222,13 @@ void C803COM::parsing()
 			{
 				gIpcParam.intPrm[0] = 1;
 				pFunc_SendIpc(changeSensor, gIpcParam.intPrm, 4);	
-				printf("send sensor  1 \n");
+				//printf("send sensor  1 \n");
 			}
 			else if(m_rcvBuf[2] == 0x2)
 			{
 				gIpcParam.intPrm[0] = 2;
 				pFunc_SendIpc(changeSensor, gIpcParam.intPrm, 4);
-				printf("send sensor  2 \n");
+				//printf("send sensor  2 \n");
 			}
 		}
 
@@ -238,13 +238,13 @@ void C803COM::parsing()
 			{
 				gIpcParam.intPrm[0] = 0;
 				pFunc_SendIpc(trk,gIpcParam.intPrm,4);
-				printf("trk open \n");
+				//printf("trk open \n");
 			}
 			else if(m_rcvBuf[3] == 0x2)
 			{
 				gIpcParam.intPrm[0] = 1;
 				pFunc_SendIpc(trk,gIpcParam.intPrm,4);	
-				printf("trk close \n");
+				//printf("trk close \n");
 			}
 		}
 
@@ -254,13 +254,13 @@ void C803COM::parsing()
 			{
 				gIpcParam.intPrm[0] = 1;
 				pFunc_SendIpc(mtd, gIpcParam.intPrm, 4);
-				printf("mtd open \n");
+				//printf("mtd open \n");
 			}
 			else if(m_rcvBuf[4] == 0x2)
 			{
 				gIpcParam.intPrm[0] = 0;
 				pFunc_SendIpc(mtd, gIpcParam.intPrm, 4);
-				printf("mtd close \n");
+				//printf("mtd close \n");
 			}		
 		}
 
@@ -270,7 +270,7 @@ void C803COM::parsing()
 			{
 				gIpcParam.intPrm[0] = m_rcvBuf[5];
 				pFunc_SendIpc(trkMtdId, gIpcParam.intPrm, 4);
-				printf("trk mtd id = %d \n" , gIpcParam.intPrm[0]);
+				//printf("trk mtd id = %d \n" , gIpcParam.intPrm[0]);
 			}	
 		}
 
@@ -281,11 +281,10 @@ void C803COM::parsing()
 				m_trktime = m_rcvBuf[6];
 				pFunc_SendIpc(settrktime, gIpcParam.intPrm, 4);
 				saveTrktime();
-				printf("trk time : %d \n", m_trktime);
+				//printf("trk time : %d \n", m_trktime);
 			}	
 		}
 				
-
 	}
 	else
 		printf("%s,%d, checksum error:,cal is %02x,recv is %02x\n",__FILE__,__LINE__,checkSum,((m_rcvBuf[5]<<8)|m_rcvBuf[6]));
