@@ -26,6 +26,9 @@ int main()
 		tmp.tv_sec = 30;
 		tmp.tv_usec = 0;
 		select(0, NULL, NULL, NULL, &tmp);
+
+		//eventManager->m_ipc->IPCSendMsg(changeSensor, 0,0);
+		//printf("send IPC changeSensor \n");
 	}
 
 	OSA_thrDelete(&parsing.jsEvent_thid);

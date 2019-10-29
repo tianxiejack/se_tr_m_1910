@@ -374,11 +374,16 @@ void C803COM::saveTrktime()
 
 void C803COM::sendmtdprm(IPC_MTD_COORD_T inPrm)
 {
+				
 	memset(m_sendMtdPrm,0,sizeof(m_sendMtdPrm));
 
 	m_sendMtdPrm[0] = 0xEB;
 	m_sendMtdPrm[1] = 0x55;
-	m_sendMtdPrm[2] = inPrm.chid;
+
+	if(inPrm.chid == 4)
+		m_sendMtdPrm[2] = 0x0;
+	else
+		m_sendMtdPrm[2] = 0x1;
 
 	for(int i=0 ; i< 5; i++)
 	{
@@ -394,7 +399,7 @@ void C803COM::sendmtdprm(IPC_MTD_COORD_T inPrm)
 	m_sendMtdPrm[25] = 0x0A;	
 
 	OSA_mutexLock(&m_com1mutex);
-	pCom1->csend(com1fd, m_senddata, sizeof(m_senddata));
+	pCom1->csend(com1fd, m_sendMtdPrm, sizeof(m_sendMtdPrm));
 	OSA_mutexUnlock(&m_com1mutex);
 
 	return;	

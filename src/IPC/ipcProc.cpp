@@ -29,6 +29,7 @@ int CIPCProc::IPCSendMsg(CMD_ID cmd, void* prm, int len)
 
 	pthread_mutex_lock(&mutex);
 	ipc_sendmsg(IPC_TOIMG_MSG ,&sendData);
+	ipc_sendmsg(IPC_TOIMG_MSG ,&sendData);
 	pthread_mutex_unlock(&mutex);
 
 	return 0;
@@ -91,10 +92,12 @@ int CIPCProc::IPCRecvMsg(void* prm)
 			}		
 			break;
 		case sendMtdcoord:
-			memcpy(prm , pIn , sizeof(IPC_MTD_COORD_T));
+		{
+			IPC_MTD_COORD_T * ptmp = (IPC_MTD_COORD_T*)prm;
+			memcpy(ptmp , pIn , sizeof(IPC_MTD_COORD_T));
 			return (MTDCORRDPARAM);
 			break;
-
+		}
 		default:
 			break;
 	}
