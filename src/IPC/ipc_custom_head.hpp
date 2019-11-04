@@ -34,21 +34,25 @@ typedef enum
 	mtdSelect,
 	sectrk,
 	posmove,
-	workmode,
-	Iris,
-	focus,
-	exit_IrisAndFocus,
-	exit_img,
+
+	read_shm_config,
+	read_shm_block,
+	read_shm_single,
+	read_shm_usrosd,
 
 	changeSensor,
 	trkMtdId,
 	settrktime,
 	sendMtdcoord,
-	
-	read_shm_config,
-	read_shm_block,
-	read_shm_single,
-	read_shm_usrosd,
+
+	mmt,
+	mmtselect,
+
+	workmode,
+	Iris,
+	focus,
+	exit_IrisAndFocus,
+	exit_img,
 }CMD_ID;
 
 
