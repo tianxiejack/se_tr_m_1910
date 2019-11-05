@@ -275,6 +275,19 @@ int C803COM::parsingComEvent()
 				gIpcParam.intPrm[0] = rcvBufQue.at(5);
 				pFunc_SendIpc(posemovestep, gIpcParam.intPrm, 4);
 				break;
+
+			case 0x20:
+				gIpcParam.intPrm[0] = rcvBufQue.at(5);
+				pFunc_SendIpc(mtd, gIpcParam.intPrm, 4);
+				break;
+
+			case 0x21:
+				if(rcvBufQue.at(5) >= 0x1 && rcvBufQue.at(5) <= 0x5 )
+				{
+					gIpcParam.intPrm[0] = rcvBufQue.at(5);
+					pFunc_SendIpc(trkMtdId, gIpcParam.intPrm, 4);
+				}
+				break;
 				
         		default:
            			 printf("INFO: Unknow  Control Command, please check!!!\r\n ");
