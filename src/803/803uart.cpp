@@ -141,7 +141,7 @@ void C803COM::findValidData(unsigned char *tmpRcvBuff, int sizeRcv)
 {
 	unsigned int uartdata_pos = 0;
 	unsigned char frame_head[]={0xAA, 0x55};
-
+	
 	static struct data_buf
 	{
 		unsigned int len;
@@ -150,51 +150,157 @@ void C803COM::findValidData(unsigned char *tmpRcvBuff, int sizeRcv)
 		unsigned char buf[1024];
 	}swap_data = {0, 0, 0,{0}};
 
+	uartdata_pos = 0;
 	if(sizeRcv>0)
 	{
 		for(int j=0;j<sizeRcv;j++)
 		{
-			printf("@@@ %02x ",tmpRcvBuff[j]);
+			printf("%02x ",tmpRcvBuff[j]);
 		}
 		printf("\n");
 
-		while (uartdata_pos < sizeRcv)
+		while (uartdata_pos< sizeRcv)
 		{
-			if((0 == swap_data.reading) || (2 == swap_data.reading))
-			{
-				if(frame_head[swap_data.len] == tmpRcvBuff[uartdata_pos])
-				{
-					swap_data.buf[swap_data.pos++] =  tmpRcvBuff[uartdata_pos++];
-					swap_data.len++;
-					swap_data.reading = 2;
-					if(swap_data.len == sizeof(frame_head)/sizeof(char))
-							swap_data.reading = 1;
-				}
-				else
-				{
-					uartdata_pos++;
-					if(2 == swap_data.reading)
-						memset(&swap_data, 0, sizeof(struct data_buf));
-				}
+	        		if((0 == swap_data.reading) || (2 == swap_data.reading))
+	       		{
+	            			if(frame_head[swap_data.len] == tmpRcvBuff[uartdata_pos])
+	            			{
+	                			swap_data.buf[swap_data.pos++] =  tmpRcvBuff[uartdata_pos++];
+	                			swap_data.len++;
+	                			swap_data.reading = 2;
+	                			if(swap_data.len == sizeof(frame_head)/sizeof(char))
+	                    				swap_data.reading = 1;
+	            			}
+		           		 else
+		            		{
+		                		uartdata_pos++;
+		                		if(2 == swap_data.reading)
+		                    		memset(&swap_data, 0, sizeof(struct data_buf));
+		            		}
 			}
-			else if(1 == swap_data.reading)
+		        	else if(1 == swap_data.reading)
 			{
 				swap_data.buf[swap_data.pos++] = tmpRcvBuff[uartdata_pos++];
 				swap_data.len++;
-				if(swap_data.len == m_cmdlength)
+				if(swap_data.len>=4)
 				{
-					for(int i=0;i<swap_data.len;i++)
+					if(swap_data.len==((swap_data.buf[2]|(swap_data.buf[3]<<8))+5))
 					{
-						m_rcvBuf.push_back(swap_data.buf[i]);
+
+						for(int i=0;i<swap_data.len;i++)
+						{
+							rcvBufQue.push_back(swap_data.buf[i]);
+						}
+						parsingComEvent();
+						memset(&swap_data, 0, sizeof(struct data_buf));
 					}
-					parsing();
-					memset(&swap_data, 0, sizeof(struct data_buf));					
 				}
 			}
 		}
 	}
-	return;
 }
+
+
+int C803COM::parsingComEvent()
+{
+	int ret =  -1;
+	int cmdLength= (rcvBufQue.at(2)|rcvBufQue.at(3)<<8)+5;
+	int block, field;
+	float value;
+	unsigned char tempbuf[4];
+	unsigned char contentBuff[128]={0};
+
+	if(cmdLength<6)
+	{
+        	printf("Warning::Invaild frame\r\n");
+        	rcvBufQue.erase(rcvBufQue.begin(),rcvBufQue.begin()+cmdLength);
+        	return ret;
+    	}
+    	unsigned char checkSum = recvcheck_sum(cmdLength);
+
+    	if(checkSum== rcvBufQue.at(cmdLength-1))
+    	{	
+    		switch(rcvBufQue.at(4))
+    		{
+            		case 0x01:
+				gIpcParam.intPrm[0] = rcvBufQue.at(5);
+				pFunc_SendIpc(changeSensor, gIpcParam.intPrm, 4);
+				break;
+
+			 case 0x02:
+				gIpcParam.intPrm[0] = rcvBufQue.at(5);
+				pFunc_SendIpc(trk,gIpcParam.intPrm,4);	
+				break;
+
+			case 0x03:
+				m_trktime = rcvBufQue.at(5);
+				gIpcParam.intPrm[0] = m_trktime;
+				pFunc_SendIpc(settrktime, gIpcParam.intPrm, 4);
+				saveTrktime();
+				break;
+
+			case 0x04:
+				gIpcParam.intPrm[0] = rcvBufQue.at(5);
+				pFunc_SendIpc(mmt, gIpcParam.intPrm, 4);
+				break;
+
+			case 0x05:
+				{
+					IPC_PIXEL_T tmp;
+					tmp.x = rcvBufQue.at(5) |(rcvBufQue.at(6) << 8);
+					tmp.y = rcvBufQue.at(7) |(rcvBufQue.at(8) << 8);
+					pFunc_SendIpc(mmtcoord, &tmp, sizeof(IPC_PIXEL_T));
+				}
+				break;
+
+			case 0x06:
+				{
+					IPC_PIXEL_T tmp;
+					int trkmove = rcvBufQue.at(5);
+					int x,y;
+					if(trkmove&(0x1<<0))
+						tmp.x = 0x1;
+					else if(trkmove & (0x1<<1))
+						tmp.x = 0x2;
+
+					if(trkmove&(0x1<<2))
+						tmp.y = 0x1;
+					else if(trkmove & (0x1<<3))
+						tmp.y = 0x2;
+					pFunc_SendIpc(posmove, &tmp, sizeof(IPC_PIXEL_T));
+				}
+				break;
+
+			case 0x07:
+				gIpcParam.intPrm[0] = rcvBufQue.at(5);
+				pFunc_SendIpc(posemovestep, gIpcParam.intPrm, 4);
+				break;
+				
+        		default:
+           			 printf("INFO: Unknow  Control Command, please check!!!\r\n ");
+            			ret =0;
+            			break;
+   		 }
+    	}
+    	else
+		printf("%s,%d, checksum error:,cal is %02x,recv is %02x\n",__FILE__,__LINE__,checkSum,rcvBufQue.at(cmdLength-1));
+		
+	rcvBufQue.erase(rcvBufQue.begin(),rcvBufQue.begin()+cmdLength);
+	return 1;
+
+}
+
+
+unsigned char C803COM::recvcheck_sum(int len_t)
+{
+    unsigned char cksum = 0;
+    for(int n=4; n<len_t-1; n++)
+    {
+        cksum ^= rcvBufQue.at(n);
+    }
+    return  cksum;
+}
+
 
 unsigned int C803COM::recvcheck_sum()
 {
@@ -276,13 +382,44 @@ void C803COM::parsing()
 
 		if(m_rcvBuf[6] != 0x0)
 		{
-			if(m_rcvBuf[6] >= 0x1 && m_rcvBuf[6] <= 0xa )
+			if(m_rcvBuf[6] >= 0x0 && m_rcvBuf[6] <= 0xa )
 			{
 				m_trktime = m_rcvBuf[6];
+				gIpcParam.intPrm[0] = m_trktime;
 				pFunc_SendIpc(settrktime, gIpcParam.intPrm, 4);
 				saveTrktime();
 				//printf("trk time : %d \n", m_trktime);
 			}	
+		}
+
+
+		if(0)//mmtopenclose
+		{
+			if(m_rcvBuf[4] == 0x1)
+			{
+				gIpcParam.intPrm[0] = 1;
+				pFunc_SendIpc(mmt, gIpcParam.intPrm, 4);
+				//printf("mmt open \n");
+			}
+			else if(m_rcvBuf[4] == 0x2)
+			{
+				gIpcParam.intPrm[0] = 0;
+				pFunc_SendIpc(mmt, gIpcParam.intPrm, 4);
+				//printf("mmt close \n");
+			}		
+		}
+		
+		if(0)//mmtcoord
+		{
+			IPC_PIXEL_T tmp;
+			tmp.x = 920;
+			tmp.y = 540;
+			pFunc_SendIpc(mmtcoord,&tmp,sizeof(IPC_PIXEL_T));	
+		}
+
+		if(0)
+		{
+			
 		}
 				
 	}

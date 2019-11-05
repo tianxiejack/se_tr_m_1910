@@ -36,7 +36,8 @@ protected:
 	int readtrktime();
 	void saveTrktime();
 	void calcCheckNumMtdprm();
-
+	int parsingComEvent();
+	unsigned char recvcheck_sum(int len_t);
 
 
 private:
@@ -52,6 +53,9 @@ private:
 	int m_cmdlength;
 	unsigned int m_trktime;
 	sendIpcMsgCallback pFunc_SendIpc;
+
+	std::vector<unsigned char>  rcvBufQue;
+
 };
 
 
