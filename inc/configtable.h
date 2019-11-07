@@ -41,6 +41,7 @@ enum devvideo{
 #define min_height_ratio 	0.2
 #define max_height_ratio 	0.8
 #define MTDCORRDPARAM 2000
+#define MMTCORRDPARAM 2001
 
 extern int vcapWH[5][2];
 extern int vdisWH[5][2];

@@ -92,12 +92,20 @@ int CIPCProc::IPCRecvMsg(void* prm)
 			}		
 			break;
 		case sendMtdcoord:
-		{
-			IPC_MTD_COORD_T * ptmp = (IPC_MTD_COORD_T*)prm;
-			memcpy(ptmp , pIn , sizeof(IPC_MTD_COORD_T));
-			return (MTDCORRDPARAM);
+			{
+				IPC_MTD_COORD_T * ptmp = (IPC_MTD_COORD_T*)prm;
+				memcpy(ptmp , pIn , sizeof(IPC_MTD_COORD_T));
+				return (MTDCORRDPARAM);
+				
+			}
 			break;
-		}
+		case mmtcoord:
+			{
+				IPC_MTD_COORD_T * ptmp = (IPC_MTD_COORD_T*)prm;
+				memcpy(ptmp , pIn , sizeof(IPC_MTD_COORD_T));
+				return (MMTCORRDPARAM);	
+			}
+			break;
 		default:
 			break;
 	}

@@ -176,6 +176,10 @@ void *CEventManager::thread_ipcEvent(void *p)
 					pThis->m_803uart->sendmtdprm(pThis->m_mtdcoord);
 				break;
 
+			case MMTCORRDPARAM:
+					pThis->m_803uart->sendmtdprm(pThis->m_mtdcoord);
+				break;
+
 			default:
 				break;
 		}

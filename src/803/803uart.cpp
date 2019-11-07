@@ -185,7 +185,7 @@ void C803COM::findValidData(unsigned char *tmpRcvBuff, int sizeRcv)
 				swap_data.len++;
 				if(swap_data.len>=4)
 				{
-					if(swap_data.len==((swap_data.buf[2]|(swap_data.buf[3]<<8))+5))
+					if(swap_data.len==((swap_data.buf[2]<<8)|(swap_data.buf[3])+5))
 					{
 
 						for(int i=0;i<swap_data.len;i++)
