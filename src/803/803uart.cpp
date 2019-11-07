@@ -233,6 +233,7 @@ int C803COM::parsingComEvent()
 					printf(" changeSensor  to  TV \n");
 				else
 					printf(" changeSensor  to   INVALID \n");
+				
 				break;
 
 			 case 0x02:
@@ -245,7 +246,7 @@ int C803COM::parsingComEvent()
 					printf(" trk  to  enable \n");
 				else
 					printf(" trk  , invalid  \n");
-
+				
 				break;
 
 			case 0x03:
@@ -259,6 +260,8 @@ int C803COM::parsingComEvent()
 				}
 				else
 					printf("settrktime    invalid \n");
+				
+				break;
 
 			case 0x04:
 				gIpcParam.intPrm[0] = rcvBufQue.at(5);
@@ -321,7 +324,6 @@ int C803COM::parsingComEvent()
 				printf("set posemovestep %d \n" ,  rcvBufQue.at(5));				
 				break;
 
-
 			case 0x08:
 				gIpcParam.intPrm[0] = rcvBufQue.at(5);
 				pFunc_SendIpc(mtd, gIpcParam.intPrm, 4);
@@ -344,7 +346,7 @@ int C803COM::parsingComEvent()
 				break;
 				
         		default:
-           			 printf("INFO: Unknow  Control Command, please check!!!\r\n ");
+           			printf("INFO: Unknow  Control Command, please check!!!\r\n ");
             			ret =0;
             			break;
    		 }
