@@ -322,17 +322,25 @@ int C803COM::parsingComEvent()
 				break;
 
 
-			case 0x20:
+			case 0x08:
 				gIpcParam.intPrm[0] = rcvBufQue.at(5);
 				pFunc_SendIpc(mtd, gIpcParam.intPrm, 4);
+				printf("mtd %d \n" ,  rcvBufQue.at(5));
 				break;
 
-			case 0x21:
+			case 0x09:
 				if(rcvBufQue.at(5) >= 0x1 && rcvBufQue.at(5) <= 0x5 )
 				{
 					gIpcParam.intPrm[0] = rcvBufQue.at(5);
 					pFunc_SendIpc(trkMtdId, gIpcParam.intPrm, 4);
+					printf("mtdId %d \n" ,  rcvBufQue.at(5));
 				}
+				break;
+
+			case 0x0a:
+				gIpcParam.intPrm[0] = rcvBufQue.at(5);
+				pFunc_SendIpc(enh, gIpcParam.intPrm, 4);
+				printf("enh  %d \n" ,  rcvBufQue.at(5));
 				break;
 				
         		default:
