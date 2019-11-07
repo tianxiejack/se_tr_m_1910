@@ -185,7 +185,7 @@ void C803COM::findValidData(unsigned char *tmpRcvBuff, int sizeRcv)
 				swap_data.len++;
 				if(swap_data.len>=4)
 				{
-					if(swap_data.len==((swap_data.buf[2]<<8)|(swap_data.buf[3])+5))
+					if(swap_data.len==(((swap_data.buf[2]<<8)|(swap_data.buf[3]))+5))
 					{
 
 						for(int i=0;i<swap_data.len;i++)
@@ -205,7 +205,7 @@ void C803COM::findValidData(unsigned char *tmpRcvBuff, int sizeRcv)
 int C803COM::parsingComEvent()
 {
 	int ret =  -1;
-	int cmdLength= (rcvBufQue.at(2)|rcvBufQue.at(3)<<8)+5;
+	int cmdLength= (rcvBufQue.at(2)<<8 | rcvBufQue.at(3))+5;
 	int block, field;
 	float value;
 	unsigned char tempbuf[4];
@@ -275,8 +275,8 @@ int C803COM::parsingComEvent()
 			case 0x05:
 				{
 					IPC_PIXEL_T tmp;
-					tmp.x = rcvBufQue.at(5) |(rcvBufQue.at(6) << 8);
-					tmp.y = rcvBufQue.at(7) |(rcvBufQue.at(8) << 8);
+					tmp.x = (rcvBufQue.at(5) << 8) | rcvBufQue.at(6) ;
+					tmp.y = (rcvBufQue.at(7) << 8) | rcvBufQue.at(8);
 					pFunc_SendIpc(mmtcoord, &tmp, sizeof(IPC_PIXEL_T));
 					printf("mmtcoord  x,y : (%d , %d ) \n" , tmp.x , tmp.y );
 				}
