@@ -287,7 +287,7 @@ int C803COM::parsingComEvent()
 
 			case 0x06:
 				{
-					IPC_PIXEL_T tmp;
+					IPC_PIXEL_T tmp = {0};
 					int trkmove = rcvBufQue.at(5);
 					int x,y;
 					if(trkmove&(0x1<<0))
