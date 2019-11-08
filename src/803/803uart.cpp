@@ -226,27 +226,11 @@ int C803COM::parsingComEvent()
             		case 0x01:
 				gIpcParam.intPrm[0] = rcvBufQue.at(5);
 				pFunc_SendIpc(changeSensor, gIpcParam.intPrm, 4);
-
-				if(rcvBufQue.at(5) == 0)
-					printf(" changeSensor  to  PAL \n");
-				else if(rcvBufQue.at(5) == 1)
-					printf(" changeSensor  to  TV \n");
-				else
-					printf(" changeSensor  to   INVALID \n");
-				
 				break;
 
 			 case 0x02:
 				gIpcParam.intPrm[0] = rcvBufQue.at(5);
 				pFunc_SendIpc(trk,gIpcParam.intPrm,4);	
-
-				if(rcvBufQue.at(5) == 0)
-					printf(" trk  to  disable \n");
-				else if(rcvBufQue.at(5) == 1)
-					printf(" trk  to  enable \n");
-				else
-					printf(" trk  , invalid  \n");
-				
 				break;
 
 			case 0x03:
@@ -256,23 +240,12 @@ int C803COM::parsingComEvent()
 					gIpcParam.intPrm[0] = m_trktime;
 					pFunc_SendIpc(settrktime, gIpcParam.intPrm, 4);
 					saveTrktime();
-					printf("settrktime    :%d \n" , m_trktime);
-				}
-				else
-					printf("settrktime    invalid \n");
-				
+				}		
 				break;
 
 			case 0x04:
 				gIpcParam.intPrm[0] = rcvBufQue.at(5);
 				pFunc_SendIpc(mmt, gIpcParam.intPrm, 4);
-				
-				if(rcvBufQue.at(5) == 0)
-					printf(" mmt  to  disable \n");
-				else if(rcvBufQue.at(5) == 1)
-					printf(" mmt  to  enable \n");
-				else
-					printf(" mmt  , invalid  \n");
 				break;
 
 			case 0x05:
@@ -281,7 +254,6 @@ int C803COM::parsingComEvent()
 					tmp.x = (rcvBufQue.at(5) << 8) | rcvBufQue.at(6) ;
 					tmp.y = (rcvBufQue.at(7) << 8) | rcvBufQue.at(8);
 					pFunc_SendIpc(mmtcoord, &tmp, sizeof(IPC_PIXEL_T));
-					printf("mmtcoord  x,y : (%d , %d ) \n" , tmp.x , tmp.y );
 				}
 				break;
 
@@ -300,49 +272,38 @@ int C803COM::parsingComEvent()
 					else if(trkmove & (0x1<<3))
 						tmp.y = 0x2;
 					pFunc_SendIpc(posmove, &tmp, sizeof(IPC_PIXEL_T));
-				
-					printf("posmove :   ");
-					if(tmp.x == 0x1)
-						printf(" x move  left       ;");
-					else if(tmp.x == 0x2)
-						printf(" x move  right       ;");
-					else
-						printf(" x don't move       ;");
-
-					if(tmp.y == 0x1)
-						printf(" y move  up       ;");
-					else if(tmp.y == 0x2)
-						printf(" y move  down       ;");
-					else
-						printf(" y don't move       ;");
 				}
 				break;
 
 			case 0x07:
 				gIpcParam.intPrm[0] = rcvBufQue.at(5);
 				pFunc_SendIpc(posemovestep, gIpcParam.intPrm, 4);
-				printf("set posemovestep %d \n" ,  rcvBufQue.at(5));				
 				break;
 
 			case 0x08:
 				gIpcParam.intPrm[0] = rcvBufQue.at(5);
 				pFunc_SendIpc(mtd, gIpcParam.intPrm, 4);
-				printf("mtd %d \n" ,  rcvBufQue.at(5));
 				break;
 
 			case 0x09:
-				if(rcvBufQue.at(5) >= 0x1 && rcvBufQue.at(5) <= 0x5 )
+				/*if(rcvBufQue.at(5) >= 0x1 && rcvBufQue.at(5) <= 0x5 )
 				{
 					gIpcParam.intPrm[0] = rcvBufQue.at(5);
 					pFunc_SendIpc(trkMtdId, gIpcParam.intPrm, 4);
-					printf("mtdId %d \n" ,  rcvBufQue.at(5));
+				}
+				*/
+				{
+					IPC_PIXEL_T tmp;
+					tmp.x = (rcvBufQue.at(5) << 8) | rcvBufQue.at(6) ;
+					tmp.y = (rcvBufQue.at(7) << 8) | rcvBufQue.at(8);
+					pFunc_SendIpc(sendMtdcoord, &tmp, sizeof(IPC_PIXEL_T));
 				}
 				break;
 
 			case 0x0a:
-				gIpcParam.intPrm[0] = rcvBufQue.at(5);
-				pFunc_SendIpc(enh, gIpcParam.intPrm, 4);
-				printf("enh  %d \n" ,  rcvBufQue.at(5));
+				//gIpcParam.intPrm[0] = rcvBufQue.at(5);
+				//pFunc_SendIpc(enh, gIpcParam.intPrm, 4);
+				//printf("enh  %d \n" ,  rcvBufQue.at(5));
 				break;
 				
         		default:
