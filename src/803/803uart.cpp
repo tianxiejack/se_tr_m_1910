@@ -84,10 +84,7 @@ void C803COM::sendtrkerr(int chid,int status,float errx,float erry,int rendercou
 	in.x = (int)round(errx);	
 	in.y = (int)round(erry);
 	
-	if(chid == 4)		
-		memcpy(&out,&in,sizeof(IPC_PIXEL_T));	
-	else		
-		change720To1080(&in,&out);
+	memcpy(&out,&in,sizeof(IPC_PIXEL_T));	
 	
 	memset(m_senddata,0,sizeof(m_senddata));
 	m_senddata[0] = 0x55;
@@ -334,7 +331,7 @@ int C803COM::parsingComEvent()
 			case 0x0b:				
 				{					
 					IPC_PIXEL_T tmp;					
-					tmp.x = (rcvBufQue.at(5) << 8) | rcvBufQue.at(6) ;					
+					tmp.x = (rcvBufQue.at(5) << 8) | rcvBufQue.at(6);					
 					tmp.y = (rcvBufQue.at(7) << 8) | rcvBufQue.at(8);					
 					pFunc_SendIpc(sendMtdSelfCoord, &tmp, sizeof(IPC_PIXEL_T));		
 				}					
@@ -582,10 +579,11 @@ void C803COM::saveTrktime()
 
 void C803COM::sendmtdprm(IPC_MTD_COORD_T inPrm)
 {
-	IPC_PIXEL_T tmp[5];
+	IPC_PIXEL_T tmp[10];
+	
 	if(inPrm.chid == 4)
 	{
-		for(int i=0 ;i<5 ; i++)	
+		for(int i=0 ;i<10 ; i++)	
 			change720To1080(&inPrm.target[i],&tmp[i]);
 	}		
 
@@ -600,7 +598,7 @@ void C803COM::sendmtdprm(IPC_MTD_COORD_T inPrm)
 	else
 		m_sendMtdPrm[2] = 0x1;
 
-	for(int i=0 ; i< 5; i++)
+	for(int i=0 ; i< 10; i++)
 	{
 		m_sendMtdPrm[3+i*4+0] = (tmp[i].x>>8)&(0xff);
 		m_sendMtdPrm[3+i*4+1] = (tmp[i].x)&(0xff);
@@ -610,8 +608,8 @@ void C803COM::sendmtdprm(IPC_MTD_COORD_T inPrm)
 	}
 	calcCheckNumMtdprm();
 	
-	m_sendMtdPrm[24] = 0x0D;
-	m_sendMtdPrm[25] = 0x0A;	
+	m_sendMtdPrm[44] = 0x0D;
+	m_sendMtdPrm[45] = 0x0A;	
 
 	OSA_mutexLock(&m_com1mutex);
 	pCom1->csend(com1fd, m_sendMtdPrm, sizeof(m_sendMtdPrm));
@@ -626,7 +624,7 @@ void C803COM::calcCheckNumMtdprm()
 	for(int i=3;i<=23;i++)
 		sum += m_sendMtdPrm[i-1];
 
-	m_sendMtdPrm[23] = sum&(0xff);
+	m_sendMtdPrm[43] = sum&(0xff);
 
 	return;	
 }

@@ -45,7 +45,7 @@ private:
 	int com1fd,com2fd;
 	unsigned char m_senddata[12];
 	unsigned char m_recvdata[1024];
-	unsigned char m_sendMtdPrm[26];
+	unsigned char m_sendMtdPrm[46];
 
 	bool existRecvThread;
 	OSA_MutexHndl m_com1mutex;
