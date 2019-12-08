@@ -44,6 +44,8 @@ typedef enum
 	trkMtdId,
 	settrktime,
 	sendMtdcoord,
+	sendMtdSelfCoord,
+	mtdAreaClass,
 
 	mmt,
 	mmtselect,

@@ -15,6 +15,21 @@ using namespace cv;
 IPC_PRM_INT gIpcParam;
 
 static C803COM* gThis;
+
+void change1080pTo720(IPC_PIXEL_T* in,IPC_PIXEL_T* out)
+{	
+	out->x = (unsigned int)((((float)in->x)/1920)*720);	
+	out->y = (unsigned int)((((float)in->y)/1080)*576);	
+	return ;
+}
+
+void change720To1080(IPC_PIXEL_T* in,IPC_PIXEL_T* out)
+{	
+	out->x = (unsigned int)((((float)in->x)/720)*1920);	
+	out->y = (unsigned int)((((float)in->y)/576)*1080);
+	return;
+}
+
 	
 C803COM::C803COM(sendIpcMsgCallback pfunc):pCom1(NULL),pCom2(NULL),
 					existRecvThread(false),m_cmdlength(9),m_trktime(3)
@@ -64,6 +79,16 @@ void C803COM::createPort()
 void C803COM::sendtrkerr(int chid,int status,float errx,float erry,int rendercount)
 {
 	int x,y;
+
+	IPC_PIXEL_T in,out;	
+	in.x = (int)round(errx);	
+	in.y = (int)round(erry);
+	
+	if(chid == 4)		
+		memcpy(&out,&in,sizeof(IPC_PIXEL_T));	
+	else		
+		change720To1080(&in,&out);
+	
 	memset(m_senddata,0,sizeof(m_senddata));
 	m_senddata[0] = 0x55;
 	m_senddata[1] = 0xAA;
@@ -73,13 +98,13 @@ void C803COM::sendtrkerr(int chid,int status,float errx,float erry,int rendercou
 	else
 		m_senddata[2] = 0x0;
 
-	x = (int)round(errx);
+	x = out.x;
 	m_senddata[3] = (abs(x)>>8)&(0xff);
 	m_senddata[4] = abs(x)&(0xff);
 	if(x<0)
 		m_senddata[3] |= 0x80;
 
-	y = (int)round(erry);
+	y = out.y;
 	m_senddata[5] = (abs(y)>>8)&(0xff);
 	m_senddata[6] = abs(y)&(0xff);
 	if(y<0)
@@ -305,11 +330,25 @@ int C803COM::parsingComEvent()
 				//pFunc_SendIpc(enh, gIpcParam.intPrm, 4);
 				//printf("enh  %d \n" ,  rcvBufQue.at(5));
 				break;
-				
-        		default:
-           			printf("INFO: Unknow  Control Command, please check!!!\r\n ");
-            			ret =0;
-            			break;
+
+			case 0x0b:				
+				{					
+					IPC_PIXEL_T tmp;					
+					tmp.x = (rcvBufQue.at(5) << 8) | rcvBufQue.at(6) ;					
+					tmp.y = (rcvBufQue.at(7) << 8) | rcvBufQue.at(8);					
+					pFunc_SendIpc(sendMtdSelfCoord, &tmp, sizeof(IPC_PIXEL_T));		
+				}					
+				break;
+
+			case 0x0c:					
+				gIpcParam.intPrm[0] = rcvBufQue.at(5);					
+				pFunc_SendIpc(mtdAreaClass, gIpcParam.intPrm, 4);					
+				break;
+			
+    		default:
+       			printf("INFO: Unknow  Control Command, please check!!!\r\n ");
+        			ret =0;
+        			break;
    		 }
     	}
     	else
@@ -490,9 +529,12 @@ int C803COM::readtrktime()
 	}
 	else
 	{
-		printf("[ReadUartParams] Can not find YML. Please put this file into the folder of execute file\n");
-		return -1;
+		//printf("[ReadUartParams] Can not find YML. Please put this file into the folder of execute file\n");
+		printf("[ReadUartParams] Can not find YML. Set the trktime 3s \n");
+		m_trktime = 3000;
 	}
+	gIpcParam.intPrm[0] = m_trktime;
+	pFunc_SendIpc(settrktime, gIpcParam.intPrm, 4);
 	return 0;
 }
 
@@ -540,7 +582,14 @@ void C803COM::saveTrktime()
 
 void C803COM::sendmtdprm(IPC_MTD_COORD_T inPrm)
 {
-				
+	IPC_PIXEL_T tmp[5];
+	if(inPrm.chid == 4)
+	{
+		for(int i=0 ;i<5 ; i++)	
+			change720To1080(&inPrm.target[i],&tmp[i]);
+	}		
+
+	memcpy(inPrm.target,&tmp,sizeof(tmp));
 	memset(m_sendMtdPrm,0,sizeof(m_sendMtdPrm));
 
 	m_sendMtdPrm[0] = 0xEB;
@@ -553,11 +602,11 @@ void C803COM::sendmtdprm(IPC_MTD_COORD_T inPrm)
 
 	for(int i=0 ; i< 5; i++)
 	{
-		m_sendMtdPrm[3+i*4+0] = (inPrm.target[i].x>>8)&(0xff);
-		m_sendMtdPrm[3+i*4+1] = (inPrm.target[i].x)&(0xff);
+		m_sendMtdPrm[3+i*4+0] = (tmp[i].x>>8)&(0xff);
+		m_sendMtdPrm[3+i*4+1] = (tmp[i].x)&(0xff);
 	
-		m_sendMtdPrm[3+i*4+2] = (inPrm.target[i].y>>8)&(0xff);
-		m_sendMtdPrm[3+i*4+3] = (inPrm.target[i].y)&(0xff);
+		m_sendMtdPrm[3+i*4+2] = (tmp[i].y>>8)&(0xff);
+		m_sendMtdPrm[3+i*4+3] = (tmp[i].y)&(0xff);
 	}
 	calcCheckNumMtdprm();
 	
